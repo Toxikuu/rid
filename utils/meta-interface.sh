@@ -14,6 +14,7 @@ function cleanup {
       unset "$var"
     fi
   done
+  rm -rf /tmp/rid/building/$NAME-$VERS
 }
 
 function ins {
@@ -26,6 +27,8 @@ function ins {
 
 function rem {
   check_perms
+
+  echo "Executing removal instructions for $NAME-$VERS..."
   eval "$RDIR"
 }
 
