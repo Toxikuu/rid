@@ -5,7 +5,7 @@
 use crate::misc::exec;
 use crate::paths::UTILS;
 use crate::tracking::query_status;
-use crate::flags::FULL_FORCE;
+use crate::flags::{FORCE_INSTALL, FORCE_REMOVE};
 
 use crate::pr;
 
@@ -15,7 +15,7 @@ pub fn eval_install_directions(pkg_str: &str) {
             pr!(format!("Status: {}", status), 'v');
             match status {
                 "installed" => {
-                    if !*FULL_FORCE.lock().unwrap() {
+                    if !*FORCE_INSTALL.lock().unwrap() {
                         pr!(format!("Package '{}' is already installed", pkg_str));
                         return;
                     } else {
@@ -44,7 +44,7 @@ pub fn eval_removal_directions(pkg_str: &str) {
             match status {
                 "installed" => {},
                 "available" => {
-                    if !*FULL_FORCE.lock().unwrap() {
+                    if !*FORCE_REMOVE.lock().unwrap() {
                         pr!(format!("Package '{}' is not installed", pkg_str));
                         return;
                     } else {
