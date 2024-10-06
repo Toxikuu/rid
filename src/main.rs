@@ -137,8 +137,6 @@ fn main() {
             }
         }
         Args { list, .. } if list => {
-            check_perms();
-
             let _ = tracking::populate_txt();
             let _ = tracking::align('~');
             let _ = tracking::alphabetize();
