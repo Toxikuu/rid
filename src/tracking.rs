@@ -6,6 +6,8 @@ use std::collections::HashSet;
 use crate::paths::{PKGSTXT, META};
 use crate::package::form_package;
 
+use crate::pr;
+
 pub fn alphabetize() -> io::Result<()> {
     let file = File::open(&*PKGSTXT)?;
     let reader = io::BufReader::new(file);
@@ -91,7 +93,7 @@ pub fn populate_txt() -> io::Result<()> {
                 match form_package(&pkg_name) {
                     Ok(pkg) => {
                         writeln!(pkgstxt, "{}={} ~ available", pkg_name, pkg.version)?;
-                        println!("Added new package: {}={}", pkg_name, pkg.version);
+                        pr!(format!("Added new package: {}={}", pkg_name, pkg.version), 'v');
                     },
                     Err(e) => eprintln!("Failed to form package: {}", e)
                 }
@@ -116,7 +118,7 @@ pub fn remove_package(pkg_str: &str) {
         let pattern = format!("{}=", pkg_str);
 
         if line.contains(&pattern) && line.contains("~ installed") {
-            println!("Untracking package: {}", pkg_str);
+            pr!(format!("Untracking package: {}", pkg_str), 'v');
             let modified_line = line.replace("~ installed", "~ available");
             lines.push(modified_line);
             removed = true;
@@ -126,7 +128,7 @@ pub fn remove_package(pkg_str: &str) {
     }
 
     if ! removed {
-        println!("Package '{}' is already removed.", pkg_str);
+        pr!(format!("Package '{}' is already removed.", pkg_str));
     }
 
     let file = File::create(&*PKGSTXT).unwrap();
@@ -154,7 +156,7 @@ pub fn add_package(pkg_str: &str, vers: &str) {
                 installed = true;
                 lines.push(line);
             } else if line.contains("~ available") {
-                println!("Tracking package: {}", pkg_str);
+                pr!(format!("Tracking package: {}", pkg_str), 'v');
                 let modified_line = format!("{}={} ~ installed", pkg_str, vers);
                 lines.push(modified_line);
                 installed = true;
@@ -167,11 +169,11 @@ pub fn add_package(pkg_str: &str, vers: &str) {
 
 
     if modified {
-        println!("Package '{}' has been installed.", pkg_str);
+        pr!(format!("Package '{}' has been installed", pkg_str), 'v');
     } else if installed {
-        println!("Package '{}' is already installed.", pkg_str);
+        pr!(format!("Package '{}' is already installed", pkg_str), 'v');
     } else {
-        println!("Package '{}' is not available.", pkg_str);
+        pr!(format!("Package '{}' is not available", pkg_str), 'v');
     }
 
     let file = File::create(&*PKGSTXT).unwrap();
