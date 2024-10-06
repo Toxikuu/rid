@@ -22,6 +22,7 @@ function ins {
   pushd /tmp/rid/building/$NAME-$VERS > /dev/null
 
   echo "Installing $NAME-$VERS..."
+  echo -e "Running: $IDIR\n"
   eval "$IDIR"
 }
 
@@ -29,6 +30,7 @@ function rem {
   check_perms
 
   echo "Removing $NAME-$VERS..."
+  echo -e "Running: $RDIR\n"
   eval "$RDIR"
 }
 
@@ -57,6 +59,7 @@ case $1 in
       ins
     else
       echo "Updating $NAME (custom)..."
+      echo -e "Running: $UDIR\n"
       eval "$UDIR"
     fi
     cleanup
