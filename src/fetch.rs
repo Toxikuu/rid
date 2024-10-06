@@ -5,57 +5,61 @@
 
 use reqwest::blocking::get;
 use std::error::Error;
-use std::env::set_current_dir;
 use std::io::{self, Write};
 use std::fs::File;
 use std::path::Path;
 use crate::misc::exec;
 use crate::paths::{SOURCES, UTILS};
 use crate::package::Package;
-use crate::flags::{FORCE, FULL_FORCE};
+use crate::flags::{FORCE_DOWNLOAD, FORCE_INSTALL};
 use crate::tracking::query_status;
 
 use crate::pr;
 
-fn download(url: &str) -> Result<String, Box<dyn Error>> {
-    let file_name = url.split('/').last().ok_or("Invalid URL")?;
-    let file_path = SOURCES.join(file_name);
+fn download(pkg: &Package) -> Result<String, Box<dyn Error>> {
+    let url = match &pkg.link {
+        Some(url) => url,
+        _ => {
+            eprintln!("Package '{}' has no link!", pkg.name);
+            return Err("Package has no link".into());
+        }
+    };
+
+    let file_name = format!("{}-{}.tar", pkg.name, pkg.version);
+    let file_path = SOURCES.join(&file_name);
 
     if Path::new(&file_path).exists() {
-        if !*FORCE.lock().unwrap() {
-            pr!(format!("Skipping download for extant tarball '{}'", file_name));
-            return Ok(file_name.to_string())
+        if !*FORCE_DOWNLOAD.lock().unwrap() {
+            pr!(format!("Skipping download for existing tarball '{}'", file_name));
+            return Ok(file_name);
         } else {
-            pr!(format!("Forcefully redownloading extant tarball '{}'", file_name));
+            pr!(format!("Forcefully redownloading existing tarball '{}'", file_name));
         }
+    } else {
+        pr!(format!("Downloading {}", url));
     }
 
     let r = get(url)?;
     if r.status().is_success() {
         let mut file = File::create(&file_path)?;
-
         let content = r.bytes()?;
         file.write_all(&content)?;
 
-        Ok(file_name.to_string())
+        Ok(file_name)
     } else {
         Err(format!("Failed to download tarball: HTTP status {}", r.status()).into())
     }
+
 }
 
 fn extract(tarball: &str, pkg_str: &str, vers: &str) -> io::Result<()> {
-    set_current_dir(&*SOURCES).map_err(|e| {
-        eprintln!("Failed to change directory: {}", e);
-        e
-    })?;
-
     match query_status(pkg_str) {
         Ok(status) => {
             pr!(format!("Status: {}", status), 'v');
 
             match status {
                 "installed" => {
-                    if !*FULL_FORCE.lock().unwrap() {
+                    if !*FORCE_INSTALL.lock().unwrap() {
                         pr!(format!("Not extracting tarball for installed package '{}'", pkg_str));
                         return Ok(());
                     } else {
@@ -89,21 +93,16 @@ fn extract(tarball: &str, pkg_str: &str, vers: &str) -> io::Result<()> {
 }
 
 pub fn wrap(pkg: &Package) {
-    match &pkg.link {
-        Some(link) => {
-            pr!(format!("Downloading {}", link));
-            match download(link) {
-                Ok(tarball) => {
-                    match extract(&tarball, &pkg.name, &pkg.version) {
-                        Ok(()) => {
-                            pr!("Extracted tarball", 'v')
-                        },
-                        Err(e) => eprintln!("Failed to extract tarball: {}", e),
-                    }
+    match download(pkg) {
+        Ok(tarball) => {
+            pr!("Successfully downloaded tarball", 'v');
+            match extract(&tarball, &pkg.name, &pkg.version) {
+                Ok(()) => {
+                    pr!("Successfully extracted tarball", 'v');
                 },
-                Err(e) => eprintln!("Failed to download package: {}", e),
+                Err(e) => eprintln!("Failed to extract tarball: {}", e),
             }
         },
-        _ => eprintln!("Package has no link"),
+        Err(e) => eprintln!("Failed to download package: {}", e),
     }
 }
