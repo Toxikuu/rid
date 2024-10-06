@@ -3,6 +3,8 @@
 use std::collections::HashSet;
 use crate::package::{form_package, Package};
 
+use crate::pr;
+
 fn deep_deps(pkg: &Package, resolved: &mut HashSet<String>, order: &mut Vec<String>) {
     for dep in &pkg.deps {
         if !resolved.contains(dep) {
@@ -26,6 +28,6 @@ pub fn resolve_deps(pkg: &Package) -> Vec<String> {
     let mut order = Vec::new();
     deep_deps(pkg, &mut resolved, &mut order);
 
-    //println!("Resolved dependencies: {:?}", order);
+    pr!(format!("Resolved dependencies: {:?}", order), 'v');
     order
 }
