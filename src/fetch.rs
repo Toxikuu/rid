@@ -21,7 +21,7 @@ fn download(url: &str) -> Result<String, Box<dyn Error>> {
     let file_name = url.split('/').last().ok_or("Invalid URL")?;
     let file_path = SOURCES.join(file_name);
 
-    if Path::new(&file_path).exists(){
+    if Path::new(&file_path).exists() {
         if !*FORCE.lock().unwrap() {
             pr!(format!("Skipping download for extant tarball '{}'", file_name));
             return Ok(file_name.to_string())
