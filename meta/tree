@@ -8,7 +8,7 @@ LINK="https://gitlab.com/OldManProgrammer/unix-tree/-/archive/$VERS/unix-tree-$V
 IDIR=$(cat <<EOF
 
 make
-make PREFIX=/usr MANDIR=/usr/share/man install
+make PREFIX=/usr install
 
 EOF
 )
@@ -21,9 +21,5 @@ EOF
 )
 
 UDIR=$(cat <<EOF
-
-#
-echo "Awesome custom update directions"
-
 EOF
 )
