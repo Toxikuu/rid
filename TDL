@@ -1,0 +1,3 @@
+test ux
+consider only calling query_status() once
+add meta file syncing for --bootstrap (make it not overwrite existing ones)
