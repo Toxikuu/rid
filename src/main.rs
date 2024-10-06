@@ -57,9 +57,10 @@ struct Args {
 fn main() {
     let args = Args::parse();
     flags::set_flags(args.verbose, args.quiet, args.force, args.full_force);
-
     pr!(format!("Flags: verbose={}, quiet={}, force={}, full_force={}", 
                 args.verbose, args.quiet, args.force, args.full_force), 'v');
+
+    bootstrap::tmp();
 
     match args {
         Args { install_no_deps: Some(pkg), .. } => {
