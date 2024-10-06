@@ -48,7 +48,7 @@ pub fn eval_removal_directions(pkg_str: &str) {
                         pr!(format!("Package '{}' is not installed", pkg_str));
                         return;
                     } else {
-                        pr!(format!("Forcibly reinstalling package '{}'", pkg_str));
+                        pr!(format!("Forcibly removing package '{}'", pkg_str));
                     }
                 },
                 _ => {
