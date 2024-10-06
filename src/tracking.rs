@@ -1,13 +1,40 @@
 // src/tracking.rs
 
-use std::fs::{File, OpenOptions};
-use regex::Regex;
+use std::fs::{self, File, OpenOptions};
 use std::io::{self, BufRead, BufWriter, Write};
+use std::collections::HashSet;
 use crate::paths::{PKGSTXT, META};
-use crate::misc::{self, list_dir};
-use crate::package;
+use crate::package::form_package;
 
-pub fn align_tildes() -> io::Result<()> {
+pub fn alphabetize() -> io::Result<()> {
+    let file = File::open(&*PKGSTXT)?;
+    let reader = io::BufReader::new(file);
+
+    let mut lines: Vec<String> = Vec::new();
+    for line in reader.lines() {
+        lines.push(line?);
+    }
+
+    lines.sort_by(|a, b| {
+        let pkg_a = a.split('=').next().unwrap_or("").trim();
+        let pkg_b = b.split('=').next().unwrap_or("").trim();
+
+        pkg_a.cmp(pkg_b)
+    });
+
+    let mut file = OpenOptions::new()
+        .write(true)
+        .truncate(true)
+        .open(&*PKGSTXT)?;
+
+    for line in lines {
+        writeln!(file, "{}", line)?;
+    }
+
+    Ok(())
+}
+
+pub fn align(c: char) -> io::Result<()> {
     let file = File::open(&*PKGSTXT)?;
     let reader = io::BufReader::new(file);
 
@@ -16,7 +43,7 @@ pub fn align_tildes() -> io::Result<()> {
 
     for line in reader.lines() {
         let line = line?;
-        if let Some(pos) = line.find('~') {
+        if let Some(pos) = line.find(c) {
             if pos > max_tilde_pos {
                 max_tilde_pos = pos;
             }
@@ -30,9 +57,10 @@ pub fn align_tildes() -> io::Result<()> {
         .open(&*PKGSTXT)?;
 
     for line in lines {
-        if let Some(pos) = line.find('~') {
-            let padding = max_tilde_pos.saturating_sub(pos);
+        if let Some(pos) = line.find(c) {
             let (before_tilde, after_tilde) = line.split_at(pos);
+            let padding = max_tilde_pos.saturating_sub(pos);
+
             writeln!(file, "{}{}{}", before_tilde, " ".repeat(padding), after_tilde)?;
         } else {
             writeln!(file, "{}", line)?;
@@ -42,91 +70,113 @@ pub fn align_tildes() -> io::Result<()> {
     Ok(())
 }
 
-pub fn is_package_installed(string: &str, pkg_str: &str) -> bool {
-    let pattern = format!(r"{}-\d+.+~ installed", regex::escape(pkg_str));
-    let re = Regex::new(&pattern).unwrap();
-
-    re.is_match(string.trim())
-}
-
-pub fn add_package(pkg_str: &str) {
-    let path = META.to_str().expect("Invalid UTF-8");
-    match list_dir(path) {
-        Ok(files) => {
-            //println!("Files in directory '{}':", path);
-            //for file in &files {
-            //    println!("{}", file);
-            //}
-
-            if files.iter().any(|f| f.to_lowercase() == pkg_str) {
-                
-                match misc::read_file(PKGSTXT.clone()) {
-                    Ok(contents) => {
-                        //if tracked_packages.iter().any(|pkg| pkg.name.to_lowercase() == inp) {
-                        if is_package_installed(&contents, pkg_str) {
-                            println!("Package '{}' is already tracked.", pkg_str);
-                            return;
-                        }
-
-                        match package::form_package(pkg_str) {
-                            Ok(pkg) => {
-                                match package::track_package(pkg) {
-                                    Ok(()) => println!("Successfully tracked package."),
-                                    Err(e) => eprintln!("Failed to track package: {}", e),
-                                }
-
-                                match align_tildes() {
-                                    Ok(()) => println!("Successfully formatted packages.txt."),
-                                    Err(e) => eprintln!("Failed to format tracking file: {}", e),
-                                }
-                            },
-                            Err(e) => eprintln!("Failed to form package: {}", e)
-                        }
-                    },
-                    Err(e) => eprintln!("Error reading packages file: {}", e),
-                }
-            } else {
-                eprintln!("Error: '{}' not found in meta directory.", pkg_str)
-            }
-        },
-        Err(e) => eprintln!("Error reading directory: {}", e),
-    }
-}
-
-pub fn remove_package(pkg_str: &str) -> io::Result<()> {
-    let file = File::open(&*PKGSTXT)?;
+pub fn populate_txt() -> io::Result<()> {
+    let file = File::open(&*PKGSTXT).or_else(|_| File::create(&*PKGSTXT))?;
     let reader = io::BufReader::new(file);
-    let mut removed = false;
-    let mut lines: Vec<String> = Vec::new();
 
+    let mut existing_packages = HashSet::new();
     for line in reader.lines() {
-        let line = line?;
-
-        let pattern = format!("{}-", pkg_str);
-        if line.contains(&pattern) && line.contains("~ installed") {
-            println!("Untracking package: {}", pkg_str);
-            //let modified_line = line.replace("~ installed", "~ available");
-            //lines.push(modified_line);
-            removed = true;
-            continue;
+        let line_content = line?;
+        if let Some(pkg_name) = line_content.split('=').next() {
+            existing_packages.insert(pkg_name.trim().to_string());
         }
-        //} else {
-        //    lines.push(line);
-        //}
-        lines.push(line)
     }
 
-    if ! removed {
-        println!("Package '{}' not tracked.", pkg_str);
-    }
+    let mut pkgstxt = OpenOptions::new().append(true).open(&*PKGSTXT)?;
+    for entry in fs::read_dir(&*META)? {
+        if let Ok(entry) = entry {
+            let pkg_name = entry.file_name().into_string().unwrap_or_default();
 
-    let file = File::create(&*PKGSTXT)?;
-    let mut writer = BufWriter::new(file);
-
-    for line in lines {
-        writeln!(writer, "{}", line)?;
+            if !pkg_name.is_empty() && !existing_packages.contains(&pkg_name) {
+                match form_package(&pkg_name) {
+                    Ok(pkg) => {
+                        writeln!(pkgstxt, "{}={} ~ available", pkg_name, pkg.version)?;
+                        println!("Added new package: {}={}", pkg_name, pkg.version);
+                    },
+                    Err(e) => eprintln!("Failed to form package: {}", e)
+                }
+            }
+        } else {
+            eprintln!("Failed to read directory entry");
+        }
     }
 
     Ok(())
-    
+}
+
+pub fn remove_package(pkg_str: &str) {
+    let file = File::open(&*PKGSTXT).unwrap();
+    let reader = io::BufReader::new(file);
+    let mut lines: Vec<String> = Vec::new();
+    let mut removed = false;
+
+    for line in reader.lines() {
+        let line = line.unwrap();
+
+        let pattern = format!("{}=", pkg_str);
+
+        if line.contains(&pattern) && line.contains("~ installed") {
+            println!("Untracking package: {}", pkg_str);
+            let modified_line = line.replace("~ installed", "~ available");
+            lines.push(modified_line);
+            removed = true;
+        } else {
+            lines.push(line);
+        }
+    }
+
+    if ! removed {
+        println!("Package '{}' is already removed.", pkg_str);
+    }
+
+    let file = File::create(&*PKGSTXT).unwrap();
+    let mut writer = BufWriter::new(file);
+
+    for line in lines {
+        writeln!(writer, "{}", line).unwrap();
+    }
+}
+
+pub fn add_package(pkg_str: &str, vers: &str) {
+    let file = File::open(&*PKGSTXT).unwrap();
+    let reader = io::BufReader::new(file);
+    let mut lines: Vec<String> = Vec::new();
+    let mut installed = false;
+    let mut found_available = false;
+
+    for line in reader.lines() {
+        let line = line.unwrap();
+
+        let pattern = format!("{}=", pkg_str);
+
+        if line.contains(&pattern) {
+            if line.contains("~ available") {
+                println!("Tracking package: {}", pkg_str);
+                let modified_line = format!("{}={} ~ installed", pkg_str, vers);
+                lines.push(modified_line);
+                installed = true;
+                found_available = true;
+            } else if line.contains("~ installed") {
+                installed = true;
+            }
+        } else {
+            lines.push(line);
+        }
+    }
+
+
+    if installed && found_available {
+        println!("Package '{}' has been installed.", pkg_str);
+    } else if installed {
+        println!("Package '{}' is already installed.", pkg_str);
+    } else {
+        println!("Package '{}' is not available.", pkg_str);
+    }
+
+    let file = File::create(&*PKGSTXT).unwrap();
+    let mut writer = BufWriter::new(file);
+
+    for line in lines {
+        writeln!(writer, "{}", line).unwrap();
+    }
 }

@@ -1,8 +1,9 @@
 // src/misc.rs
 
-use std::io::{self, Read};
-use std::fs::{self, File};
-use std::process::{self, Command};
+use std::thread;
+use std::io::{self, BufRead, Read};
+use std::fs::File;
+use std::process::{self, Command, Stdio};
 use std::path::PathBuf;
 use whoami::username;
 
@@ -13,7 +14,15 @@ pub fn check_perms() {
     }
 }
 
-pub fn exec(command: &str) -> io::Result<String> {
+pub fn format_line(line: &str) -> String {
+    match line {
+        _ if line.contains("available") => line.replace("available", "\x1b[30mavailable\x1b[0m"),
+        _ if line.contains("installed") => line.replace("installed", "\x1b[36;1minstalled\x1b[0m"),
+        _ => line.to_string(),
+    }
+}
+
+pub fn static_exec(command: &str) -> io::Result<String> {
 
     let output = Command::new("bash")
         .arg("-c")
@@ -30,17 +39,47 @@ pub fn exec(command: &str) -> io::Result<String> {
     }
 }
 
-pub fn list_dir(path: &str) -> Result<Vec<String>, io::Error> {
-    let mut files = Vec::new();
+pub fn exec(command: &str) -> io::Result<()> {
+    let mut child = Command::new("bash")
+        .arg("-c")
+        .arg(command)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()?;
 
-    for entry in fs::read_dir(path)? {
-        let entry = entry?;
-        if let Ok(name) = entry.file_name().into_string() {
-            files.push(name);
+    let stdout = child.stdout.take().unwrap();
+    let stderr = child.stderr.take().unwrap();
+
+    let stdout_thread = thread::spawn(move || {
+        let reader = io::BufReader::new(stdout);
+        for line in reader.lines() {
+            match line {
+                Ok(line) => {
+                    println!("\x1b[30;3m{}\x1b[0m", line);
+                }
+                Err(e) => eprintln!("Error reading stdout: {}", e),
+            }
         }
-    }
+    });
 
-    Ok(files)
+    let stderr_thread = thread::spawn(move || {
+        let reader = io::BufReader::new(stderr);
+        for line in reader.lines() {
+            match line {
+                Ok(line) => {
+                    eprintln!("\x1b[36;1m{}\x1b[0m", line);
+                }
+                Err(e) => eprintln!("Error reading stderr: {}", e),
+            }
+        }
+    });
+
+    let _ = child.wait()?;
+
+    stdout_thread.join().unwrap();
+    stderr_thread.join().unwrap();
+
+    Ok(())
 }
 
 pub fn read_file(file_path: PathBuf) -> io::Result<String> {

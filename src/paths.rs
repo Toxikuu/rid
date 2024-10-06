@@ -9,8 +9,8 @@ lazy_static! {
         get_project_root().expect("Could not find project root")
     };
 
-    pub static ref PKGSTXT: PathBuf = PROOT.join("packages.txt");
-    pub static ref META:    PathBuf = PROOT.join("meta");
-    pub static ref UTILS:   PathBuf = PROOT.join("utils");
-    pub static ref SOURCES: PathBuf = PROOT.join("sources");
+    pub static ref PKGSTXT: PathBuf = PathBuf::from("/etc/rid/packages.txt");
+    pub static ref META:    PathBuf = PathBuf::from("/etc/rid/meta");
+    pub static ref UTILS:   PathBuf = PathBuf::from("/etc/rid/utils");
+    pub static ref SOURCES: PathBuf = PathBuf::from("/etc/rid/sources");
 }
