@@ -7,6 +7,8 @@ use std::process::{self, Command, Stdio};
 use std::path::PathBuf;
 use whoami::username;
 
+use crate::pr;
+
 pub fn check_perms() {
     if username() != "root" {
         eprintln!("Insufficient privileges!");
@@ -55,7 +57,7 @@ pub fn exec(command: &str) -> io::Result<()> {
         for line in reader.lines() {
             match line {
                 Ok(line) => {
-                    println!("\x1b[30;3m{}\x1b[0m", line);
+                    pr!(format!("\x1b[30;3m{}\x1b[0m", line));
                 }
                 Err(e) => eprintln!("Error reading stdout: {}", e),
             }
@@ -67,7 +69,7 @@ pub fn exec(command: &str) -> io::Result<()> {
         for line in reader.lines() {
             match line {
                 Ok(line) => {
-                    eprintln!("\x1b[36;1m{}\x1b[0m", line);
+                    pr!(format!("\x1b[36;1m{}\x1b[0m", line));
                 }
                 Err(e) => eprintln!("Error reading stderr: {}", e),
             }
