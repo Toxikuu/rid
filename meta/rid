@@ -1,0 +1,25 @@
+#!/bin/bash
+NAME="rid"
+VERS=9999
+LINK="https://github.com/Toxikuu/rid/archive/refs/heads/master.tar.gz"
+DEPS="rustc"
+
+
+IDIR=$(cat <<EOF
+
+cargo build --release
+install -v -m755 target/release/rid /usr/bin
+
+EOF
+)
+
+RDIR=$(cat <<EOF
+
+echo not implemented
+
+EOF
+)
+
+UDIR=$(cat <<EOF
+EOF
+)
