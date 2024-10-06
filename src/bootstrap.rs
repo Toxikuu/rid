@@ -7,6 +7,7 @@
 use std::fs::{self, File};
 use std::path::Path;
 use std::io;
+use std::os::unix::fs::PermissionsExt;
 use crate::paths::{SOURCES, META, UTILS, PKGSTXT};
 
 use crate::pr;
@@ -61,4 +62,7 @@ pub fn run() {
             eprintln!("Error creating file: {}", e);
         }
     }
+
+    let permissions = fs::Permissions::from_mode(0o666);
+    fs::set_permissions(&*PKGSTXT, permissions).unwrap();
 }
