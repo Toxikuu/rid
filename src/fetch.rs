@@ -8,13 +8,26 @@ use std::error::Error;
 use std::env::set_current_dir;
 use std::io::{self, Write};
 use std::fs::File;
+use std::path::Path;
 use crate::misc::exec;
 use crate::paths::{SOURCES, UTILS};
 use crate::package::Package;
+use crate::flags::FORCE;
+
+use crate::pr;
 
 fn download(url: &str) -> Result<String, Box<dyn Error>> {
     let file_name = url.split('/').last().ok_or("Invalid URL")?;
     let file_path = SOURCES.join(file_name);
+
+    if Path::new(&file_path).exists(){
+        if !*FORCE.lock().unwrap() {
+            pr!(format!("Skipping download for extant tarball '{}'", file_name));
+            return Ok(file_name.to_string())
+        } else {
+            pr!(format!("Forcefully redownloading extant tarball '{}'", file_name));
+        }
+    }
 
     let r = get(url)?;
     if r.status().is_success() {
@@ -47,12 +60,12 @@ fn extract(tarball: &str, pkg_str: &str, vers: &str) -> io::Result<()> {
 pub fn wrap(pkg: &Package) {
     match &pkg.link {
         Some(link) => {
-            println!("Downloading {}", link);
+            pr!(format!("Downloading {}", link));
             match download(link) {
                 Ok(tarball) => {
                     match extract(&tarball, &pkg.name, &pkg.version) {
                         Ok(()) => {
-                            println!("Extracted tarball")
+                            pr!("Extracted tarball", 'v')
                         },
                         Err(e) => eprintln!("Failed to extract tarball: {}", e),
                     }
