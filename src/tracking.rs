@@ -183,3 +183,28 @@ pub fn add_package(pkg_str: &str, vers: &str) {
         writeln!(writer, "{}", line).unwrap();
     }
 }
+
+pub fn query_status(pkg_str: &str) -> Result<&str, Box<dyn std::error::Error>> {
+    let file = File::open(&*PKGSTXT)?;
+    let reader = io::BufReader::new(file);
+
+    pr!(format!("Quering status for package '{}'", pkg_str), 'v');
+
+    for line in reader.lines() {
+        let line = line?;
+        let pattern = format!("{}=", pkg_str);
+
+        if line.contains(&pattern) {
+            if line.contains("~ installed") {
+                pr!(format!("Package '{}' is installed.", pkg_str), 'v');
+                return Ok("installed");
+            } else if line.contains("~ available") {
+                pr!(format!("Package '{}' is available but not installed.", pkg_str), 'v');
+                return Ok("available");
+            }
+        }
+    }
+
+    pr!(format!("Package '{}' is not tracked.", pkg_str), 'v');
+    Ok("unavailable")
+}
