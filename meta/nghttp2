@@ -1,0 +1,29 @@
+#!/bin/bash
+NAME="nghttp2"
+VERS=1.63.0
+LINK="https://github.com/$NAME/$NAME/releases/download/v$VERS/$NAME-$VERS.tar.xz"
+DEPS="libxml2"
+
+
+IDIR=$(cat <<EOF
+
+./configure --prefix=/usr     \
+            --disable-static  \
+            --enable-lib-only \
+            --docdir=/usr/share/doc/nghttp2-1.63.0 &&
+make
+make install
+
+EOF
+)
+
+RDIR=$(cat <<EOF
+
+echo not implemented
+
+EOF
+)
+
+UDIR=$(cat <<EOF
+EOF
+)

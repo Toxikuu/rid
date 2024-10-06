@@ -1,0 +1,27 @@
+#!/bin/bash
+NAME="libuv"
+VERS=1.49.0
+LINK="https://dist.libuv.org/dist/v$VERS/libuv-v$VERS.tar.gz"
+DEPS=""
+
+
+IDIR=$(cat <<EOF
+
+sh autogen.sh                              &&
+./configure --prefix=/usr --disable-static &&
+make
+make install
+
+EOF
+)
+
+RDIR=$(cat <<EOF
+
+echo not implemented
+
+EOF
+)
+
+UDIR=$(cat <<EOF
+EOF
+)

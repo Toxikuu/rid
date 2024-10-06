@@ -13,6 +13,7 @@ cd    build &&
 
 meson setup .. --prefix=/usr                   \
             --buildtype=release                \
+            --strip                            \
             -D x11=enabled                     \
             -D wayland=disabled                \
             -D egl-wayland=disabled            \

@@ -1,0 +1,26 @@
+#!/bin/bash
+NAME="libarchive"
+VERS=3.7.6
+LINK="https://github.com/$NAME/$NAME/releases/download/v$VERS/$NAME-$VERS.tar.xz"
+DEPS=""
+
+
+IDIR=$(cat <<EOF
+
+./configure --prefix=/usr --disable-static &&
+make
+make install
+
+EOF
+)
+
+RDIR=$(cat <<EOF
+
+echo not implemented
+
+EOF
+)
+
+UDIR=$(cat <<EOF
+EOF
+)

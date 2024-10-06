@@ -8,15 +8,13 @@ DEPS="nspr"
 
 IDIR=$(cat <<EOF
 
-pushd ..
-https://www.linuxfromscratch.org/patches/blfs/svn/nss-standalone-1.patch
-popd
-
-patch -Np1 -i ../nss-standalone-1.patch &&
+raw https://www.linuxfromscratch.org/patches/blfs/svn/nss-standalone-1.patch
+patch -Np1 -i /etc/rid/sources/nss-standalone-1.patch &&
 cd nss &&
 
 make BUILD_OPT=1                      \
   NSPR_INCLUDE_DIR=/usr/include/nspr  \
+  NSS_DISABLE_GTESTS=1                \
   USE_SYSTEM_ZLIB=1                   \
   ZLIB_LIBS=-lz                       \
   NSS_ENABLE_WERROR=0                 \
@@ -40,13 +38,14 @@ rm -rvf nss-$VERS
 tar xvf /etc/rid/sources/nss-$VERS.t*
 
 cd nss-$VERS &&
-patch -Np1 -i ../nss-standalone-1.patch &&
+patch -Np1 -i /etc/rid/sources/nss-standalone-1.patch &&
 cd nss &&
 
 CC="gcc -m32" CXX="g++ -m32"          \
 make BUILD_OPT=1                      \
   NSPR_INCLUDE_DIR=/usr/include/nspr  \
   USE_SYSTEM_ZLIB=1                   \
+  NSS_DISABLE_GTESTS=1                \
   ZLIB_LIBS=-lz                       \
   NSS_ENABLE_WERROR=0                 \
 $([ -f /usr/lib32/libsqlite3.so ] && echo NSS_USE_SYSTEM_SQLITE=1)

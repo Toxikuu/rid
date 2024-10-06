@@ -7,10 +7,8 @@ DEPS="libaom libass fdk-aac freetype lame libvorbis libvpx opus x264 x265 yasm a
 
 IDIR=$(cat <<EOF
 
-pushd ..
-wget https://www.linuxfromscratch.org/patches/blfs/svn/ffmpeg-7.1-chromium_method-1.patch
-popd
-patch -Np1 -i ../ffmpeg-7.1-chromium_method-1.patch
+raw https://www.linuxfromscratch.org/patches/blfs/svn/ffmpeg-$VERS-chromium_method-1.patch
+patch -Np1 -i /etc/rid/sources/ffmpeg-$VERS-chromium_method-1.patch
 
 ./configure --prefix=/usr        \
             --enable-gpl         \
@@ -39,10 +37,7 @@ make &&
 gcc tools/qt-faststart.c -o tools/qt-faststart
 
 make install &&
-
 install -v -m755    tools/qt-faststart /usr/bin &&
-install -v -m755 -d           /usr/share/doc/ffmpeg-7.1 &&
-install -v -m644    doc/*.txt /usr/share/doc/ffmpeg-7.1
 
 EOF
 )
