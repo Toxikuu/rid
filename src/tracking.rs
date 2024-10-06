@@ -142,7 +142,7 @@ pub fn add_package(pkg_str: &str, vers: &str) {
     let reader = io::BufReader::new(file);
     let mut lines: Vec<String> = Vec::new();
     let mut installed = false;
-    let mut found_available = false;
+    let mut modified = false;
 
     for line in reader.lines() {
         let line = line.unwrap();
@@ -150,14 +150,15 @@ pub fn add_package(pkg_str: &str, vers: &str) {
         let pattern = format!("{}=", pkg_str);
 
         if line.contains(&pattern) {
-            if line.contains("~ available") {
+            if line.contains("~ installed") {
+                installed = true;
+                lines.push(line);
+            } else if line.contains("~ available") {
                 println!("Tracking package: {}", pkg_str);
                 let modified_line = format!("{}={} ~ installed", pkg_str, vers);
                 lines.push(modified_line);
                 installed = true;
-                found_available = true;
-            } else if line.contains("~ installed") {
-                installed = true;
+                modified = true;
             }
         } else {
             lines.push(line);
@@ -165,7 +166,7 @@ pub fn add_package(pkg_str: &str, vers: &str) {
     }
 
 
-    if installed && found_available {
+    if modified {
         println!("Package '{}' has been installed.", pkg_str);
     } else if installed {
         println!("Package '{}' is already installed.", pkg_str);
