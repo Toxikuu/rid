@@ -128,7 +128,7 @@ pub fn remove_package(pkg_str: &str) {
     }
 
     if ! removed {
-        pr!(format!("Package '{}' is already removed.", pkg_str));
+        pr!(format!("Package '{}' is already removed", pkg_str));
     }
 
     let file = File::create(&*PKGSTXT).unwrap();
@@ -196,15 +196,15 @@ pub fn query_status(pkg_str: &str) -> Result<&str, Box<dyn std::error::Error>> {
 
         if line.contains(&pattern) {
             if line.contains("~ installed") {
-                pr!(format!("Package '{}' is installed.", pkg_str), 'v');
+                pr!(format!("Package '{}' is installed", pkg_str), 'v');
                 return Ok("installed");
             } else if line.contains("~ available") {
-                pr!(format!("Package '{}' is available but not installed.", pkg_str), 'v');
+                pr!(format!("Package '{}' is available but not installed", pkg_str), 'v');
                 return Ok("available");
             }
         }
     }
 
-    pr!(format!("Package '{}' is not tracked.", pkg_str), 'v');
+    pr!(format!("Package '{}' is not tracked", pkg_str), 'v');
     Ok("unavailable")
 }
