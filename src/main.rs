@@ -13,6 +13,8 @@ mod fetch;
 mod directions;
 mod resolvedeps;
 mod bootstrap;
+mod flags;
+mod macros;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -37,15 +39,33 @@ struct Args {
 
     #[arg(short = 'b', long)]
     bootstrap: bool,
+
+    // generic flags
+    #[arg(short = 'v', long)]
+    verbose: bool,
+
+    #[arg(short = 'q', long)]
+    quiet: bool,
+
+    #[arg(short = 'f', long)]
+    force: bool,
+
+    #[arg(short = 'F', long)]
+    full_force: bool,
 }
 
 fn main() {
     let args = Args::parse();
+    flags::set_flags(args.verbose, args.quiet, args.force, args.full_force);
+
+    pr!(format!("Flags: verbose={}, quiet={}, force={}, full_force={}", 
+                args.verbose, args.quiet, args.force, args.full_force), 'v');
 
     match args {
         Args { install_no_deps: Some(pkg), .. } => {
             check_perms();
-            println!("Installing package: {}", pkg);
+            pr!(format!("Installing package: {}", pkg));
+            pr!("Installing without dependencies", 'v');
             match package::form_package(&pkg) {
                 Ok(pkg_) => {
                     fetch::wrap(&pkg_);
@@ -57,13 +77,13 @@ fn main() {
         }
         Args { install: Some(pkg), .. } => {
             check_perms();
-            println!("Installing package '{}' with dependencies", pkg);
+            pr!(format!("Installing package '{}'", pkg), 'v');
 
             match package::form_package(&pkg) {
                 Ok(pkg_) => {
                     let dependencies = resolvedeps::resolve_deps(&pkg_);
                     for dep in &dependencies {
-                        println!(" - {}", dep);
+                        pr!(format!(" - {}", dep));
                     }
 
                     for dep in dependencies {
@@ -84,13 +104,13 @@ fn main() {
         }
         Args { remove: Some(pkg), .. } => {
             check_perms();
-            println!("Removing package: {}", pkg);
+            pr!(format!("Removing package: {}", pkg));
             eval_removal_directions(&pkg);
             tracking::remove_package(&pkg);
         }
         Args { update: Some(pkg), .. } => {
             check_perms();
-            println!("Updating package: {}", pkg);
+            pr!(format!("Updating package: {}", pkg));
 
             match package::form_package(&pkg) {
                 Ok(pkg_) => {
@@ -102,12 +122,12 @@ fn main() {
             }
         }
         Args { dependencies: Some(pkg), .. } => {
-            println!("Dependencies for {}:", pkg);
+            pr!(format!("Dependencies for {}:", pkg));
             match package::form_package(&pkg) {
                 Ok(pkg_) => {
                     let dependencies = resolvedeps::resolve_deps(&pkg_);
                     for dep in dependencies {
-                        println!(" - {}", dep);
+                        pr!(format!(" - {}", dep), 'q');
                     }
                 },
                 Err(e) => {
@@ -124,10 +144,10 @@ fn main() {
 
             match misc::read_file(PKGSTXT.clone()) {
                 Ok(contents) => {
-                    println!("\x1b[30;1;3mPACKAGES\x1b[0m");
+                    pr!("\x1b[30;1;3mPACKAGES\x1b[0m");
                     for line in contents.lines() {
                         let formatted_line = misc::format_line(line);
-                        println!("  {}", formatted_line);
+                        pr!(format!("  {}", formatted_line), 'q');
                     }
                 },
                 Err(e) => eprintln!("Error reading file: {}", e),
@@ -135,11 +155,11 @@ fn main() {
         }
         Args { bootstrap, ..} if bootstrap => {
             check_perms();
-            println!("\x1b[36;1mBootstrapping rid...\x1b[0m");
+            pr!("\x1b[36;1mBootstrapping rid...\x1b[0m");
             bootstrap::run();
         }
         _ => {
-            println!("No valid arguments provided.")
+            pr!("No valid arguments provided.")
         }
     }
 }
