@@ -1,3 +1,7 @@
 test ux
 consider only calling query_status() once
+add --sync (non-overwriting)
+add --overwrite-sync (-S for short, overwriting)
 add meta file syncing for --bootstrap (make it not overwrite existing ones)
+be more articulate with flag naming (maybe have -t to pull tarballs and -R for reinstall?)
+add config options in /etc/rid/config (eventually)
