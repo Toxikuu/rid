@@ -12,7 +12,8 @@ use std::path::Path;
 use crate::misc::exec;
 use crate::paths::{SOURCES, UTILS};
 use crate::package::Package;
-use crate::flags::FORCE;
+use crate::flags::{FORCE, FULL_FORCE};
+use crate::tracking::query_status;
 
 use crate::pr;
 
@@ -48,13 +49,43 @@ fn extract(tarball: &str, pkg_str: &str, vers: &str) -> io::Result<()> {
         e
     })?;
 
-    let command = format!("tar xvf {} -C /tmp/rid/extraction && {}/overwrite-dir.sh {}-{}", tarball, UTILS.display(), pkg_str, vers);
+    match query_status(pkg_str) {
+        Ok(status) => {
+            pr!(format!("Status: {}", status), 'v');
 
-    if let Err(e) = exec(&command) {
-        eprintln!("Execution failed: {}", e);
+            match status {
+                "installed" => {
+                    if !*FULL_FORCE.lock().unwrap() {
+                        pr!(format!("Not extracting tarball for installed package '{}'", pkg_str));
+                        return Ok(());
+                    } else {
+                        pr!(format!("Forcibly extracting tarball for installed package '{}'", pkg_str));
+                    }
+                },
+                "available" => {},
+                _ => {
+                    pr!(format!("Package '{}' unavailable", pkg_str));
+                    return Ok(());
+                }
+            }
+
+            let command = format!(
+                "rm -rf /tmp/rid/extraction/* && tar xvf {}/{} -C /tmp/rid/extraction && {}/overwrite-dir.sh {}-{}", 
+                SOURCES.display(), tarball, UTILS.display(), pkg_str, vers
+            );
+
+            exec(&command).map_err(|e| {
+                eprintln!("Execution failed: {}", e);
+                io::Error::new(io::ErrorKind::Other, format!("Execution failed: {}", e))
+            })?;
+
+            Ok(())
+        },
+        Err(e) => {
+            eprintln!("Error querying package: {}", e);
+            Err(io::Error::new(io::ErrorKind::Other, format!("Error querying package: {}", e)))
+        }
     }
-
-    Ok(())
 }
 
 pub fn wrap(pkg: &Package) {
