@@ -22,7 +22,7 @@ struct Args {
     #[arg(short = 'i', long, value_name = "PACKAGE")]
     install: Option<String>,
 
-    #[arg(short = 'I', long, value_name = "PACKAGE")]
+    #[arg(short = 'n', long, value_name = "PACKAGE")]
     install_no_deps: Option<String>,
 
     #[arg(short = 'r', long, value_name = "PACKAGE")]
@@ -47,18 +47,21 @@ struct Args {
     #[arg(short = 'q', long)]
     quiet: bool,
 
-    #[arg(short = 'f', long)]
-    force: bool,
+    #[arg(short = 'D', long)]
+    force_download: bool,
 
-    #[arg(short = 'F', long)]
-    full_force: bool,
+    #[arg(short = 'I', long)]
+    force_install: bool,
+
+    #[arg(short = 'R', long)]
+    force_remove: bool,
 }
 
 fn main() {
     let args = Args::parse();
-    flags::set_flags(args.verbose, args.quiet, args.force, args.full_force);
-    pr!(format!("Flags: verbose={}, quiet={}, force={}, full_force={}", 
-                args.verbose, args.quiet, args.force, args.full_force), 'v');
+    flags::set_flags(args.verbose, args.quiet, args.force_download, args.force_install, args.force_remove);
+    pr!(format!("Flags: verbose={}, quiet={}, force_download={}, force_install={}, force_remove={}", 
+                args.verbose, args.quiet, args.force_download, args.force_install, args.force_remove), 'v');
 
     bootstrap::tmp();
 
