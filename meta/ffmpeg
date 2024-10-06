@@ -1,0 +1,59 @@
+#!/bin/bash
+NAME="ffmpeg"
+VERS=7.1
+LINK="https://ffmpeg.org/releases/ffmpeg-$VERS.tar.xz"
+DEPS="libaom libass fdk-aac freetype lame libvorbis libvpx opus x264 x265 yasm alsa-lib libva sdl2 pulseaudio"
+
+
+IDIR=$(cat <<EOF
+
+pushd ..
+wget https://www.linuxfromscratch.org/patches/blfs/svn/ffmpeg-7.1-chromium_method-1.patch
+popd
+patch -Np1 -i ../ffmpeg-7.1-chromium_method-1.patch
+
+./configure --prefix=/usr        \
+            --enable-gpl         \
+            --enable-version3    \
+            --enable-nonfree     \
+            --disable-static     \
+            --enable-shared      \
+            --disable-debug      \
+            --enable-libaom      \
+            --enable-libpulse    \
+            --enable-libass      \
+            --enable-libfdk-aac  \
+            --enable-libfreetype \
+            --enable-libmp3lame  \
+            --enable-libopus     \
+            --enable-libvorbis   \
+            --enable-libvpx      \
+            --enable-libx264     \
+            --enable-libx265     \
+            --enable-openssl     \
+            --disable-doc        \
+            --disable-large-tests              \
+            --ignore-tests=enhanced-flv-av1   &&
+make &&
+
+gcc tools/qt-faststart.c -o tools/qt-faststart
+
+make install &&
+
+install -v -m755    tools/qt-faststart /usr/bin &&
+install -v -m755 -d           /usr/share/doc/ffmpeg-7.1 &&
+install -v -m644    doc/*.txt /usr/share/doc/ffmpeg-7.1
+
+EOF
+)
+
+RDIR=$(cat <<EOF
+
+echo not implemented
+
+EOF
+)
+
+UDIR=$(cat <<EOF
+EOF
+)

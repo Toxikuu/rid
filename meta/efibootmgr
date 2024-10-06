@@ -1,0 +1,25 @@
+#!/bin/bash
+NAME="efibootmgr"
+VERS=18
+LINK="https://github.com/rhboot/efibootmgr/archive/$VERS/efibootmgr-$VERS.tar.gz"
+DEPS="efivar popt"
+
+
+IDIR=$(cat <<EOF
+
+make EFIDIR=LFS EFI_LOADER=tox64.efi
+make install EFIDIR=LFS
+
+EOF
+)
+
+RDIR=$(cat <<EOF
+
+echo not implemented
+
+EOF
+)
+
+UDIR=$(cat <<EOF
+EOF
+)

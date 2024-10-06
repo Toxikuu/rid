@@ -1,0 +1,39 @@
+#!/bin/bash
+NAME="icu"
+VERS=75.1
+ver1="${VERS//./-}"
+ver2="${VERS//./_}"
+LINK="https://github.com/unicode-org/icu/releases/download/release-$ver1/icu4c-$ver2-src.tgz"
+
+
+IDIR=$(cat <<EOF
+
+cd source                                    &&
+
+./configure --prefix=/usr                    &&
+make &&
+make install
+
+make clean
+CC="gcc -m32" CXX="g++ -m32"         \
+PKG_CONFIG_PATH=/usr/lib32/pkgconfig \
+./configure --prefix=/usr --libdir=/usr/lib32 --host=i686-pc-linux-gnu &&
+make
+make DESTDIR=$PWD/DESTDIR install     &&
+cp -Rv DESTDIR/usr/lib32/* /usr/lib32 &&
+rm -rf DESTDIR                        &&
+ldconfig
+
+EOF
+)
+
+RDIR=$(cat <<EOF
+
+echo not implemented
+
+EOF
+)
+
+UDIR=$(cat <<EOF
+EOF
+)

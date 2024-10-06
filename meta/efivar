@@ -1,0 +1,25 @@
+#!/bin/bash
+NAME="efivar"
+VERS=39
+LINK="https://github.com/rhboot/efivar/archive/$VERS/efivar-$VERS.tar.gz"
+DEPS="" # doc dep on mandoc
+
+
+IDIR=$(cat <<EOF
+
+make ENABLE_DOCS=0
+make install ENABLE_DOCS=0 LIBDIR=/usr/lib
+
+EOF
+)
+
+RDIR=$(cat <<EOF
+
+echo not implemented
+
+EOF
+)
+
+UDIR=$(cat <<EOF
+EOF
+)

@@ -1,0 +1,26 @@
+#!/bin/bash
+NAME="mpv-mpris"
+VERS=1.1
+LINK="https://github.com/hoyon/$NAME/archive/refs/tags/$VERS.tar.gz"
+DEPS="mpv"
+
+
+IDIR=$(cat <<EOF
+
+make
+make PREFIX=/usr install
+
+EOF
+)
+
+RDIR=$(cat <<EOF
+
+rm -rvf /usr/lib/mpv-mpris \
+        /etc/mpv/scripts/mpris.so
+
+EOF
+)
+
+UDIR=$(cat <<EOF
+EOF
+)

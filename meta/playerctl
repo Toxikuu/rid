@@ -1,0 +1,35 @@
+#!/bin/bash
+NAME="playerctl"
+VERS=2.4.1
+LINK="https://github.com/altdesktop/playerctl/archive/refs/tags/v$VERS.tar.gz"
+DEPS=""
+
+
+IDIR=$(cat <<EOF
+
+mkdir -pv build &&
+cd        build &&
+meson setup .. --prefix=/usr            \
+               --buildtype=release      \
+               --strip                  \
+               -D zsh-completions=false \
+               -D bash-completions=true \
+               -D introspection=false   \
+               -D gtk-doc=false         \
+               &&
+ninja          &&
+ninja install
+
+EOF
+)
+
+RDIR=$(cat <<EOF
+
+echo not implemented
+
+EOF
+)
+
+UDIR=$(cat <<EOF
+EOF
+)

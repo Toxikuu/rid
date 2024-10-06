@@ -1,0 +1,30 @@
+#!/bin/bash
+
+NAME="e2fsprogs"
+VERS=1.47.1
+LINK="https://downloads.sourceforge.net/project/$NAME/$NAME/v$VERS/$NAME-$VERS.tar.gz"
+DEPS=""
+
+
+IDIR=$(cat <<EOF
+
+pwd
+
+EOF
+)
+
+RDIR=$(cat <<EOF
+
+# The below line is a placeholder
+echo "Removing $NAME-$VERS woo"
+
+EOF
+)
+
+UDIR=$(cat <<EOF
+
+#
+echo "Awesome custom update directions"
+
+EOF
+)

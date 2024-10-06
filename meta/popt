@@ -1,0 +1,28 @@
+#!/bin/bash
+NAME="popt"
+VERS=1.19
+ver="${VERS%.*}"
+LINK="http://ftp.rpm.org/popt/releases/popt-$ver.x/popt-$VERS.tar.gz"
+DEPS=""
+
+
+IDIR=$(cat <<EOF
+
+./configure --prefix=/usr --disable-static &&
+make
+make install
+
+EOF
+)
+
+RDIR=$(cat <<EOF
+
+rm -vf /usr/lib/libpopt.la \
+       /usr/lib/libpopt.so*
+
+EOF
+)
+
+UDIR=$(cat <<EOF
+EOF
+)

@@ -1,0 +1,27 @@
+#!/bin/bash
+
+NAME="hwdata"
+VERS=0.388
+LINK="https://github.com/vcrhonek/$NAME/archive/v$VERS/$NAME-$VERS.tar.gz"
+DEPS=""
+
+
+IDIR=$(cat <<EOF
+
+./configure --prefix=/usr --disable-blacklist
+make install
+
+EOF
+)
+
+RDIR=$(cat <<EOF
+
+rm -rvf /usr/share/hwdata
+
+EOF
+)
+
+UDIR=$(cat <<EOF
+
+EOF
+)
