@@ -10,8 +10,8 @@ use std::process::exit;
 use std::fs::{self, File};
 use std::path::Path;
 use std::io::{self, Write};
-use std::os::unix::fs::PermissionsExt;
-use crate::paths::{SOURCES, META, PKGSTXT, RBIN};
+use crate::paths::{SOURCES, ETCRID};
+use crate::misc::exec;
 
 use crate::pr;
 
@@ -34,44 +34,35 @@ fn dl(url: &str, outdir: &str) -> Result<String, Box<dyn Error>> {
 
 fn get_rid() {
     match dl(
-        "https://raw.githubusercontent.com/Toxikuu/rid/refs/heads/master/rbin/mint",
-        "/etc/rid/rbin"
+        "https://codeload.github.com/Toxikuu/rid/tar.gz/refs/heads/master",
+        "/etc/"
     ) {
-        Ok(_) => pr!("Downloaded mint", 'v'),
-        Err(e) => {
-            eprintln!("Failed to download mint: {}", e);
-            exit(1);
-        }
+        Ok(_) => pr!("Downloaded rid tarball"),
+        Err(e) => { eprintln!("Failed to download rid tarball: {}", e); exit(1); }
     }
-    match dl(
-        "https://raw.githubusercontent.com/Toxikuu/rid/refs/heads/master/meta/rid",
-        "/etc/rid/meta"
-        ) {
-        Ok(_) => {
-            pr!("Downloaded rid");
-            pr!("Now, run `rid -DIn rid` to finish bootstrapping");
-        },
-        Err(e) => {
-            eprintln!("Failed to download rid: {}", e);
-            exit(1);
-        }
+
+    match exec("cd /etc && tar xf master.tar.gz && mv -v rid-master rid && rm -vf master.tar.gz") {
+        Ok(_) => pr!("Successfully set up rid"),
+        Err(e) => { eprintln!("Failed to set up rid: {}", e); exit(1); }
     }
 
     match dl(
-        "https://raw.githubusercontent.com/Toxikuu/rid/refs/heads/master/env",
+        "https://github.com/Toxikuu/rid-meta/archive/refs/heads/master.tar.gz",
         "/etc/rid/"
-        ) {
-        Ok(_) => {
-            pr!("Downloaded env", 'v');
-        },
-        Err(e) => {
-            eprintln!("Failed to download env: {}", e);
-            exit(1);
-        }
+    ) {
+        Ok(_) => pr!("Downloaded rid-meta tarball"),
+        Err(e) => { eprintln!("Failed to download rid-meta tarball: {}", e); exit(1); }
     }
 
-    let permissions = fs::Permissions::from_mode(0o755);
-    fs::set_permissions("/etc/rid/rbin/mint", permissions).unwrap();
+    match exec("cd /etc/rid && tar xf master.tar.gz && mv -v rid-meta-master meta && rm -vf master.tar.gz") {
+        Ok(_) => pr!("Successfully set up rid-meta"),
+        Err(e) => { eprintln!("Failed to set up rid-meta: {}", e); exit(1); }
+    }
+
+    match exec("touch /etc/rid/packages.txt && chmod 755 /etc/rid/rbin/*") {
+        Ok(_) => pr!("Successfully made files in rbin executable"),
+        Err(e) => { eprintln!("Failed to make files in rbin executable: {}", e); exit(1); }
+    }
 }
 
 fn mkdir<P: AsRef<Path>>(path: P) -> io::Result<()> {
@@ -82,18 +73,6 @@ fn mkdir<P: AsRef<Path>>(path: P) -> io::Result<()> {
     } else {
         fs::create_dir_all(path_ref)?;
         pr!(format!("Created directory '{}'", path_ref.display()));
-    }
-    Ok(())
-}
-
-fn touch<P: AsRef<Path>>(path: P) -> io::Result<()> {
-    let path_ref = path.as_ref();
-
-    if path_ref.exists() {
-        pr!(format!("File '{}' extant", path_ref.display()), 'v');
-    } else {
-        let _file = File::create(path_ref)?;
-        pr!(format!("Created file '{}'", path_ref.display()));
     }
     Ok(())
 }
@@ -110,24 +89,13 @@ pub fn tmp() {
 }
 
 pub fn run() {
-    let dirs = [&*SOURCES, &*META, &*RBIN];
-    let files = [&*PKGSTXT];
+    let dirs = [&*SOURCES, &*ETCRID];
 
     for dir in dirs.iter() {
         if let Err(e) = mkdir(dir) {
             eprintln!("Error creating directory: {}", e);
         }
     }
-
-    for file in files.iter() {
-        if let Err(e) = touch(file) {
-            eprintln!("Error creating file: {}", e);
-        }
-    }
-
-    let permissions = fs::Permissions::from_mode(0o666);
-    fs::set_permissions(&*PKGSTXT, permissions).unwrap();
-
 
     get_rid();
 }
