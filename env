@@ -34,7 +34,7 @@ pathappend () {
         export $PATHVARIABLE="${!PATHVARIABLE:+${!PATHVARIABLE}:}$1"
 }
 
-export -f pathremove pathprepend pathappend overwritedir
+export -f pathremove pathprepend pathappend
 
 pathappend /usr/bin
 pathappend /usr/sbin
