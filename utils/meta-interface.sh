@@ -4,7 +4,8 @@ METAFILE="$2"
 
 function pre {
   bv=$(compgen -v)
-  . /code/rid/meta/"$METAFILE"
+  . /etc/rid/env || { echo "Failed to source /etc/rid/env"; exit 1; }
+  . /etc/rid/meta/"$METAFILE" || die "Failed to source /etc/rid/meta/$METAFILE"
   av=$(compgen -v)
 }
 
@@ -22,7 +23,9 @@ function ins {
   pushd /tmp/rid/building/$NAME-$VERS > /dev/null
 
   echo "Installing $NAME-$VERS..."
+  sleep 1
   echo -e "Running: $IDIR\n"
+  sleep 2
   eval "$IDIR"
 }
 
@@ -36,8 +39,7 @@ function rem {
 
 function check_perms {
   if [ "$EUID" -ne 0 ]; then
-    echo "Insufficient permissions."
-    exit 1
+    die "Insufficient permissions"
   fi
 }
 
