@@ -6,3 +6,4 @@ add meta file syncing for --bootstrap (make it not overwrite existing ones)
 be more articulate with flag naming (maybe have -t to pull tarballs and -R for reinstall?)
 add config options in /etc/rid/config (eventually)
 allow multiple packages to be passed as arguments
+consolidate utils and rbin
