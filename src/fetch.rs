@@ -74,7 +74,7 @@ fn extract(tarball: &str, pkg_str: &str, vers: &str) -> io::Result<()> {
             }
 
             let command = format!(
-                ". /etc/rid/env && rm -rf /tmp/rid/extraction/* && tar xvf {}/{} -C /tmp/rid/extraction && overwritedir {}-{}", 
+                "rm -rf /tmp/rid/building/* && rm -rf /tmp/rid/extraction/* && tar xvf {}/{} -C /tmp/rid/extraction && mv -Tvf /tmp/rid/extraction/* /tmp/rid/building/{}-{}", 
                 SOURCES.display(), tarball, pkg_str, vers
             );
 
