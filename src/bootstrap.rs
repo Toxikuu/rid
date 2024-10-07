@@ -11,7 +11,7 @@ use std::fs::{self, File};
 use std::path::Path;
 use std::io::{self, Write};
 use std::os::unix::fs::PermissionsExt;
-use crate::paths::{SOURCES, META, UTILS, PKGSTXT};
+use crate::paths::{SOURCES, META, PKGSTXT, RBIN};
 
 use crate::pr;
 
@@ -34,12 +34,12 @@ fn dl(url: &str, outdir: &str) -> Result<String, Box<dyn Error>> {
 
 fn get_rid() {
     match dl(
-        "https://raw.githubusercontent.com/Toxikuu/rid/refs/heads/master/utils/meta-interface.sh",
-        "/etc/rid/utils"
+        "https://raw.githubusercontent.com/Toxikuu/rid/refs/heads/master/rbin/mint",
+        "/etc/rid/rbin"
     ) {
-        Ok(_) => pr!("Downloaded meta-interface", 'v'),
+        Ok(_) => pr!("Downloaded mint", 'v'),
         Err(e) => {
-            eprintln!("Failed to download meta-interface.sh: {}", e);
+            eprintln!("Failed to download mint: {}", e);
             exit(1);
         }
     }
@@ -71,7 +71,7 @@ fn get_rid() {
     }
 
     let permissions = fs::Permissions::from_mode(0o755);
-    fs::set_permissions("/etc/rid/utils/meta-interface.sh", permissions).unwrap();
+    fs::set_permissions("/etc/rid/rbin/mint", permissions).unwrap();
 }
 
 fn mkdir<P: AsRef<Path>>(path: P) -> io::Result<()> {
@@ -110,7 +110,7 @@ pub fn tmp() {
 }
 
 pub fn run() {
-    let dirs = [&*SOURCES, &*META, &*UTILS];
+    let dirs = [&*SOURCES, &*META, &*RBIN];
     let files = [&*PKGSTXT];
 
     for dir in dirs.iter() {

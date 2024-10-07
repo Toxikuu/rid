@@ -1,6 +1,6 @@
 // src/package.rs
 
-use crate::paths::UTILS;
+use crate::paths::RBIN;
 use crate::misc::static_exec;
 
 #[derive(Debug)]
@@ -23,7 +23,7 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
     let mut link = None;
     let mut deps = Vec::new();
 
-    let command = format!("{}/meta-interface.sh v {}", UTILS.to_str().expect("Invalid UTF-8"), pkg_str);
+    let command = format!("{}/mint v {}", RBIN.display(), pkg_str);
     match static_exec(&command) {
         Ok(output) => {
             for line in output.lines() {
