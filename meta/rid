@@ -7,8 +7,15 @@ DEPS="rustc"
 
 IDIR=$(cat <<EOF
 
-cargo build --release
-install -v -m755 target/release/rid /usr/bin
+if cargo -V > /dev/null; then
+  cargo build --release
+  install -v -m755 target/release/rid /usr/bin
+fi
+
+install -v -Dm666 meta/* /etc/rid/meta/
+install -v -Dm755 utils/* /etc/rid/utils/
+install -v -Dm755 rbin/* /etc/rid/rbin/
+install -v -m666 env /etc/rid/
 
 EOF
 )
