@@ -19,23 +19,24 @@ mod macros;
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
-    #[arg(short = 'i', long, value_name = "PACKAGE")]
-    install: Option<String>,
+    #[arg(short = 'i', long, value_name = "PACKAGE", value_parser, num_args = 1.., value_delimiter = ' ')]
+    install: Option<Vec<String>>,
 
-    #[arg(short = 'n', long, value_name = "PACKAGE")]
-    install_no_deps: Option<String>,
+    #[arg(short = 'n', long, value_name = "PACKAGE", value_parser, num_args = 1.., value_delimiter = ' ')]
+    install_no_deps: Option<Vec<String>>,
 
-    #[arg(short = 'r', long, value_name = "PACKAGE")]
-    remove: Option<String>,
+    #[arg(short = 'r', long, value_name = "PACKAGE", value_parser, num_args = 1.., value_delimiter = ' ')]
+
+    remove: Option<Vec<String>>,
 
     #[arg(short = 'l', long)]
     list: bool,
 
-    #[arg(short = 'u', long, value_name = "PACKAGE")]
-    update: Option<String>,
+    #[arg(short = 'u', long, value_name = "PACKAGE", value_parser, num_args = 1.., value_delimiter = ' ')]
+    update: Option<Vec<String>>,
 
-    #[arg(short = 'd', long, value_name = "PACKAGE")]
-    dependencies: Option<String>,
+    #[arg(short = 'd', long, value_name = "PACKAGE", value_parser, num_args = 1.., value_delimiter = ' ')]
+    dependencies: Option<Vec<String>>,
 
     #[arg(short = 'b', long)]
     bootstrap: bool,
@@ -70,77 +71,93 @@ fn main() {
     let _ = tracking::alphabetize();
 
     match args {
-        Args { install_no_deps: Some(pkg), .. } => {
+        Args { install_no_deps: Some(pkgs), .. } => {
             check_perms();
-            pr!(format!("Installing package: {}", pkg));
-            pr!("Installing without dependencies", 'v');
-            match package::form_package(&pkg) {
-                Ok(pkg_) => {
-                    fetch::wrap(&pkg_);
-                    eval_install_directions(&pkg);
-                    tracking::add_package(&pkg, &pkg_.version);
-                },
-                Err(e) => eprintln!("Failed to form package '{}': {}", pkg, e),
+
+            for pkg in pkgs {
+                pr!(format!("Installing package: {}", pkg));
+                pr!("Installing without dependencies", 'v');
+                match package::form_package(&pkg) {
+                    Ok(pkg_) => {
+                        fetch::wrap(&pkg_);
+                        eval_install_directions(&pkg);
+                        tracking::add_package(&pkg, &pkg_.version);
+                    },
+                    Err(e) => eprintln!("Failed to form package '{}': {}", pkg, e),
+                }
             }
         }
-        Args { install: Some(pkg), .. } => {
+        Args { install: Some(pkgs), .. } => {
             check_perms();
-            pr!(format!("Installing package '{}'", pkg), 'v');
 
-            match package::form_package(&pkg) {
-                Ok(pkg_) => {
-                    let dependencies = resolvedeps::resolve_deps(&pkg_);
-                    for dep in &dependencies {
-                        pr!(format!(" - {}", dep));
-                    }
+            for pkg in pkgs {
+                pr!(format!("Installing package '{}'", pkg), 'v');
 
-                    for dep in dependencies {
-                        match package::form_package(&dep) {
-                            Ok(dep_) => {
-                                fetch::wrap(&dep_);
-                                eval_install_directions(&dep);
-                                tracking::add_package(&dep, &dep_.version);
-                            },
-                            Err(e) => eprintln!("Failed to form package '{}': {}", dep, e),
+                match package::form_package(&pkg) {
+                    Ok(pkg_) => {
+                        let dependencies = resolvedeps::resolve_deps(&pkg_);
+                        for dep in &dependencies {
+                            pr!(format!(" - {}", dep));
                         }
-                    }
-                },
-                Err(e) => {
-                    eprintln!("Failed to form package '{}': {}", pkg, e);
-                },
-            }
-        }
-        Args { remove: Some(pkg), .. } => {
-            check_perms();
-            pr!(format!("Removing package: {}", pkg));
-            eval_removal_directions(&pkg);
-            tracking::remove_package(&pkg);
-        }
-        Args { update: Some(pkg), .. } => {
-            check_perms();
-            pr!(format!("Updating package: {}", pkg));
 
-            match package::form_package(&pkg) {
-                Ok(pkg_) => {
-                    fetch::wrap(&pkg_);
-                    eval_update_directions(&pkg);
-                    tracking::add_package(&pkg, &pkg_.version);
-                },
-                Err(e) => eprintln!("Failed to form package '{}': {}", pkg, e),
+                        for dep in dependencies {
+                            match package::form_package(&dep) {
+                                Ok(dep_) => {
+                                    fetch::wrap(&dep_);
+                                    eval_install_directions(&dep);
+                                    tracking::add_package(&dep, &dep_.version);
+                                },
+                                Err(e) => eprintln!("Failed to form package '{}': {}", dep, e),
+                            }
+                        }
+                    },
+                    Err(e) => {
+                        eprintln!("Failed to form package '{}': {}", pkg, e);
+                    },
+                }
             }
         }
-        Args { dependencies: Some(pkg), .. } => {
-            pr!(format!("Dependencies for {}:", pkg));
-            match package::form_package(&pkg) {
-                Ok(pkg_) => {
-                    let dependencies = resolvedeps::resolve_deps(&pkg_);
-                    for dep in dependencies {
-                        pr!(format!(" - {}", dep), 'q');
-                    }
-                },
-                Err(e) => {
-                    eprintln!("Failed to form package '{}': {}", pkg, e);
-                },
+        Args { remove: Some(pkgs), .. } => {
+            check_perms();
+
+            for pkg in pkgs {
+                pr!(format!("Removing package: {}", pkg));
+                eval_removal_directions(&pkg);
+                tracking::remove_package(&pkg);
+            }
+        }
+        Args { update: Some(pkgs), .. } => {
+            check_perms();
+
+            for pkg in pkgs {
+                pr!(format!("Updating package: {}", pkg));
+
+                match package::form_package(&pkg) {
+                    Ok(pkg_) => {
+                        fetch::wrap(&pkg_);
+                        eval_update_directions(&pkg);
+                        tracking::add_package(&pkg, &pkg_.version);
+                    },
+                    Err(e) => eprintln!("Failed to form package '{}': {}", pkg, e),
+                }
+            }
+        }
+        Args { dependencies: Some(pkgs), .. } => {
+
+            for pkg in pkgs {
+                pr!(format!("Dependencies for {}:", pkg));
+
+                match package::form_package(&pkg) {
+                    Ok(pkg_) => {
+                        let dependencies = resolvedeps::resolve_deps(&pkg_);
+                        for dep in dependencies {
+                            pr!(format!(" - {}", dep), 'q');
+                        }
+                    },
+                    Err(e) => {
+                        eprintln!("Failed to form package '{}': {}", pkg, e);
+                    },
+                }
             }
         }
         Args { list, .. } if list => {
