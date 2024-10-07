@@ -49,7 +49,7 @@ fn get_rid() {
         ) {
         Ok(_) => {
             pr!("Downloaded rid");
-            pr!("Now, run rid -i rid to finish bootstrapping");
+            pr!("Now, run `rid -DIn rid` to finish bootstrapping");
         },
         Err(e) => {
             eprintln!("Failed to download rid: {}", e);
