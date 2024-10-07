@@ -13,7 +13,6 @@ IDIR=$(cat <<EOF
 # fi
 
 install -v -Dm666 meta/* /etc/rid/meta/
-install -v -Dm755 utils/* /etc/rid/utils/
 install -v -Dm755 rbin/* /etc/rid/rbin/
 install -v -m666 env /etc/rid/
 
