@@ -9,7 +9,7 @@ use std::io::{self, Write};
 use std::fs::File;
 use std::path::Path;
 use crate::misc::exec;
-use crate::paths::{SOURCES, UTILS};
+use crate::paths::SOURCES;
 use crate::package::Package;
 use crate::flags::{FORCE_DOWNLOAD, FORCE_INSTALL};
 use crate::tracking::query_status;
@@ -74,8 +74,8 @@ fn extract(tarball: &str, pkg_str: &str, vers: &str) -> io::Result<()> {
             }
 
             let command = format!(
-                "rm -rf /tmp/rid/extraction/* && tar xvf {}/{} -C /tmp/rid/extraction && {}/overwritedir {}-{}", 
-                SOURCES.display(), tarball, UTILS.display(), pkg_str, vers
+                ". /etc/rid/env && rm -rf /tmp/rid/extraction/* && tar xvf {}/{} -C /tmp/rid/extraction && overwritedir {}-{}", 
+                SOURCES.display(), tarball, pkg_str, vers
             );
 
             exec(&command).map_err(|e| {
