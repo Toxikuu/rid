@@ -1,0 +1,17 @@
+#!/bin/bash
+# responsible for handling errors gracefully
+#
+# usage:
+# (note 13 is the permissions error code)
+# touch /example || die "failed to touch file" 13
+#
+# exits 1 unless other status specified
+# command || die "failed to execute command"
+
+if [ -z "$1" ]; then
+    echo "Error: No message provided." >&2
+    exit 1
+fi
+
+echo "Error: $1" >&2
+exit "${2:-1}"

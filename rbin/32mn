@@ -1,0 +1,31 @@
+#!/bin/bash
+# 32mn = 32bit version of mn
+# 32mn wraps the configure, build, and install process for 32-bit packages
+# any arguments passed to it are interpreted as meson arguments
+
+DESTDIR=/tmp/rid/dest
+rm    -rf ridbuild                        &&
+mkdir -pv ridbuild                        &&
+cd        ridbuild                        &&
+
+CC="gcc -m32" CXX="g++ -m32"              \
+PKG_CONFIG_PATH=/usr/lib32/pkgconfig      \
+meson setup ..                            \
+  --prefix=/usr                           \
+  --libdir=/usr/lib32                     \
+  --buildtype=release                     \
+  --strip                                 \
+  "$@"                                   ||
+die "32-bit meson setup failed"
+
+ninja                                    ||
+die "32-bit ninja failed"
+
+ninja install                            ||
+die "32-bit ninja install failed"
+cp -vr "$DESTDIR/usr/lib32/"* /usr/lib32 ||
+die "Failed to copy 32-bit libraries"
+rm -rf "$DESTDIR"                        ||
+die "Failed to remove $DESTDIR"
+ldconfig                                 ||
+die "Failed to update library cache"

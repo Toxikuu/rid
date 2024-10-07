@@ -1,0 +1,38 @@
+#!/bin/bash
+# 32cm = 32bit cm
+# cm wraps the configure, build, and install process for 32-bit packages
+# any arguments passed to it are interpreted as configure arguments
+
+DESTDIR=/tmp/rid/dest
+CFGPATH="."
+if [ -z $RIDBUILD ]; then
+  rm    -rf ridbuild                     &&
+  mkdir -pv ridbuild                     &&
+  cd        ridbuild                     &&
+  CFGPATH=".."
+fi
+
+CC="gcc -m32" CXX="g++ -m32"              \
+PKG_CONFIG_PATH=/usr/lib32/pkgconfig      \
+CFLAGS="-O2"                              \
+CXXFLAGS="${CFLAGS}"                      \
+LDFLAGS="-Wl,--as-needed"                 \
+$CFGPATH/configure                        \
+  --prefix=/usr                           \
+  --libdir=/usr/lib32                     \
+  --host=i686-pc-linux-gnu                \
+  --disable-static                        \
+  "$@"                                   ||
+die "Configure failed"
+
+make                                     ||
+die "Make failed"         
+
+make install                             ||
+die "32-bit make install failed"
+cp -vr "$DESTDIR/usr/lib32/"* /usr/lib32 ||
+die "Failed to copy 32-bit libraries"
+rm -rf "$DESTDIR"                        ||
+die "Failed to remove $DESTDIR"
+ldconfig                                 ||
+die "Failed to update library cache"

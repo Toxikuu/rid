@@ -1,0 +1,27 @@
+#!/bin/bash
+# cm = configure, make
+# cm wraps the configure, build, and install process for 64-bit packages
+# any arguments passed to it are interpreted as configure arguments
+
+DESTDIR=
+CFGPATH="."
+if [ -z $RIDBUILD ]; then
+  mkdir -pv ridbuild      &&
+  cd        ridbuild      &&
+  CFGPATH=".."
+fi
+
+CFLAGS="-O2 -march=native" \
+CXXFLAGS="${CFLAGS}"       \
+LDFLAGS="-Wl,--as-needed"  \
+$CFGPATH/configure         \
+  --prefix=/usr            \
+  --disable-static         \
+  "$@"                    ||
+die "Configure failed"
+
+make                      ||
+die "Make failed"         
+
+make install              ||
+die "Make install failed"

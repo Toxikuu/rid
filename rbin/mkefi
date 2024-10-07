@@ -1,0 +1,39 @@
+#!/bin/bash
+
+if [ $EUID -ne 0 ]; then
+  echo "insufficient permissions"
+  exit 1
+fi
+
+if ! efibootmgr; then
+  echo "efibootmgr not in PATH"
+  exit 1
+fi
+
+if findmnt /efi; then
+  export disk=$(grep ' /efi ' /proc/mounts | cut -d' ' -f1 | cut -dp -f1)
+  export part=$(grep ' /efi ' /proc/mounts | cut -d' ' -f1 | cut -dp -f2)
+elif findmnt /boot/efi; then
+  export disk=$(grep ' /boot/efi ' /proc/mounts | cut -d' ' -f1 | cut -dp -f1)
+  export part=$(grep ' /boot/efi ' /proc/mounts | cut -d' ' -f1 | cut -dp -f2)
+else
+  echo "Failed to find ESP!"
+  exit 1
+fi
+
+export rootpartuuid=$(lsblk -o PARTUUID,MOUNTPOINT | grep " /$" | cut -d' ' -f1)
+
+echo "Detected layout:"
+echo "ESP: $disk with partition $part"
+echo "ROOT: PARTUUID=$rootpartuuid"
+read -p "Press enter to continue..."
+
+if efibootmgr | rg -i ' LFS'; then
+  export entry=$(efibootmgr | grep ' LFS' | cut -d'*' -f1 | cut -d't' -f2)
+  efibootmgr -b $entry -B
+fi
+
+efibootmgr -c -d $disk -p $part -L "LFS" -l "\EFI\LFS\tox64.efi" -u \
+  "root=PARTUUID=$rootpartuuid ro profile vt.default_red=255,210,0,214,150,215,67,0,0,210,0,214,150,215,67,0 vt.default_grn=255,15,0,172,67,53,141,0,0,15,0,172,67,53,141,0 vt.default_blu=255,57,0,45,255,134,255,0,0,57,0,45,255,134,255,0"
+
+echo "Added an EFI boot entry for the currently running kernel"
