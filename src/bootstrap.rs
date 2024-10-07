@@ -41,7 +41,10 @@ fn get_rid() {
         Err(e) => { eprintln!("Failed to download rid tarball: {}", e); exit(1); }
     }
 
-    match exec("cd /etc && rm -rvf rid; tar xf master.tar.gz && mv -v rid-master rid && rm -vf master.tar.gz") {
+    match exec("cd /etc && rm -rvf rid; \
+                tar xf master.tar.gz && \
+                mv -v rid-master rid && \
+                rm -vf master.tar.gz") {
         Ok(_) => pr!("Successfully set up rid"),
         Err(e) => { eprintln!("Failed to set up rid: {}", e); exit(1); }
     }
@@ -54,23 +57,30 @@ fn get_rid() {
         Err(e) => { eprintln!("Failed to download rid-meta tarball: {}", e); exit(1); }
     }
 
-    match exec("cd /etc/rid && tar xf master.tar.gz && mv -v rid-meta-master meta && rm -vf master.tar.gz") {
+    match exec("cd /etc/rid                && \
+                tar xf master.tar.gz       && \
+                mv -v rid-meta-master meta && \
+                rm -vf master.tar.gz") {
         Ok(_) => pr!("Successfully set up rid-meta"),
         Err(e) => { eprintln!("Failed to set up rid-meta: {}", e); exit(1); }
     }
 
-    match exec("touch /etc/rid/packages.txt && chmod 666 /etc/rid/packages.txt && chmod 755 /etc/rid/rbin/*") {
+    match exec("touch /etc/rid/packages.txt     && \
+                chmod 666 /etc/rid/packages.txt && \
+                chmod 755 /etc/rid/rbin/*") {
         Ok(_) => pr!("Successfully made files in rbin executable"),
         Err(e) => { eprintln!("Failed to make files in rbin executable: {}", e); exit(1); }
     }
 
     // cleanup
-    match exec("cd /etc/rid && rm -rvf .git* Cargo.* src TDL LICENSE README.md") {
+    match exec("cd /etc/rid      && rm -rvf .git* Cargo.* src TDL && \
+                cd /etc/rid      && rm -rvf LICENSE README.md     && \
+                cd /etc/rid/meta && rm -rvf LICENSE README.md") {
         Ok(_) => pr!("Successfully cleaned /etc/rid"),
         Err(e) => { eprintln!("Failed to clean /etc/rid: {}", e); exit(1); }
     }
 
-    pr!("\x1b[30m  All done!\x1b[0m")
+    pr!("\x1b[36;1m  All done!\x1b[0m")
 }
 
 fn mkdir<P: AsRef<Path>>(path: P) -> io::Result<()> {
