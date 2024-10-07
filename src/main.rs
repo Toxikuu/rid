@@ -65,6 +65,10 @@ fn main() {
 
     bootstrap::tmp();
 
+    let _ = tracking::populate_txt();
+    let _ = tracking::align('~');
+    let _ = tracking::alphabetize();
+
     match args {
         Args { install_no_deps: Some(pkg), .. } => {
             check_perms();
@@ -140,10 +144,6 @@ fn main() {
             }
         }
         Args { list, .. } if list => {
-            let _ = tracking::populate_txt();
-            let _ = tracking::align('~');
-            let _ = tracking::alphabetize();
-
             match misc::read_file(PKGSTXT.clone()) {
                 Ok(contents) => {
                     pr!("\x1b[30;1;3mPACKAGES\x1b[0m");
