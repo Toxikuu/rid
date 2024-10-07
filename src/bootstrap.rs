@@ -38,7 +38,7 @@ fn touch<P: AsRef<Path>>(path: P) -> io::Result<()> {
 
 pub fn tmp() {
     pr!("Attempting to create temp dirs...", 'v');
-    let dirs = ["/tmp/rid/building", "/tmp/rid/extraction"];
+    let dirs = ["/tmp/rid/building", "/tmp/rid/extraction", "/tmp/rid/trash"];
 
     for dir in dirs.iter() {
         if let Err(e) = mkdir(dir) {
