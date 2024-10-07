@@ -17,37 +17,12 @@ cat >> trust/trust-extract-compat << "EOF"
 /usr/sbin/make-ca -r
 EOF
 
-mkdir p11-build &&
-cd    p11-build &&
+mn   -D trust_paths=/etc/pki/anchors
 
-meson setup ..            \
-      --prefix=/usr       \
-      --buildtype=release \
-      --strip             \
-      -D trust_paths=/etc/pki/anchors &&
-ninja
-
-ninja install &&
 ln -sfv /usr/libexec/p11-kit/trust-extract-compat \
         /usr/bin/update-ca-certificates
 
-rm -rf *
-CC="gcc -m32" CXX="g++ -m32"                     \
-PKG_CONFIG_PATH=/usr/lib32/pkgconfig             \
-CFLAGS+=" -Wno-error=incompatible-pointer-types" \
-meson setup ..                                   \
-      --prefix=/usr                              \
-      --libdir=/usr/lib32                        \
-      --buildtype=release                        \
-      --strip                                    \
-      -Dtrust_paths=/etc/pki/anchors &&
-
-ninja
-
-DESTDIR=$PWD/DESTDIR ninja install
-cp -vr DESTDIR/usr/lib32/* /usr/lib32
-rm -rf DESTDIR
-ldconfig
+32mn -D trust_paths=/etc/pki/anchors
 
 ln -sfv ./pkcs11/p11-kit-trust.so /usr/lib/libnssckbi.so
 ln -sfv ./pkcs11/p11-kit-trust.so /usr/lib32/libnssckbi.so

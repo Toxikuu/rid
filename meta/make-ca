@@ -21,7 +21,9 @@ install -vdm755 /etc/ssl/local
 
 RDIR=$(cat <<EOF
 
-echo not implemented
+rm -rvf /usr/bin/make-ca            \
+        /etc/ssl/{certs,local}      \
+        /etc/pki/{nssdb,anchors,tls/{certs,java}}
 
 EOF
 )

@@ -1,0 +1,36 @@
+#!/bin/bash
+NAME="git"
+VERS=2.46.2
+perlvers=5.40
+LINK="https://www.kernel.org/pub/software/scm/git/git-$VERS.tar.xz"
+DEPS="curl perl"
+
+
+IDIR=$(cat <<EOF
+
+export RIDBUILD=0
+export perllibdir=/usr/lib/perl5/$perlvers/site_perl
+
+cm --with-gitconfig=/etc/gitconfig \
+   --with-python=python3
+
+unset RIDBUILD perllibdir
+
+EOF
+)
+
+RDIR=$(cat <<EOF
+
+rm -rvf ~/.gitconfig                                          \
+         /etc/gitconfig                                       \
+         /usr/bin/git{,k}                                     \
+         /usr/bin/git-{shell,receive-pack,cvsserver}          \
+         /usr/bin/git-upload-{archive,pack}                   \
+         /usr/bin/scalar             
+
+EOF
+)
+
+UDIR=$(cat <<EOF
+EOF
+)

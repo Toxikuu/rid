@@ -6,7 +6,12 @@ LINK="https://download.gnome.org/sources/libxml2/$ver/libxml2-$VERS.tar.xz"
 DEPS="icu"
 
 
-IDIR=$(cat <<EOF
+IDIR=$(cat <<'~fin.'
+
+echo $DESTDIR
+echo $MAKEFLAGS
+echo $NAME-$VERS
+sleep 10
 
 ./configure --prefix=/usr           \
             --sysconfdir=/etc       \
@@ -32,13 +37,13 @@ PKG_CONFIG_PATH=/usr/lib32/pkgconfig \
             --with-icu               \
             --without-python &&
 make
-make DESTDIR=$PWD/DESTDIR install     &&
+make DESTDIR=$DESTDIR install &&
 rm -vf DESTDIR/usr/lib32/libxml2.la   &&
 cp -Rv DESTDIR/usr/lib32/* /usr/lib32 &&
 rm -rf DESTDIR                        &&
 ldconfig
 
-EOF
+~fin.
 )
 
 RDIR=$(cat <<EOF

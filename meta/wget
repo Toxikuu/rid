@@ -1,0 +1,26 @@
+#!/bin/bash
+NAME="wget"
+VERS=1.24.5
+LINK="https://ftp.gnu.org/gnu/wget/wget-$VERS.tar.gz"
+DEPS="libpsl make-ca libidn2"
+
+
+IDIR=$(cat <<EOF
+
+cm --sysconfdir=/etc \
+   --with-ssl=openssl
+
+EOF
+)
+
+RDIR=$(cat <<EOF
+
+rm -vf /usr/bin/wget \
+   /usr/share/man/man1/wget.1
+
+EOF
+)
+
+UDIR=$(cat <<EOF
+EOF
+)

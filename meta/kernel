@@ -1,0 +1,64 @@
+#!/bin/bash
+NAME="kernel"
+VERS=6.12-rc2
+LINK="https://git.kernel.org/torvalds/t/linux-$VERS.tar.gz"
+DEPS="efibootmgr"
+
+
+IDIR=$(cat <<"EOF"
+
+mkdir -pv /usr/src/linux-$VERS
+cp -rv * $_
+cd $_
+
+if [ -e /usr/src/linux/.config ]; then
+  cp -v /usr/src/linux/.config .
+else
+  raw https://raw.githubusercontent.com/Toxikuu/rid/refs/heads/master/defaults/kernelconfig &&
+  cp -v /etc/rid/sources/kernelconfig .config
+fi
+
+yes "" | make oldconfig
+make && make modules_install
+
+cp -v arch/x86/boot/bzImage /boot/vmlinuz-$VERS-tox
+cp -v /boot/vmlinuz-$VERS-tox /efi/EFI/LFS/tox64.efi
+cp -v System.map /boot/System.map-$VERS
+cp -v .config /boot/config-$VERS
+
+cp -r Documentation -T /usr/share/doc/linux-$VERS
+
+if [ -L /usr/src/linux ]; then
+  rm -vf /usr/src/linux
+else
+  mv /usr/src/linux /usr/src/linux-bak
+fi
+
+ln -sv /usr/src/linux-$VERS /usr/src/linux
+
+chown -R 0:0 /usr/src/linux-$VERS
+
+install -v -m755 -d /etc/modprobe.d
+cat > /etc/modprobe.d/usb.conf << "eof"
+# Begin /etc/modprobe.d/usb.conf
+
+install ohci_hcd /sbin/modprobe ehci_hcd ; /sbin/modprobe -i ohci_hcd ; true
+install uhci_hcd /sbin/modprobe ehci_hcd ; /sbin/modprobe -i uhci_hcd ; true
+
+# End /etc/modprobe.d/usb.conf
+eof
+
+
+EOF
+)
+
+RDIR=$(cat <<EOF
+
+echo not implemented
+
+EOF
+)
+
+UDIR=$(cat <<EOF
+EOF
+)

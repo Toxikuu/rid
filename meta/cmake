@@ -19,7 +19,7 @@ sed -i '/"lib64"/s/64//' Modules/GNUInstallDirs.cmake &&
             --no-system-librhash   \
             --docdir=/share/doc/cmake-$VERS &&
 make
-make install
+make-install
 
 EOF
 )

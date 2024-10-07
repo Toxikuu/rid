@@ -7,12 +7,9 @@ DEPS="libpsl"
 
 IDIR=$(cat <<EOF
 
-./configure --prefix=/usr                           \
-            --disable-static                        \
-            --with-openssl                          \
-            --with-ca-path=/etc/ssl/certs &&
-make
-make install &&
+cm --with-openssl                \
+   --with-ca-path=/etc/ssl/certs \
+   --without-brotli
 
 rm -rf docs/examples/.deps &&
 
@@ -26,21 +23,10 @@ cp -v -R docs -T /usr/share/doc/curl-$VERS
 cd /tmp/building
 rm -rf curl-$VERS
 tar xvf /etc/rid/sources/curl-$VERS.tar.xz
+cd curl-$VERS
 
-CC="gcc -m32" CXX="g++ -m32"           \
-PKG_CONFIG_PATH=/usr/lib32/pkgconfig   \
-./configure --prefix=/usr              \
-            --libdir=/usr/lib32        \
-            --host=i686-pc-linux-gnu   \
-            --disable-static           \
-            --with-openssl             \
-            --with-ca-path=/etc/ssl/certs &&
-
-make
-make DESTDIR=$PWD/DESTDIR install
-cp -vr DESTDIR/usr/lib32/* /usr/lib32
-rm -rf DESTDIR
-ldconfig
+32cm --with-openssl \
+   --with-ca-path=/etc/ssl/certs
 
 EOF
 )
