@@ -13,7 +13,7 @@ fi
 
 CC="gcc -m32" CXX="g++ -m32"                 \
 PKG_CONFIG_PATH=/usr/lib32/pkgconfig         \
-CFLAGS="-O2"                                 \
+CFLAGS="-O2 -L/usr/lib32"                    \
 CXXFLAGS="${CFLAGS}"                         \
 LDFLAGS="-Wl,--as-needed"                    \
 $CFGPATH/configure                           \
