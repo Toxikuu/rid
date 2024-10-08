@@ -11,7 +11,7 @@ use std::path::Path;
 use crate::misc::exec;
 use crate::paths::SOURCES;
 use crate::package::Package;
-use crate::flags::{FORCE_DOWNLOAD, FORCE_INSTALL};
+use crate::flags::{DOWNLOAD, FORCE};
 use crate::tracking::query_status;
 
 use crate::pr;
@@ -29,7 +29,7 @@ fn download(pkg: &Package) -> Result<String, Box<dyn Error>> {
     let file_path = SOURCES.join(&file_name);
 
     if Path::new(&file_path).exists() {
-        if !*FORCE_DOWNLOAD.lock().unwrap() {
+        if !*DOWNLOAD.lock().unwrap() {
             pr!(format!("Skipping download for existing tarball '{}'", file_name));
             return Ok(file_name);
         } else {
@@ -59,7 +59,7 @@ fn extract(tarball: &str, pkg_str: &str, vers: &str) -> io::Result<()> {
 
             match status {
                 "installed" => {
-                    if !*FORCE_INSTALL.lock().unwrap() {
+                    if !*FORCE.lock().unwrap() {
                         pr!(format!("Not extracting tarball for installed package '{}'", pkg_str));
                         return Ok(());
                     } else {

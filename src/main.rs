@@ -56,20 +56,17 @@ struct Args {
     quiet: bool,
 
     #[arg(short = 'D', long)]
-    force_download: bool,
+    download: bool,
 
-    #[arg(short = 'I', long)]
-    force_install: bool,
-
-    #[arg(short = 'R', long)]
-    force_remove: bool,
+    #[arg(short = 'f', long)]
+    force: bool,
 }
 
 fn main() {
     let args = Args::parse();
-    flags::set_flags(args.verbose, args.quiet, args.force_download, args.force_install, args.force_remove);
-    pr!(format!("Flags: verbose={}, quiet={}, force_download={}, force_install={}, force_remove={}", 
-                args.verbose, args.quiet, args.force_download, args.force_install, args.force_remove), 'v');
+    flags::set_flags(args.verbose, args.quiet, args.download, args.force);
+    pr!(format!("Flags: verbose={}, quiet={}, download={}, force={}", 
+                args.verbose, args.quiet, args.download, args.force), 'v');
 
     bootstrap::tmp();
     //let _ = misc::exec("sleep 5");
