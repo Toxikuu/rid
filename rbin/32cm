@@ -5,32 +5,32 @@
 
 CFGPATH="."
 if [ -z $RIDBUILD ]; then
-  rm    -rf ridbuild                     &&
-  mkdir -pv ridbuild                     &&
-  cd        ridbuild                     &&
+  rm    -rf ridbuild                        &&
+  mkdir -pv ridbuild                        &&
+  cd        ridbuild                        &&
   CFGPATH=".."
 fi
 
-CC="gcc -m32" CXX="g++ -m32"              \
-PKG_CONFIG_PATH=/usr/lib32/pkgconfig      \
-CFLAGS="-O2"                              \
-CXXFLAGS="${CFLAGS}"                      \
-LDFLAGS="-Wl,--as-needed"                 \
-$CFGPATH/configure                        \
-  --prefix=/usr                           \
-  --libdir=/usr/lib32                     \
-  --host=i686-pc-linux-gnu                \
-  --disable-static                        \
-  "$@"                                   ||
+CC="gcc -m32" CXX="g++ -m32"                 \
+PKG_CONFIG_PATH=/usr/lib32/pkgconfig         \
+CFLAGS="-O2"                                 \
+CXXFLAGS="${CFLAGS}"                         \
+LDFLAGS="-Wl,--as-needed"                    \
+$CFGPATH/configure                           \
+  --prefix=/usr                              \
+  --libdir=/usr/lib32                        \
+  --host=i686-pc-linux-gnu                   \
+  --disable-static                           \
+  "$@"                                      ||
 die "Configure failed"
 
-make                                     ||
+make                                        ||
 die "Make failed"         
-make DESTDIR=/tmp/rid/dest install       ||
+make DESTDIR=/tmp/rid/dest install          ||
 die "32-bit make install failed"
-cp -vr $DESTDIR/usr/lib32/* /usr/lib32   ||
+cp -vr /tmp/rid/dest/usr/lib32/* /usr/lib32 ||
 die "Failed to copy 32-bit libraries"
-rm -rf $DESTDIR                          ||
-die "Failed to remove $DESTDIR"
-ldconfig                                 ||
+rm -rf /tmp/rid/dest                        ||
+die "Failed to remove /tmp/rid/dest"
+ldconfig                                    ||
 die "Failed to update library cache"
