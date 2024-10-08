@@ -1,7 +1,7 @@
+work on meta files
+
 test ux
 consider only calling query_status() once
-add --sync (non-overwriting)
-add --overwrite-sync (-S for short, overwriting)
-add meta file syncing for --bootstrap (make it not overwrite existing ones)
 add config options in /etc/rid/config (eventually)
-add organization for meta files
+add organization for meta files (try using TYPE variable?)
+improve bootstrapping to work with new meta repo
