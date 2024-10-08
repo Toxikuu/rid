@@ -29,17 +29,24 @@ struct Args {
 
     remove: Option<Vec<String>>,
 
-    #[arg(short = 'l', long)]
-    list: bool,
-
     #[arg(short = 'u', long, value_name = "PACKAGE", value_parser, num_args = 1.., value_delimiter = ' ')]
     update: Option<Vec<String>>,
 
     #[arg(short = 'd', long, value_name = "PACKAGE", value_parser, num_args = 1.., value_delimiter = ' ')]
     dependencies: Option<Vec<String>>,
+    
+    // function flags
+    #[arg(short = 'l', long)]
+    list: bool,
 
     #[arg(short = 'b', long)]
     bootstrap: bool,
+
+    #[arg(short = 's', long)]
+    sync: bool,
+
+    #[arg(short = 'S', long)]
+    sync_overwrite: bool,
 
     // generic flags
     #[arg(short = 'v', long)]
@@ -65,6 +72,7 @@ fn main() {
                 args.verbose, args.quiet, args.force_download, args.force_install, args.force_remove), 'v');
 
     bootstrap::tmp();
+    //let _ = misc::exec("sleep 5");
 
     let _ = tracking::populate_txt();
     let _ = tracking::align('~');
@@ -176,6 +184,16 @@ fn main() {
             check_perms();
             pr!("\x1b[36;1mBootstrapping rid...\x1b[0m");
             bootstrap::run();
+        }
+        Args { sync, ..} if sync => {
+            check_perms();
+            pr!("\x1b[36;1mSyncing rid-meta...\x1b[0m");
+            bootstrap::get_rid_meta(false);
+        }
+        Args { sync_overwrite, ..} if sync_overwrite => {
+            check_perms();
+            pr!("\x1b[36;1mSyncing rid-meta with overwrite...\x1b[0m");
+            bootstrap::get_rid_meta(true);
         }
         _ => {
             pr!("No valid arguments provided.")
