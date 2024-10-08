@@ -20,7 +20,7 @@ function cleanup {
 
 function ins {
   check_perms
-  pushd /tmp/rid/building/$NAME-$VERS > /dev/null
+  pushd /tmp/rid/building/$NAME-$VERS > /dev/null || die "Failed to enter installation directory"
 
   echo "Installing $NAME-$VERS..."
   sleep 1
