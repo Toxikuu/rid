@@ -3,7 +3,6 @@
 # mn wraps the configure, build, and install process for 64-bit packages
 # any arguments passed to it are interpreted as meson arguments
 
-DESTDIR=
 mkdir -pv ridbuild        &&
 cd        ridbuild        &&
 
@@ -17,5 +16,5 @@ die "Meson setup failed"
 ninja                     ||
 die "Ninja failed"
 
-ninja install             ||
+DESTDIR= ninja install    ||
 die "Ninja install failed"

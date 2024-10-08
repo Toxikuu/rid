@@ -3,7 +3,6 @@
 # cm wraps the configure, build, and install process for 64-bit packages
 # any arguments passed to it are interpreted as configure arguments
 
-DESTDIR=
 CFGPATH="."
 if [ -z $RIDBUILD ]; then
   mkdir -pv ridbuild      &&
@@ -23,5 +22,5 @@ die "Configure failed"
 make                      ||
 die "Make failed"         
 
-make install              ||
+make DESTDIR= install     ||
 die "Make install failed"
