@@ -1,7 +1,7 @@
 work on meta files
+add abstractions for cmake
 
 test ux
 consider only calling query_status() once
 add config options in /etc/rid/config (eventually)
 add organization for meta files (try using TYPE variable?)
-improve bootstrapping to work with new meta repo
