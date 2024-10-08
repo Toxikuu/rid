@@ -5,8 +5,8 @@ export FFLAGS="-O2"
 export LDFLAGS="-Wl,--as-needed"
 
 export VDPAU_DRIVER="va_gl"
-export XORG_PREFIX="/usr"
-export XORG_CONFIG="--prefix=${XORG_PREFIX} --sysconfdir=/etc \
+export XORG_PREFIX="/usr"  # changing this is not supported
+export XORG_CONFIG="--prefix=/usr         --sysconfdir=/etc \
                     --localstatedir=/var    --disable-static"
 
 pathremove () {
