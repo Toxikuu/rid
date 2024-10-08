@@ -5,7 +5,7 @@ METAFILE="$2"
 function pre {
   bv=$(compgen -v)
   . /etc/rid/env || { echo "Failed to source /etc/rid/env"; exit 1; }
-  . /etc/rid/meta/"$METAFILE" || die "Failed to source /etc/rid/meta/$METAFILE"
+  . /etc/rid/meta/"$METAFILE" || { die "Failed to source /etc/rid/meta/$METAFILE"; exit 1; }
   av=$(compgen -v)
 }
 
@@ -20,7 +20,7 @@ function cleanup {
 
 function ins {
   check_perms
-  pushd /tmp/rid/building/$NAME-$VERS > /dev/null || die "Failed to enter installation directory"
+  pushd /tmp/rid/building/$NAME-$VERS > /dev/null || { die "Failed to enter installation directory"; exit 1; }
 
   echo "Installing $NAME-$VERS..."
   sleep 1
