@@ -4,6 +4,7 @@
 # any arguments passed to it are interpreted as configure arguments
 
 DESTDIR=/tmp/rid/dest
+mkdir $DESTDIR
 CFGPATH="."
 if [ -z $RIDBUILD ]; then
   rm    -rf ridbuild                     &&
@@ -30,9 +31,9 @@ die "Make failed"
 
 make install                             ||
 die "32-bit make install failed"
-cp -vr "$DESTDIR/usr/lib32/"* /usr/lib32 ||
+cp -vr $DESTDIR/usr/lib32/* /usr/lib32 ||
 die "Failed to copy 32-bit libraries"
-rm -rf "$DESTDIR"                        ||
+rm -rf $DESTDIR                        ||
 die "Failed to remove $DESTDIR"
 ldconfig                                 ||
 die "Failed to update library cache"
