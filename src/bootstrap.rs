@@ -10,7 +10,7 @@ use std::process::exit;
 use std::fs::{self, File};
 use std::path::Path;
 use std::io::{self, Write};
-use crate::paths::{SOURCES, ETCRID};
+use crate::paths::*;
 use crate::misc::exec;
 
 use crate::pr;
@@ -35,48 +35,60 @@ fn dl(url: &str, outdir: &str) -> Result<String, Box<dyn Error>> {
 fn get_rid() {
     match dl(
         "https://github.com/Toxikuu/rid/archive/refs/heads/master.tar.gz",
-        "/etc/"
+        "/tmp/rid/building/"
     ) {
-        Ok(_) => pr!("Downloaded rid tarball"),
+        Ok(_) => pr!("Downloaded rid tarball", 'v'),
         Err(e) => { eprintln!("Failed to download rid tarball: {}", e); exit(1); }
     }
 
-    match exec("cd /etc && rm -rvf rid; \
-                tar xf master.tar.gz && \
-                mv -v rid-master rid && \
-                rm -vf master.tar.gz") {
-        Ok(_) => pr!("Successfully set up rid"),
+    match exec("cd       /tmp/rid/building      && \
+                tar -xf  master.tar.gz          && \
+                mv  -v   rid-master/* /etc/rid/ && \
+                rm  -rf  /tmp/rid/building/*") {
+        Ok(_) => pr!("Set up rid", 'v'),
         Err(e) => { eprintln!("Failed to set up rid: {}", e); exit(1); }
     }
+}
 
+pub fn get_rid_meta(overwrite: bool) {
+    // used for bootstrapping and syncing
     match dl(
         "https://github.com/Toxikuu/rid-meta/archive/refs/heads/master.tar.gz",
-        "/etc/rid/"
+        "/tmp/rid/building/"
     ) {
-        Ok(_) => pr!("Downloaded rid-meta tarball"),
+        Ok(_) => pr!("Downloaded rid-meta tarball", 'v'),
         Err(e) => { eprintln!("Failed to download rid-meta tarball: {}", e); exit(1); }
     }
 
-    match exec("cd /etc/rid                && \
-                tar xf master.tar.gz       && \
-                mv -v rid-meta-master meta && \
-                rm -vf master.tar.gz") {
-        Ok(_) => pr!("Successfully set up rid-meta"),
-        Err(e) => { eprintln!("Failed to set up rid-meta: {}", e); exit(1); }
+    let c = if overwrite { ' ' } else { 'n' };
+    let command = format!(
+        "cd     /tmp/rid/building                     && \
+        tar -xf master.tar.gz                         && \
+        rm -f   rid-meta-master/{{LICENSE,README.md}} && \
+        mv -v{} rid-meta-master/* /etc/rid/meta/      && \
+        rm -rf  master.tar.gz rid-meta-master", c);
+
+    match exec(&command) {
+        Ok(_) => pr!("Synced!"),
+        Err(e) => { eprintln!("Failed to sync rid-meta: {}", e); exit(1); }
     }
+}
+
+fn bootstrap() {
+    get_rid();
+    get_rid_meta(false);
 
     match exec("touch /etc/rid/packages.txt     && \
                 chmod 666 /etc/rid/packages.txt && \
                 chmod 755 /etc/rid/rbin/*") {
-        Ok(_) => pr!("Successfully made files in rbin executable"),
+        Ok(_) => pr!("Made files in rbin executable"),
         Err(e) => { eprintln!("Failed to make files in rbin executable: {}", e); exit(1); }
     }
 
     // cleanup
-    match exec("cd /etc/rid      && rm -rvf .git* Cargo.* src TDL && \
-                cd /etc/rid      && rm -rvf LICENSE README.md     && \
-                cd /etc/rid/meta && rm -rvf LICENSE README.md") {
-        Ok(_) => pr!("Successfully cleaned /etc/rid"),
+    match exec("cd /etc/rid && rm -rf .git* Cargo.* src TDL && \
+                cd /etc/rid && rm -rf LICENSE README.md") {
+        Ok(_) => pr!("Cleaned extras from /etc/rid"),
         Err(e) => { eprintln!("Failed to clean /etc/rid: {}", e); exit(1); }
     }
 
@@ -97,7 +109,7 @@ fn mkdir<P: AsRef<Path>>(path: P) -> io::Result<()> {
 
 pub fn tmp() {
     pr!("Attempting to create temp dirs...", 'v');
-    let dirs = ["/tmp/rid/building", "/tmp/rid/extraction", "/tmp/rid/trash"];
+    let dirs = [&*TMPRID, &*BUILDING, &*EXTRACTION, &*DEST, &*TRASH];
 
     for dir in dirs.iter() {
         if let Err(e) = mkdir(dir) {
@@ -107,7 +119,7 @@ pub fn tmp() {
 }
 
 pub fn run() {
-    let dirs = [&*SOURCES, &*ETCRID];
+    let dirs = [&*ETCRID, &*SOURCES, &*META];
 
     for dir in dirs.iter() {
         if let Err(e) = mkdir(dir) {
@@ -115,5 +127,5 @@ pub fn run() {
         }
     }
 
-    get_rid();
+    bootstrap();
 }
