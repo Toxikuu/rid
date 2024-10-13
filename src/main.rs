@@ -113,7 +113,7 @@ fn main() {
                     Ok(pkg_) => {
                         let dependencies = resolvedeps::resolve_deps(&pkg_);
                         for dep in &dependencies {
-                            pr!(format!(" - {}", dep));
+                            pr!(format!("  {}", dep));
                         }
 
                         for dep in dependencies {
@@ -167,14 +167,37 @@ fn main() {
             ..
         } => {
             for pkg in pkgs {
-                pr!(format!("Dependencies for {}:", pkg));
+                pr!(format!("\x1b[30;1;3mDependencies for {}:\x1b[0m", pkg));
 
                 match package::form_package(&pkg) {
                     Ok(pkg_) => {
                         let dependencies = resolvedeps::resolve_deps(&pkg_);
-                        for dep in dependencies {
-                            pr!(format!(" - {}", dep), 'q');
+                        let contents = misc::read_file(PKGSTXT.clone()).unwrap();
+
+                        let mut matches: Vec<String> = Vec::new();
+
+                        for dep in &dependencies {
+                            if dep.is_empty() {
+                                eprintln!("Undefined dependency detected!");
+                                std::process::exit(1);
+                            }
+
+                            for line in contents.lines() {
+                                if line.contains(dep) {
+                                    matches.push(line.to_string());
+                                }
+                            }
                         }
+
+                        for m in matches {
+                            let formatted_m = misc::format_line(&m);
+                            pr!(format!("  {}", formatted_m), 'q')
+                        }
+
+                        //for dep in dependencies {
+                        //    let status = tracking::query_status(&pkg).unwrap_or("unavailable");
+                        //    pr!(format!("  {:<40} ~ {}", dep, status), 'q');
+                        //}
                     }
                     Err(e) => {
                         eprintln!("Failed to form package '{}': {}", pkg, e);
