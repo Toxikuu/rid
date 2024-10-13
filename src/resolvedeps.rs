@@ -14,8 +14,9 @@ fn deep_deps(pkg: &Package, resolved: &mut HashSet<String>, order: &mut Vec<Stri
                 Ok(dep_pkg) => {
                     deep_deps(&dep_pkg, resolved, order);
                 }
-                Err(e) => {
-                    eprintln!("Failed to load dependency '{}': {}", dep, e)
+                Err(_) => {
+                    //eprintln!("Failed to load dependency '{}': {}", dep, e)
+                    eprintln!("Failed to load dependency '{}'", dep)
                 }
             }
         }
