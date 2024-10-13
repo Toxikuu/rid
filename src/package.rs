@@ -40,7 +40,7 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
             }
 
             if name.is_empty() {
-                return Err(format!("No name for package '{}'", pkg_str));
+                return Err("Likely nonexistent metafile".to_string());
             }
 
             Ok(Package {
