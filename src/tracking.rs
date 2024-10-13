@@ -1,12 +1,11 @@
 // src/tracking.rs
 
+use crate::package::form_package;
+use crate::paths::{META, PKGSTXT};
+use crate::pr;
+use std::collections::HashSet;
 use std::fs::{self, File, OpenOptions};
 use std::io::{self, BufRead, BufWriter, Write};
-use std::collections::HashSet;
-use crate::paths::{PKGSTXT, META};
-use crate::package::form_package;
-
-use crate::pr;
 
 pub fn alphabetize() -> io::Result<()> {
     let file = File::open(&*PKGSTXT)?;
@@ -89,7 +88,13 @@ pub fn align(c: char) -> io::Result<()> {
             let (before_tilde, after_tilde) = line.split_at(pos);
             let padding = max_tilde_pos.saturating_sub(pos);
 
-            writeln!(file, "{}{}{}", before_tilde, " ".repeat(padding), after_tilde)?;
+            writeln!(
+                file,
+                "{}{}{}",
+                before_tilde,
+                " ".repeat(padding),
+                after_tilde
+            )?;
         } else {
             writeln!(file, "{}", line)?;
         }
@@ -119,9 +124,12 @@ pub fn populate_txt() -> io::Result<()> {
                 match form_package(&pkg_name) {
                     Ok(pkg) => {
                         writeln!(pkgstxt, "{}={} ~ available", pkg_name, pkg.version)?;
-                        pr!(format!("Added new package: {}={}", pkg_name, pkg.version), 'v');
-                    },
-                    Err(e) => eprintln!("Failed to form package: {}", e)
+                        pr!(
+                            format!("Added new package: {}={}", pkg_name, pkg.version),
+                            'v'
+                        );
+                    }
+                    Err(e) => eprintln!("Failed to form package: {}", e),
                 }
             }
         } else {
@@ -153,7 +161,7 @@ pub fn remove_package(pkg_str: &str) {
         }
     }
 
-    if ! removed {
+    if !removed {
         pr!(format!("Package '{}' is already removed", pkg_str));
     }
 
@@ -193,7 +201,6 @@ pub fn add_package(pkg_str: &str, vers: &str) {
         }
     }
 
-
     if modified {
         pr!(format!("Package '{}' has been installed", pkg_str), 'v');
     } else if installed {
@@ -225,7 +232,10 @@ pub fn query_status(pkg_str: &str) -> Result<&str, Box<dyn std::error::Error>> {
                 pr!(format!("Package '{}' is installed", pkg_str), 'v');
                 return Ok("installed");
             } else if line.contains("~ available") {
-                pr!(format!("Package '{}' is available but not installed", pkg_str), 'v');
+                pr!(
+                    format!("Package '{}' is available but not installed", pkg_str),
+                    'v'
+                );
                 return Ok("available");
             }
         }
