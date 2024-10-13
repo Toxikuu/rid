@@ -73,6 +73,7 @@ fn main() {
 
     let _ = tracking::populate_txt();
     let _ = tracking::align('~');
+    let _ = tracking::prune();
     let _ = tracking::alphabetize();
 
     match args {

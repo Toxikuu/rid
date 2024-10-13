@@ -36,6 +36,32 @@ pub fn alphabetize() -> io::Result<()> {
     Ok(())
 }
 
+pub fn prune() -> io::Result<()> {
+    let file = File::open(&*PKGSTXT)?;
+    let reader = io::BufReader::new(file);
+
+    let prunestrings = [".git", "LICENSE", "README.md"];
+    let mut lines = Vec::new();
+
+    for line in reader.lines() {
+        let line = line?;
+        if !prunestrings.iter().any(|&ps| line.contains(ps)) {
+            lines.push(line);
+        }
+    }
+
+    let mut file = OpenOptions::new()
+        .write(true)
+        .truncate(true)
+        .open(&*PKGSTXT)?;
+
+    for line in lines {
+        writeln!(file, "{}", line)?;
+    }
+
+    Ok(())
+}
+
 pub fn align(c: char) -> io::Result<()> {
     let file = File::open(&*PKGSTXT)?;
     let reader = io::BufReader::new(file);
