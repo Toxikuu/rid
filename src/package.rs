@@ -11,13 +11,11 @@ pub struct Package {
     pub deps: Vec<String>,
 }
 
-impl Package {
-    //pub fn format(&self, max_name_length: usize, status: &str) -> String {
-    //    format!("{:<max_name_length$} ~ {}", format!("{}-{}", self.name, self.version), status)
-    //}
-}
-
 pub fn form_package(pkg_str: &str) -> Result<Package, String> {
+    if pkg_str == ".git" || pkg_str == "README.md" || pkg_str == "LICENSE" {
+        return Err("refused".to_string());
+    }
+
     let mut name = String::new();
     let mut version = String::new();
     let mut link = None;
@@ -39,6 +37,10 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
                     }
                     _ => (),
                 }
+            }
+
+            if name.is_empty() {
+                return Err(format!("No name for package '{}'", pkg_str));
             }
 
             Ok(Package {
