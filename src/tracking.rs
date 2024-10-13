@@ -121,15 +121,12 @@ pub fn populate_txt() -> io::Result<()> {
             let pkg_name = entry.file_name().into_string().unwrap_or_default();
 
             if !pkg_name.is_empty() && !existing_packages.contains(&pkg_name) {
-                match form_package(&pkg_name) {
-                    Ok(pkg) => {
-                        writeln!(pkgstxt, "{}={} ~ available", pkg_name, pkg.version)?;
-                        pr!(
-                            format!("Added new package: {}={}", pkg_name, pkg.version),
-                            'v'
-                        );
-                    }
-                    Err(e) => eprintln!("Failed to form package: {}", e),
+                if let Ok(pkg) = form_package(&pkg_name) {
+                    writeln!(pkgstxt, "{}={} ~ available", pkg_name, pkg.version)?;
+                    pr!(
+                        format!("Added new package: {}={}", pkg_name, pkg.version),
+                        'v'
+                    )
                 }
             }
         } else {
