@@ -1,7 +1,7 @@
 // src/package.rs
 
-use crate::paths::RBIN;
 use crate::misc::static_exec;
+use crate::paths::RBIN;
 
 #[derive(Debug)]
 pub struct Package {
@@ -36,13 +36,18 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
                             .split_whitespace()
                             .map(|s| s.to_string())
                             .collect();
-                    },
+                    }
                     _ => (),
                 }
             }
 
-            Ok(Package { name, version, link, deps })
-        },
+            Ok(Package {
+                name,
+                version,
+                link,
+                deps,
+            })
+        }
         Err(e) => Err(format!("Failed to form package '{}': {}", pkg_str, e)),
     }
 }

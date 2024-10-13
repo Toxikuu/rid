@@ -1,10 +1,10 @@
 // src/misc.rs
 
-use std::thread;
-use std::io::{self, BufRead, Read};
 use std::fs::File;
-use std::process::{self, Command, Stdio};
+use std::io::{self, BufRead, Read};
 use std::path::PathBuf;
+use std::process::{self, Command, Stdio};
+use std::thread;
 use whoami::username;
 
 use crate::pr;
@@ -25,18 +25,17 @@ pub fn format_line(line: &str) -> String {
 }
 
 pub fn static_exec(command: &str) -> io::Result<String> {
-
-    let output = Command::new("bash")
-        .arg("-c")
-        .arg(command)
-        .output()?;
+    let output = Command::new("bash").arg("-c").arg(command).output()?;
 
     if output.status.success() {
         Ok(String::from_utf8_lossy(&output.stdout).to_string())
     } else {
         Err(io::Error::new(
             io::ErrorKind::Other,
-            format!("Command failed: {}", String::from_utf8_lossy(&output.stderr)),
+            format!(
+                "Command failed: {}",
+                String::from_utf8_lossy(&output.stderr)
+            ),
         ))
     }
 }
@@ -91,4 +90,3 @@ pub fn read_file(file_path: PathBuf) -> io::Result<String> {
     io::BufReader::new(file).read_to_string(&mut contents)?;
     Ok(contents)
 }
-

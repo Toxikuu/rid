@@ -17,17 +17,17 @@ macro_rules! pr {
         }
     }};
     ($fmt:expr, $flag:expr) => {{
-        use $crate::flags::{VERBOSE, QUIET};
+        use $crate::flags::{QUIET, VERBOSE};
 
         match $flag {
             'v' => {
                 if *VERBOSE.lock().unwrap() {
                     println!("{}", $fmt);
                 }
-            },
+            }
             'q' => {
                 println!("{}", $fmt);
-            },
+            }
             _ => {
                 if !*QUIET.lock().unwrap() {
                     println!("{}", $fmt);

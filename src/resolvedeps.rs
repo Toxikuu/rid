@@ -1,7 +1,7 @@
 // src/resolvedeps.rs
 
-use std::collections::HashSet;
 use crate::package::{form_package, Package};
+use std::collections::HashSet;
 
 use crate::pr;
 
@@ -13,10 +13,10 @@ fn deep_deps(pkg: &Package, resolved: &mut HashSet<String>, order: &mut Vec<Stri
             match form_package(dep) {
                 Ok(dep_pkg) => {
                     deep_deps(&dep_pkg, resolved, order);
-                },
+                }
                 Err(e) => {
                     eprintln!("Failed to load dependency '{}': {}", dep, e)
-                },
+                }
             }
         }
     }

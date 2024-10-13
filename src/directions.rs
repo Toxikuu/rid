@@ -2,10 +2,10 @@
 //
 // Responsible for executing various build directions
 
+use crate::flags::FORCE;
 use crate::misc::exec;
 use crate::paths::RBIN;
 use crate::tracking::query_status;
-use crate::flags::FORCE;
 
 use crate::pr;
 
@@ -21,18 +21,18 @@ pub fn eval_install_directions(pkg_str: &str) {
                     } else {
                         pr!(format!("Forcibly reinstalling package '{}'", pkg_str));
                     }
-                },
-                "available" => {},
+                }
+                "available" => {}
                 _ => {
                     pr!(format!("Package '{}' unavailable", pkg_str));
                     return;
-                },
+                }
             }
             let command = format!("{}/mint i {}", RBIN.display(), pkg_str);
             if let Err(e) = exec(&command) {
                 eprintln!("Failed to evaluate install directions: {}", e);
             }
-        },
+        }
         Err(e) => eprintln!("Error querying package: {}", e),
     }
 }
@@ -42,7 +42,7 @@ pub fn eval_removal_directions(pkg_str: &str) {
         Ok(status) => {
             pr!(format!("Status: {}", status), 'v');
             match status {
-                "installed" => {},
+                "installed" => {}
                 "available" => {
                     if !*FORCE.lock().unwrap() {
                         pr!(format!("Package '{}' is not installed", pkg_str));
@@ -50,7 +50,7 @@ pub fn eval_removal_directions(pkg_str: &str) {
                     } else {
                         pr!(format!("Forcibly removing package '{}'", pkg_str));
                     }
-                },
+                }
                 _ => {
                     pr!(format!("Package '{}' unavailable", pkg_str));
                     return;
@@ -60,7 +60,7 @@ pub fn eval_removal_directions(pkg_str: &str) {
             if let Err(e) = exec(&command) {
                 eprintln!("Failed to evaluate removal directions: {}", e);
             }
-        },
+        }
         Err(e) => eprintln!("Error querying package: {}", e),
     }
 }
