@@ -1,4 +1,5 @@
 // src/tracking.rs
+// responsible for various package tracking tasks and helper functions
 
 use crate::package::form_package;
 use crate::paths::{META, PKGSTXT};
@@ -30,6 +31,34 @@ pub fn alphabetize() -> io::Result<()> {
 
     for line in lines {
         writeln!(file, "{}", line)?;
+    }
+
+    Ok(())
+}
+
+pub fn remove_nonexistent_packages() -> io::Result<()> {
+    let existent_packages: Vec<String> = fs::read_dir("/etc/rid/meta")?
+        .filter_map(Result::ok)
+        .filter_map(|entry| entry.file_name().into_string().ok())
+        .collect();
+
+    let file = File::open(&*PKGSTXT)?;
+    let reader = io::BufReader::new(file);
+
+    let mut valid_lines: Vec<String> = Vec::new();
+
+    for line in reader.lines() {
+        let line = line?;
+        if let Some(pkg_name) = line.split('=').next() {
+            if existent_packages.contains(&pkg_name.to_string()) {
+                valid_lines.push(line);
+            }
+        }
+    }
+
+    let mut output = File::create(&*PKGSTXT)?;
+    for valid_line in valid_lines {
+        writeln!(output, "{}", valid_line)?;
     }
 
     Ok(())
