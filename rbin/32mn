@@ -3,13 +3,17 @@
 # 32mn wraps the configure, build, and install process for 32-bit packages
 # any arguments passed to it are interpreted as meson arguments
 
-rm    -rf ridbuild                          &&
-mkdir -pv ridbuild                          &&
-cd        ridbuild                          &&
+CFGPATH="."
+if [ -z $RIDBUILD ]; then
+  rm    -rf ridbuild                        &&
+  mkdir -pv ridbuild                        &&
+  cd        ridbuild                        &&
+  CFGPATH=".."
+fi
 
 CC="gcc -m32" CXX="g++ -m32"                \
 PKG_CONFIG_PATH=/usr/lib32/pkgconfig        \
-meson setup ..                              \
+meson setup $CFGPATH                        \
   --prefix=/usr                             \
   --libdir=/usr/lib32                       \
   --buildtype=release                       \
