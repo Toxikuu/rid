@@ -4,6 +4,9 @@ export CXXFLAGS="${CFLAGS}"
 export FFLAGS="-O2"
 export LDFLAGS="-Wl,--as-needed"
 
+export CARGO_HOME="/opt/cargo"
+export RUSTUP_HOME="/opt/rustup"
+
 export VDPAU_DRIVER="va_gl"
 export XORG_PREFIX="/usr"  # changing this is not supported
 export XORG_CONFIG="--prefix=/usr         --sysconfdir=/etc \
@@ -34,9 +37,14 @@ pathappend () {
         export $PATHVARIABLE="${!PATHVARIABLE:+${!PATHVARIABLE}:}$1"
 }
 
-export -f pathremove pathprepend pathappend
+die() {
+    echo "Error: $1" >&2
+    exit 1
+}
+
+export -f pathremove pathprepend pathappend die
 
 pathappend /usr/bin
 pathappend /usr/sbin
-pathappend /opt/rustc/bin
+pathappend /opt/cargo/bin
 pathprepend /etc/rid/rbin
