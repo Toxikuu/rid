@@ -1,8 +1,6 @@
 // src/bootstrap.rs
 //
 // Responsible for bootsrapping rid
-// Bootsrapping includes creating directories and files
-// Plans exist to fetch build scripts as well
 
 use crate::misc::exec;
 use crate::paths::*;

@@ -1,4 +1,6 @@
 // src/macros.rs
+//
+// defines macros for use elsewhere
 
 // pr! usage:
 // pr!("hello") prints hello unless -q

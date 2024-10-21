@@ -1,4 +1,6 @@
 // src/misc.rs
+//
+// defines miscellaneous helper functions
 
 use std::fs::File;
 use std::io::{self, BufRead, Read};

@@ -1,4 +1,5 @@
 // src/flags.rs
+// stores flags for global use
 
 use lazy_static::lazy_static;
 use std::sync::Mutex;
