@@ -73,12 +73,11 @@ fn main() {
     );
 
     bootstrap::tmp();
-    //let _ = misc::exec("sleep 5");
-
-    let _ = tracking::populate_txt();
-    let _ = tracking::align('~');
-    let _ = tracking::prune();
-    let _ = tracking::alphabetize();
+    tracking::populate_txt().unwrap();
+    tracking::align('~').unwrap();
+    tracking::prune().unwrap();
+    tracking::remove_nonexistent_packages().unwrap();
+    tracking::alphabetize().unwrap();
 
     match args {
         Args {
@@ -193,11 +192,6 @@ fn main() {
                             let formatted_m = misc::format_line(&m);
                             pr!(format!("  {}", formatted_m), 'q')
                         }
-
-                        //for dep in dependencies {
-                        //    let status = tracking::query_status(&pkg).unwrap_or("unavailable");
-                        //    pr!(format!("  {:<40} ~ {}", dep, status), 'q');
-                        //}
                     }
                     Err(e) => {
                         eprintln!("Failed to form package '{}': {}", pkg, e);
