@@ -1,6 +1,8 @@
 work on meta files
 add abstractions for cmake
 
+fix showing extra dependencies due to poor matching (rust* for ex)
+
 test ux
 consider only calling query_status() once
 add config options in /etc/rid/config (eventually)
