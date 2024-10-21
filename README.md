@@ -6,17 +6,61 @@ Rid is a package manager for LFS systems written in rust. The binary 'rid' handl
 Rid stores necessary files in /etc/rid.
 - The build scripts are defined in /etc/rid/meta.
 - The tarballs are stored in /etc/rid/sources.
-- Some utilities are stored in /etc/rid/utilies.
+- Some executable files are stored in /etc/rid/rbin.
+- Some defaults are stored in /etc/rid/defaults.
 
-Rid also creates two directories in /tmp/rid.
+Rid also creates some directories in /tmp/rid.
 - Packages are built in /tmp/rid/building.
 - Tarballs are extracted in /tmp/rid/extraction.
+- Destdir installs are done in /tmp/rid/dest.
+- Some files get trashed in /tmp/rid/trash.
+
+Rid automatically resolves dependencies.
 
 ## Usage
-Coming soon
+```bash
+Usage: rid [OPTIONS]
+
+Options:
+  -i, --install <PACKAGE>...
+  -n, --install-no-deps <PACKAGE>...
+  -r, --remove <PACKAGE>...
+  -u, --update <PACKAGE>...
+  -d, --dependencies <PACKAGE>...
+  -l, --list
+  -b, --bootstrap
+  -s, --sync
+  -S, --sync-overwrite
+  -v, --verbose
+  -q, --quiet
+  -D, --download
+  -f, --force
+  -h, --help                          Print help
+  -V, --version                       Print version
+```
 
 ## Installation
-Coming soon
+### Binary
+Rid can be bootstrapped from just the binary:
+```bash
+rid -b
+```
+
+### From source
+Note, these commands have yet to be tested.
+```bash
+# as root
+pushd /etc
+git clone https://github.com/Toxikuu/rid && cd rid
+git clone https://github.com/Toxikuu/rid-meta
+cargo build --release
+
+ln -sfv /etc/rid/target/release/rid /bin/rid  # or you can use /bin/install
+popd
+```
+
+### Dependencies
+Rid depends on very little. You need libssl, libcrypto, libc, and libgcc (and Linux). You may be able to get away with just libc and libgcc if you have the tarballs stored locally.
 
 ## Credits
 Coming soon
