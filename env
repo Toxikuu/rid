@@ -1,3 +1,4 @@
+#!/bin/bash  # for syntax highlighting lol
 export MAKEFLAGS="-j$(nproc)"
 export CFLAGS="-O2 -march=native"
 export CXXFLAGS="${CFLAGS}"
@@ -46,5 +47,7 @@ export -f pathremove pathprepend pathappend die
 
 pathappend /usr/bin
 pathappend /usr/sbin
-pathappend /opt/cargo/bin
 pathprepend /etc/rid/rbin
+
+[ -d /opt/pnpm ]      && pathappend  /opt/pnpm
+[ -d /opt/cargo/bin ] && pathprepend /opt/cargo/bin
