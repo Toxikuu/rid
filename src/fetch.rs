@@ -5,7 +5,7 @@
 
 use crate::flags::{DOWNLOAD, FORCE};
 use crate::misc::exec;
-use crate::package::Package;
+use crate::package::{Package, PackageStatus};
 use crate::paths::SOURCES;
 use crate::tracking::query_status;
 use reqwest::blocking::get;
@@ -85,10 +85,10 @@ fn extract(tarball: &str, pkg_str: &str, vers: &str) -> io::Result<()> {
 
     match query_status(pkg_str) {
         Ok(status) => {
-            pr!(format!("Status: {}", status), 'v');
+            pr!(format!("Status: {:?}", status), 'v');
 
             match status {
-                "installed" => {
+                PackageStatus::Installed => {
                     if !*FORCE.lock().unwrap() {
                         pr!(format!(
                             "Not extracting tarball for installed package '{}'",
@@ -102,7 +102,7 @@ fn extract(tarball: &str, pkg_str: &str, vers: &str) -> io::Result<()> {
                         ));
                     }
                 }
-                "available" => {}
+                PackageStatus::Available => {}
                 _ => {
                     pr!(format!("Package '{}' unavailable", pkg_str));
                     return Ok(());

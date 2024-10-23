@@ -2,13 +2,22 @@
 
 use crate::misc::static_exec;
 use crate::paths::RBIN;
+use serde::{Deserialize, Serialize}; // Add this line
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
+pub enum PackageStatus {
+    Available,
+    Installed,
+    Removed,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Package {
     pub name: String,
     pub version: String,
     pub link: Option<String>,
     pub deps: Vec<String>,
+    pub status: PackageStatus,
 }
 
 pub fn form_package(pkg_str: &str) -> Result<Package, String> {
@@ -48,6 +57,7 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
                 version,
                 link,
                 deps,
+                status: PackageStatus::Available,
             })
         }
         Err(e) => Err(format!("Failed to form package '{}': {}", pkg_str, e)),

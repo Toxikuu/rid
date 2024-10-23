@@ -1,6 +1,6 @@
 // src/main.rs
 
-use crate::paths::PKGSTXT;
+use crate::paths::PKGSJSON;
 use clap::Parser;
 use directions::{eval_install_directions, eval_removal_directions, eval_update_directions};
 use misc::check_perms;
@@ -59,7 +59,19 @@ struct Args {
 
     #[arg(short = 'f', long)]
     force: bool,
+
+    #[arg(short = 'c', long)]
+    cache: bool,
 }
+
+//fn pl() -> std::vec::Vec<package::Package> {
+//    // package list
+//    bootstrap::tmp();
+//    let _ = tracking::populate_json();
+//    let pkg_list = tracking::load_package_list(PKGSJSON.as_path()).unwrap_or_else(|_| Vec::new());
+//
+//    pkg_list
+//}
 
 fn main() {
     let args = Args::parse();
@@ -73,13 +85,15 @@ fn main() {
     );
 
     bootstrap::tmp();
-    tracking::populate_txt().unwrap();
-    tracking::align('~').unwrap();
-    tracking::prune().unwrap();
-    tracking::remove_nonexistent_packages().unwrap();
-    tracking::alphabetize().unwrap();
+    let mut pkg_list =
+        tracking::load_package_list(PKGSJSON.as_path()).unwrap_or_else(|_| Vec::new());
+    let _ = tracking::append_json(&mut pkg_list);
 
     match args {
+        Args { cache, .. } if cache => {
+            let _ = tracking::populate_json();
+        }
+
         Args {
             install_no_deps: Some(pkgs),
             ..
@@ -93,12 +107,13 @@ fn main() {
                     Ok(pkg_) => {
                         fetch::wrap(&pkg_);
                         eval_install_directions(&pkg);
-                        tracking::add_package(&pkg, &pkg_.version);
+                        let _ = tracking::add_package(&mut pkg_list, &pkg);
                     }
                     Err(e) => eprintln!("Failed to form package '{}': {}", pkg, e),
                 }
             }
         }
+
         Args {
             install: Some(pkgs),
             ..
@@ -120,7 +135,7 @@ fn main() {
                                 Ok(dep_) => {
                                     fetch::wrap(&dep_);
                                     eval_install_directions(&dep);
-                                    tracking::add_package(&dep, &dep_.version);
+                                    let _ = tracking::add_package(&mut pkg_list, &dep);
                                 }
                                 Err(e) => eprintln!("Failed to form package '{}': {}", dep, e),
                             }
@@ -132,6 +147,7 @@ fn main() {
                 }
             }
         }
+
         Args {
             remove: Some(pkgs), ..
         } => {
@@ -140,9 +156,10 @@ fn main() {
             for pkg in pkgs {
                 pr!(format!("Removing package: {}", pkg));
                 eval_removal_directions(&pkg);
-                tracking::remove_package(&pkg);
+                let _ = tracking::remove_package(&mut pkg_list, &pkg);
             }
         }
+
         Args {
             update: Some(pkgs), ..
         } => {
@@ -155,12 +172,13 @@ fn main() {
                     Ok(pkg_) => {
                         fetch::wrap(&pkg_);
                         eval_update_directions(&pkg);
-                        tracking::add_package(&pkg, &pkg_.version);
+                        let _ = tracking::add_package(&mut pkg_list, &pkg);
                     }
                     Err(e) => eprintln!("Failed to form package '{}': {}", pkg, e),
                 }
             }
         }
+
         Args {
             dependencies: Some(pkgs),
             ..
@@ -171,26 +189,35 @@ fn main() {
                 match package::form_package(&pkg) {
                     Ok(pkg_) => {
                         let dependencies = resolvedeps::resolve_deps(&pkg_);
-                        let contents = misc::read_file(PKGSTXT.clone()).unwrap();
 
-                        let mut matches: Vec<String> = Vec::new();
+                        match misc::read_json(PKGSJSON.clone()) {
+                            Ok(package_list) => {
+                                let mut matches: Vec<String> = Vec::new();
 
-                        for dep in &dependencies {
-                            if dep.is_empty() {
-                                eprintln!("Undefined dependency detected!");
-                                std::process::exit(1);
-                            }
+                                for dep in &dependencies {
+                                    if dep.is_empty() {
+                                        eprintln!("Undefined dependency detected!");
+                                        std::process::exit(1);
+                                    }
 
-                            for line in contents.lines() {
-                                if line.contains(dep) {
-                                    matches.push(line.to_string());
+                                    for package in &package_list {
+                                        if package.name == *dep {
+                                            matches.push(format!(
+                                                "{}={} ~ {:?}",
+                                                package.name, package.version, package.status
+                                            ))
+                                        }
+                                    }
+                                }
+
+                                for m in matches {
+                                    let formatted_m = misc::format_line(&m, 30);
+                                    pr!(format!("  {}", formatted_m), 'q')
                                 }
                             }
-                        }
-
-                        for m in matches {
-                            let formatted_m = misc::format_line(&m);
-                            pr!(format!("  {}", formatted_m), 'q')
+                            Err(e) => {
+                                eprintln!("Error reading packages.json: {}", e);
+                            }
                         }
                     }
                     Err(e) => {
@@ -199,33 +226,42 @@ fn main() {
                 }
             }
         }
-        Args { list, .. } if list => match misc::read_file(PKGSTXT.clone()) {
-            Ok(contents) => {
+
+        Args { list, .. } if list => match misc::read_json(PKGSJSON.clone()) {
+            Ok(package_list) => {
                 pr!("\x1b[30;1;3mPACKAGES\x1b[0m");
-                for line in contents.lines() {
-                    let formatted_line = misc::format_line(line);
+                for package in package_list {
+                    let line = format!(
+                        "{}={} ~ {:?}",
+                        package.name, package.version, package.status,
+                    );
+                    let formatted_line = misc::format_line(&line, 30);
                     pr!(format!("  {}", formatted_line), 'q');
                 }
             }
             Err(e) => eprintln!("Error reading file: {}", e),
         },
+
         Args { bootstrap, .. } if bootstrap => {
             check_perms();
             pr!("\x1b[36;1mBootstrapping rid...\x1b[0m");
             bootstrap::run();
         }
+
         Args { sync, .. } if sync => {
             check_perms();
             pr!("\x1b[36;1mSyncing rid-meta...\x1b[0m");
             bootstrap::get_rid_meta(false);
         }
+
         Args { sync_overwrite, .. } if sync_overwrite => {
             check_perms();
             pr!("\x1b[36;1mSyncing rid-meta with overwrite...\x1b[0m");
             bootstrap::get_rid_meta(true);
         }
+
         _ => {
-            pr!("No valid arguments provided.")
+            pr!("No valid arguments provided.", 'q')
         }
     }
 }

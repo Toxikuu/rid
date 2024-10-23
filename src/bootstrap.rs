@@ -4,6 +4,7 @@
 
 use crate::misc::exec;
 use crate::paths::*;
+use crate::tracking::populate_json;
 use reqwest::blocking::get;
 use std::error::Error;
 use std::fs::{self, File};
@@ -93,8 +94,8 @@ fn bootstrap() {
     get_rid_meta(false);
 
     match exec(
-        "touch /etc/rid/packages.txt     && \
-                chmod 666 /etc/rid/packages.txt && \
+        "touch /etc/rid/pkgs.json               && \
+                chmod 666 /etc/rid/pkgs.json    && \
                 chmod 755 /etc/rid/rbin/*",
     ) {
         Ok(_) => pr!("Made files in rbin executable"),
@@ -126,7 +127,7 @@ fn mkdir<P: AsRef<Path>>(path: P) -> io::Result<()> {
         pr!(format!("Directory '{}' extant", path_ref.display()), 'v');
     } else {
         fs::create_dir_all(path_ref)?;
-        pr!(format!("Created directory '{}'", path_ref.display()));
+        pr!(format!("Created directory '{}'", path_ref.display()), 'v');
     }
     Ok(())
 }
@@ -151,5 +152,6 @@ pub fn run() {
         }
     }
 
+    let _ = populate_json();
     bootstrap();
 }

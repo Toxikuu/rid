@@ -2,13 +2,15 @@
 //
 // defines miscellaneous helper functions
 
-use std::fs::File;
-use std::io::{self, BufRead, Read};
-use std::path::PathBuf;
+use serde_json::from_str;
+use std::fs::read_to_string;
+use std::io::{self, BufRead};
+use std::path::Path;
 use std::process::{self, Command, Stdio};
 use std::thread;
 use whoami::username;
 
+use crate::package::Package;
 use crate::pr;
 
 pub fn check_perms() {
@@ -18,12 +20,37 @@ pub fn check_perms() {
     }
 }
 
-pub fn format_line(line: &str) -> String {
-    match line {
-        _ if line.contains("available") => line.replace("available", "\x1b[30mavailable\x1b[0m"),
-        _ if line.contains("installed") => line.replace("installed", "\x1b[36;1minstalled\x1b[0m"),
-        _ => line.to_string(),
+pub fn format_line(line: &str, max_length: usize) -> String {
+    let parts: Vec<&str> = line.split('~').collect();
+
+    if parts.len() < 2 {
+        return line.to_string();
     }
+
+    let package_info = parts[0].trim();
+    let status = parts[1].trim();
+    let formatted_status = match status {
+        "Available" => "\x1b[30mAvailable\x1b[0m".to_string(),
+        "Installed" => "\x1b[36;1mInstalled\x1b[0m".to_string(),
+        _ => status.to_string(),
+    };
+
+    let name_version_length = package_info.len() + 1;
+
+    let padding = if max_length > name_version_length {
+        max_length - name_version_length
+    } else {
+        0
+    };
+    let spaces = " ".repeat(padding);
+
+    format!("{}{} ~ {}", package_info, spaces, formatted_status)
+
+    //match line {
+    //    _ if line.contains("Available") => line.replace("Available", "\x1b[30mAvailable\x1b[0m"),
+    //    _ if line.contains("Installed") => line.replace("Installed", "\x1b[36;1mInstalled\x1b[0m"),
+    //    _ => line.to_string(),
+    //}
 }
 
 pub fn static_exec(command: &str) -> io::Result<String> {
@@ -85,10 +112,7 @@ pub fn exec(command: &str) -> io::Result<()> {
     Ok(())
 }
 
-pub fn read_file(file_path: PathBuf) -> io::Result<String> {
-    let file = File::open(file_path)?;
-    let mut contents = String::new();
-
-    io::BufReader::new(file).read_to_string(&mut contents)?;
-    Ok(contents)
+pub fn read_json<P: AsRef<Path>>(path: P) -> Result<Vec<Package>, String> {
+    let contents = read_to_string(path).map_err(|e| e.to_string())?;
+    from_str(&contents).map_err(|e| e.to_string())
 }
