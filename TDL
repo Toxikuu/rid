@@ -1,9 +1,68 @@
-work on meta files
-add abstractions for cmake
+# Project: rid
+# Updated: Tue Oct 22 22:25:03 CDT 2024
 
-fix showing extra dependencies due to poor matching (rust* for ex)
+## Tasks
 
-test ux
-consider only calling query_status() once
-add config options in /etc/rid/config (eventually)
-add organization for meta files (try using TYPE variable?)
+### TODO
+- [ ] Work on meta files
+    - Description: Create and test LFS, TLFS, GLFS, and BLFS meta files
+    - Priority: 3
+    - Difficulty: 7
+- [ ] Add cmake abstractions
+    - Description: Same idea as mn* and cm*
+    - Priority: 4
+    - Difficulty: 9
+- [ ] Add logging
+    - Description: Add logging for build scripts, to be stored in /etc/rid/log
+    - Priority: 1
+    - Difficulty: 6
+- [ ] Add config options in /etc/rid/config
+    - Description: Configuration options for how rid should behave by default
+    - Priority: 10
+    - Difficulty: 4
+- [ ] Make cache not reset status
+    - Title
+    - Priority: 0
+    - Difficulty: 7
+    - Notes: This is why I need UX testing. I only just found this LOL
+
+### WIP
+- [ ] Test UX
+    - Description: Use rid and fix any UX flaws
+    - Priority: 8
+    - Difficulty: 8
+    - Notes: I should get UX testers who aren't me to help with this
+    - Progress: 15%
+
+### COMPLETED
+- [X] Revamp TDL
+    - Description: Make it a lot more readable and usable
+    - Priority: 6
+    - Difficulty: 10
+    - Date: 2024-10-22
+    - Notes: I was sick of using the old format
+- [X] Fix extraneous dependency matches
+    - Description: Bug where poor string matching resulted in showing extra dependencies
+    - Priority: 2
+    - Difficulty: 9
+    - Date: 2024-10-22
+    - Notes: Fixed by migrating to JSON which I wanted to do anyway
+- [X] Migrate to JSON
+    - Description: Migrate from using packages.txt to pkgs.json
+    - Priority: 1
+    - Difficulty: 4
+    - Date: 2024-10-22
+    - Notes: Pain in the ass but its done now
+- [X] Add caching to improve performance
+    - Description: Problem introduced by JSON migration and refactoring wherein every meta file was loaded into a struct, crippling performance
+    - Priority: 1
+    - Difficulty: 8
+    - Date: 2024-10-21
+    - Notes: Fairly easy fix, now available via -c
+
+### CONSIDERATIONS
+- [ ] Organize meta files
+    - Description: Come up with an organization metric for meta files
+    - Priority: 10
+    - Difficulty: 8
+    - Notes: Could probably be done via a TYPE variable in the build scripts, but this organization may also worsen UX
