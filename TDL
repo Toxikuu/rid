@@ -20,11 +20,6 @@
     - Description: Configuration options for how rid should behave by default
     - Priority: 10
     - Difficulty: 4
-- [ ] Make cache not reset status
-    - Title
-    - Priority: 0
-    - Difficulty: 7
-    - Notes: This is why I need UX testing. I only just found this LOL
 
 ### WIP
 - [ ] Test UX
@@ -33,6 +28,11 @@
     - Difficulty: 8
     - Notes: I should get UX testers who aren't me to help with this
     - Progress: 15%
+- [X] Make cache not reset status
+    - Title
+    - Priority: 0
+    - Difficulty: 7
+    - Notes: I'm pretty sure this is fixed now, but more testing is necessary
 
 ### COMPLETED
 - [X] Revamp TDL

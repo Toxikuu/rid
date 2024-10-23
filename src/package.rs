@@ -1,17 +1,18 @@
 // src/package.rs
 
 use crate::misc::static_exec;
-use crate::paths::RBIN;
-use serde::{Deserialize, Serialize}; // Add this line
+use crate::paths::{PKGSJSON, RBIN};
+use crate::tracking::load_package_list;
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum PackageStatus {
     Available,
     Installed,
     Removed,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Package {
     pub name: String,
     pub version: String,
@@ -52,12 +53,18 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
                 return Err("Likely nonexistent metafile".to_string());
             }
 
+            let package_list = load_package_list(&PKGSJSON).unwrap_or_else(|_| Vec::new());
+            let status = package_list
+                .iter()
+                .find(|p| p.name == name)
+                .map_or(PackageStatus::Available, |p| p.status.clone());
+
             Ok(Package {
                 name,
                 version,
                 link,
                 deps,
-                status: PackageStatus::Available,
+                status,
             })
         }
         Err(e) => Err(format!("Failed to form package '{}': {}", pkg_str, e)),
