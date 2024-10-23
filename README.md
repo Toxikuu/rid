@@ -12,7 +12,7 @@ Rid stores necessary files in /etc/rid.
 Rid also creates some directories in /tmp/rid.
 - Packages are built in /tmp/rid/building.
 - Tarballs are extracted in /tmp/rid/extraction.
-- Destdir installs are done in /tmp/rid/dest.
+- Some destdir installs are done in /tmp/rid/dest.
 - Some files get trashed in /tmp/rid/trash.
 
 Rid automatically resolves dependencies.
@@ -35,6 +35,7 @@ Options:
   -q, --quiet
   -D, --download
   -f, --force
+  -c, --cache
   -h, --help                          Print help
   -V, --version                       Print version
 ```
@@ -55,7 +56,9 @@ git clone https://github.com/Toxikuu/rid && cd rid
 git clone https://github.com/Toxikuu/rid-meta
 cargo build --release
 
-ln -sfv /etc/rid/target/release/rid /bin/rid  # or you can use /bin/install
+ln -sfv /etc/rid/target/release/rid /bin/rid
+# ln is done in case you want to git pull
+# if not, feel free to use /bin/install instead
 popd
 ```
 
@@ -63,4 +66,7 @@ popd
 Rid depends on very little. You need libssl, libcrypto, libc, and libgcc (and Linux). You may be able to get away with just libc and libgcc if you have the tarballs stored locally.
 
 ## Credits
-Coming soon
+Thanks to:
+- The LFS community
+- The AUR (whose PKGBUILDs I referenced)
+- The crate authors whose work rid is built on
