@@ -8,7 +8,7 @@ function pre {
   . /etc/rid/meta/"$METAFILE" || { die "Failed to source /etc/rid/meta/$METAFILE"; exit 1; }
   av=$(compgen -v)
 
-  unset BUILD_FAILED
+  export BUILD_FAILED=false
 }
 
 function cleanup {
@@ -22,7 +22,7 @@ function cleanup {
 
 function ins {
   check_perms
-  pushd /tmp/rid/building/$NAME-$VERS > /dev/null || { die "Failed to enter installation directory"; exit 1; }
+  pushd /tmp/rid/building/$NAME-$VERS > /dev/null || { die "Failed to enter build directory"; exit 1; }
 
   echo "Installing $NAME-$VERS..."
   eval "$IDIR"
@@ -41,15 +41,10 @@ function check_perms {
   fi
 }
 
-function alert_failed {
-    echo "BUILD FAILED FOR $NAME-$VERS" >&2
-    export BUILD_FAILED=true
-}
-
 pre
 case $1 in
   i)
-    ins || alert_failed
+    ins || die "Install failure"
     popd > /dev/null
     cleanup
     ;;
