@@ -40,6 +40,7 @@ pathappend () {
 
 die() {
     echo "Error: $1" >&2
+    export BUILD_FAILED=true
     exit 1
 }
 
