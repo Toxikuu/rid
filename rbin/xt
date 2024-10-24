@@ -1,0 +1,17 @@
+#!/bin/bash
+# xt = extract
+# wraps the extraction process for rid
+#
+# $1 = tarball
+# $2 = pkg_str
+# $3 = vers
+
+if [ $# -lt 3 ]; then
+    echo "Usage: $0 <tarball> <pkg_str> <vers>"
+    exit 1
+fi
+
+rm -rf   /tmp/rid/{building,extraction}/*
+tar xf   /etc/rid/sources/"$1" -C /tmp/rid/extraction
+mkdir -p /tmp/rid/building/"$2-$3"
+mv -Tf   /tmp/rid/extraction/*    /tmp/rid/building/"$2-$3"
