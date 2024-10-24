@@ -3,19 +3,28 @@
 // Responsible for fetching the tarball, extracting it, and entering the directory, as well as
 // keeping the tarball around after.
 
-use crate::flags::{DOWNLOAD, FORCE};
+use crate::flags::FORCE;
 use crate::misc::exec;
 use crate::package::{Package, PackageStatus};
-use crate::paths::SOURCES;
-use crate::tracking::query_status;
-use reqwest::blocking::get;
-use std::error::Error;
-use std::fs::File;
-use std::io::{self, Write};
-use std::path::Path;
-
 use crate::pr;
+use crate::tracking::query_status;
+use std::io;
 
+#[cfg(not(feature = "offline"))]
+mod online {
+    pub use crate::flags::DOWNLOAD;
+    pub use crate::paths::SOURCES;
+    pub use reqwest::blocking::get;
+    pub use std::error::Error;
+    pub use std::fs::File;
+    pub use std::io::Write;
+    pub use std::path::Path;
+}
+
+#[cfg(not(feature = "offline"))]
+use online::*;
+
+#[cfg(not(feature = "offline"))]
 fn download(pkg: &Package) -> Result<String, Box<dyn Error>> {
     let url = match &pkg.link {
         Some(url) => {
@@ -57,10 +66,10 @@ fn download(pkg: &Package) -> Result<String, Box<dyn Error>> {
     }
 
     if url.contains("sourceforge") {
-        pr!("Downloading sourceforge tarball with wget");
-        let command = format!("wget {} -O {}", url, &file_path.to_string_lossy());
-        exec(&command)?;
-        return Ok(file_name);
+        pr!(
+            "Detected a sourceforge domain; I hope you have a direct url!",
+            'v'
+        )
     }
 
     let r = get(url)?;
@@ -109,10 +118,7 @@ fn extract(tarball: &str, pkg_str: &str, vers: &str) -> io::Result<()> {
                 }
             }
 
-            let command = format!(
-                "rm -rf /tmp/rid/building/* && rm -rf /tmp/rid/extraction/* && tar xvf {}/{} -C /tmp/rid/extraction && mv -Tvf /tmp/rid/extraction/* /tmp/rid/building/{}-{}", 
-                SOURCES.display(), tarball, pkg_str, vers
-            );
+            let command = format!("/etc/rid/rbin/xt {} {} {}", tarball, pkg_str, vers);
 
             exec(&command).map_err(|e| {
                 eprintln!("Execution failed: {}", e);
@@ -132,6 +138,18 @@ fn extract(tarball: &str, pkg_str: &str, vers: &str) -> io::Result<()> {
 }
 
 pub fn wrap(pkg: &Package) {
+    #[cfg(feature = "offline")]
+    {
+        let tarball = format!("{}-{}.tar", pkg.name, pkg.version);
+        match extract(&tarball, &pkg.name, &pkg.version) {
+            Ok(()) => {
+                pr!("Successfully extracted tarball", 'v');
+            }
+            Err(e) => eprintln!("Failed to extract tarball: {}", e),
+        }
+    }
+
+    #[cfg(not(feature = "offline"))]
     match download(pkg) {
         Ok(tarball) => {
             pr!("Successfully downloaded tarball", 'v');

@@ -4,8 +4,13 @@ use crate::paths::PKGSJSON;
 use clap::Parser;
 use directions::{eval_install_directions, eval_removal_directions, eval_update_directions};
 use misc::check_perms;
+use package::form_package;
+
+#[cfg(feature = "offline")]
+use std::process::exit;
 
 mod bootstrap;
+mod clean;
 mod directions;
 mod fetch;
 mod flags;
@@ -33,6 +38,9 @@ struct Args {
 
     #[arg(short = 'd', long, value_name = "PACKAGE", value_parser, num_args = 1.., value_delimiter = ' ')]
     dependencies: Option<Vec<String>>,
+
+    #[arg(short = 'p', long, value_name = "PACKAGE", value_parser, num_args = 1.., value_delimiter = ' ')]
+    prune: Option<Vec<String>>,
 
     // function flags
     #[arg(short = 'l', long)]
@@ -63,15 +71,6 @@ struct Args {
     #[arg(short = 'c', long)]
     cache: bool,
 }
-
-//fn pl() -> std::vec::Vec<package::Package> {
-//    // package list
-//    bootstrap::tmp();
-//    let _ = tracking::populate_json();
-//    let pkg_list = tracking::load_package_list(PKGSJSON.as_path()).unwrap_or_else(|_| Vec::new());
-//
-//    pkg_list
-//}
 
 fn main() {
     let args = Args::parse();
@@ -161,6 +160,21 @@ fn main() {
         }
 
         Args {
+            prune: Some(pkgs), ..
+        } => {
+            check_perms();
+
+            for pkg in pkgs {
+                pr!(format!("Pruning package: {}", pkg));
+
+                match form_package(&pkg) {
+                    Ok(p) => clean::sources(p.name, p.version),
+                    Err(e) => eprintln!("Failed to form package '{}': {}", pkg, e),
+                }
+            }
+        }
+
+        Args {
             update: Some(pkgs), ..
         } => {
             check_perms();
@@ -243,21 +257,48 @@ fn main() {
         },
 
         Args { bootstrap, .. } if bootstrap => {
-            check_perms();
-            pr!("\x1b[36;1mBootstrapping rid...\x1b[0m");
-            bootstrap::run();
+            #[cfg(feature = "offline")]
+            {
+                pr!("\x1b[36;1mBootstrapping is not supported for offline rid\x1b[0m");
+                exit(1)
+            }
+
+            #[cfg(not(feature = "offline"))]
+            {
+                check_perms();
+                pr!("\x1b[36;1mBootstrapping rid...\x1b[0m");
+                bootstrap::run();
+            }
         }
 
         Args { sync, .. } if sync => {
-            check_perms();
-            pr!("\x1b[36;1mSyncing rid-meta...\x1b[0m");
-            bootstrap::get_rid_meta(false);
+            #[cfg(feature = "offline")]
+            {
+                pr!("\x1b[36;1mSyncing is not supported for offline rid\x1b[0m");
+                exit(1)
+            }
+
+            #[cfg(not(feature = "offline"))]
+            {
+                check_perms();
+                pr!("\x1b[36;1mSyncing rid-meta...\x1b[0m");
+                bootstrap::get_rid_meta(false);
+            }
         }
 
         Args { sync_overwrite, .. } if sync_overwrite => {
-            check_perms();
-            pr!("\x1b[36;1mSyncing rid-meta with overwrite...\x1b[0m");
-            bootstrap::get_rid_meta(true);
+            #[cfg(feature = "offline")]
+            {
+                pr!("\x1b[36;1mSyncing is not supported for offline rid\x1b[0m");
+                exit(1)
+            }
+
+            #[cfg(not(feature = "offline"))]
+            {
+                check_perms();
+                pr!("\x1b[36;1mSyncing rid-meta with overwrite...\x1b[0m");
+                bootstrap::get_rid_meta(true);
+            }
         }
 
         _ => {

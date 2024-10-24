@@ -21,7 +21,7 @@ pub fn eval_install_directions(pkg_str: &str) {
                         pr!(format!("Package '{}' is already installed.", pkg_str));
                         return;
                     } else {
-                        pr!(format!("Forcibly reinstalling package '{}'.", pkg_str));
+                        pr!(format!("Forcibly installing package '{}'.", pkg_str));
                     }
                 }
                 PackageStatus::Available => {

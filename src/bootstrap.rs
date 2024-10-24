@@ -2,18 +2,27 @@
 //
 // Responsible for bootsrapping rid
 
-use crate::misc::exec;
 use crate::paths::*;
-use crate::tracking::populate_json;
-use reqwest::blocking::get;
-use std::error::Error;
-use std::fs::{self, File};
-use std::io::{self, Write};
-use std::path::Path;
-use std::process::exit;
-
 use crate::pr;
+use std::fs;
+use std::io;
+use std::path::Path;
 
+#[cfg(not(feature = "offline"))]
+mod online {
+    pub use crate::misc::exec;
+    pub use crate::tracking::populate_json;
+    pub use reqwest::blocking::get;
+    pub use std::error::Error;
+    pub use std::fs::File;
+    pub use std::io::Write;
+    pub use std::process::exit;
+}
+
+#[cfg(not(feature = "offline"))]
+use online::*;
+
+#[cfg(not(feature = "offline"))]
 fn dl(url: &str, outdir: &str) -> Result<String, Box<dyn Error>> {
     let file_name = url.split('/').last().ok_or("Invalid URL")?;
     let file_path = Path::new(outdir).join(file_name);
@@ -31,6 +40,7 @@ fn dl(url: &str, outdir: &str) -> Result<String, Box<dyn Error>> {
     }
 }
 
+#[cfg(not(feature = "offline"))]
 fn get_rid() {
     match dl(
         "https://github.com/Toxikuu/rid/archive/refs/heads/master.tar.gz",
@@ -45,9 +55,9 @@ fn get_rid() {
 
     match exec(
         "cd       /tmp/rid/building      && \
-                tar -xf  master.tar.gz          && \
-                mv  -v   rid-master/* /etc/rid/ && \
-                rm  -rf  /tmp/rid/building/*",
+         tar -xf  master.tar.gz          && \
+         mv  -v   rid-master/* /etc/rid/ && \
+         rm  -rf  /tmp/rid/building/*",
     ) {
         Ok(_) => pr!("Set up rid", 'v'),
         Err(e) => {
@@ -57,6 +67,7 @@ fn get_rid() {
     }
 }
 
+#[cfg(not(feature = "offline"))]
 pub fn get_rid_meta(overwrite: bool) {
     // used for bootstrapping and syncing
     match dl(
@@ -89,6 +100,7 @@ pub fn get_rid_meta(overwrite: bool) {
     }
 }
 
+#[cfg(not(feature = "offline"))]
 fn bootstrap() {
     get_rid();
     get_rid_meta(false);
@@ -143,6 +155,7 @@ pub fn tmp() {
     }
 }
 
+#[cfg(not(feature = "offline"))]
 pub fn run() {
     let dirs = [&*ETCRID, &*SOURCES, &*META];
 

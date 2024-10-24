@@ -3,10 +3,11 @@
 // defines miscellaneous helper functions
 
 use serde_json::from_str;
-use std::fs::read_to_string;
-use std::io::{self, BufRead};
+use std::fs::{read_to_string, OpenOptions};
+use std::io::{self, BufRead, Write};
 use std::path::Path;
 use std::process::{self, Command, Stdio};
+use std::sync::{Arc, Mutex};
 use std::thread;
 use whoami::username;
 
@@ -45,12 +46,6 @@ pub fn format_line(line: &str, max_length: usize) -> String {
     let spaces = " ".repeat(padding);
 
     format!("{}{} ~ {}", package_info, spaces, formatted_status)
-
-    //match line {
-    //    _ if line.contains("Available") => line.replace("Available", "\x1b[30mAvailable\x1b[0m"),
-    //    _ if line.contains("Installed") => line.replace("Installed", "\x1b[36;1mInstalled\x1b[0m"),
-    //    _ => line.to_string(),
-    //}
 }
 
 pub fn static_exec(command: &str) -> io::Result<String> {
@@ -80,24 +75,40 @@ pub fn exec(command: &str) -> io::Result<()> {
     let stdout = child.stdout.take().unwrap();
     let stderr = child.stderr.take().unwrap();
 
+    let log_file = Arc::new(Mutex::new(
+        OpenOptions::new()
+            .append(true)
+            .create(true)
+            .open("/etc/rid/rid.log")
+            .expect("Failed to open log file"),
+    )); // consider propogating instead?
+
+    let log_file_stdout = Arc::clone(&log_file);
     let stdout_thread = thread::spawn(move || {
         let reader = io::BufReader::new(stdout);
         for line in reader.lines() {
             match line {
                 Ok(line) => {
                     pr!(format!("\x1b[30;3m{}\x1b[0m", line));
+                    let log_line = format!("{}\n", line);
+                    let mut log_file = log_file_stdout.lock().unwrap();
+                    let _ = write!(log_file, "{}", log_line);
                 }
                 Err(e) => eprintln!("Error reading stdout: {}", e),
             }
         }
     });
 
+    let log_file_stderr = Arc::clone(&log_file);
     let stderr_thread = thread::spawn(move || {
         let reader = io::BufReader::new(stderr);
         for line in reader.lines() {
             match line {
                 Ok(line) => {
                     pr!(format!("\x1b[36;1m{}\x1b[0m", line));
+                    let log_line = format!("[ERR] {}\n", line);
+                    let mut log_file = log_file_stderr.lock().unwrap();
+                    let _ = write!(log_file, "{}", log_line);
                 }
                 Err(e) => eprintln!("Error reading stderr: {}", e),
             }
@@ -105,7 +116,6 @@ pub fn exec(command: &str) -> io::Result<()> {
     });
 
     let _ = child.wait()?;
-
     stdout_thread.join().unwrap();
     stderr_thread.join().unwrap();
 
