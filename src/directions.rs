@@ -18,10 +18,10 @@ pub fn eval_install_directions(pkg_str: &str) {
             match status {
                 PackageStatus::Installed => {
                     if !*FORCE.lock().unwrap() {
-                        pr!(format!("Package '{}' is already installed.", pkg_str));
+                        pr!(format!("Package '{}' is already installed", pkg_str));
                         return;
                     } else {
-                        pr!(format!("Forcibly installing package '{}'.", pkg_str));
+                        pr!(format!("Forcibly installing package '{}'", pkg_str), 'v');
                     }
                 }
                 PackageStatus::Available => {
@@ -55,7 +55,7 @@ pub fn eval_removal_directions(pkg_str: &str) {
                         pr!(format!("Package '{}' is not installed", pkg_str));
                         return;
                     } else {
-                        pr!(format!("Forcibly removing package '{}'", pkg_str));
+                        pr!(format!("Forcibly removing package '{}'", pkg_str), 'v');
                     }
                 }
                 _ => {
