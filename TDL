@@ -4,35 +4,37 @@
 ## Tasks
 
 ### TODO
-- [ ] Work on meta files
-    - Description: Create and test LFS, TLFS, GLFS, and BLFS meta files
-    - Priority: 3
-    - Difficulty: 7
 - [ ] Add cmake abstractions
     - Description: Same idea as mn* and cm*
     - Priority: 4
     - Difficulty: 9
-- [ ] Add logging
-    - Description: Add logging for build scripts, to be stored in /etc/rid/log
-    - Priority: 1
-    - Difficulty: 6
 - [ ] Add config options in /etc/rid/config
     - Description: Configuration options for how rid should behave by default
     - Priority: 10
     - Difficulty: 4
+- [ ] Wildcard matching
+    - Description: Add wildcard matching for package arguments
+    - Priority: 6
+    - Difficulty: 5
 
 ### WIP
+- [ ] Work on meta files
+    - Description: Create and test LFS, TLFS, GLFS, and BLFS meta files
+    - Priority: 3
+    - Difficulty: 7
+    - Progress: 10%
 - [ ] Test UX
     - Description: Use rid and fix any UX flaws
     - Priority: 8
     - Difficulty: 8
     - Notes: I should get UX testers who aren't me to help with this
     - Progress: 15%
-- [X] Make cache not reset status
-    - Title
-    - Priority: 0
-    - Difficulty: 7
-    - Notes: I'm pretty sure this is fixed now, but more testing is necessary
+- [ ] Fix sourceforge downloads
+    - Description: The fix I've decided on is using direct download links
+    - Priority: 3
+    - Difficulty: 9
+    - Notes: Just annoying
+    - Progress: 5%
 
 ### COMPLETED
 - [X] Revamp TDL
@@ -59,6 +61,28 @@
     - Difficulty: 8
     - Date: 2024-10-21
     - Notes: Fairly easy fix, now available via -c
+- [X] Add logging
+    - Description: Add logging for build scripts, to be stored in /etc/rid/rid.log
+    - Priority: 1
+    - Difficulty: 8
+    - Date: 2024-10-23
+- [X] Add pruning
+    - Description: Pruning is the removal of outdated tarballs
+    - Priority: 7
+    - Difficulty: 7
+    - Date: 2024-10-23
+- [X] Fix bug where cache resets status
+    - Description: Title
+    - Priority: 0
+    - Difficulty: 7
+    - Notes: I'm pretty sure this is fixed now, but more testing is necessary
+    - Date: 2024-10-23
+- [X] Add an offline feature
+    - Description: Cargo feature to disable online functions
+    - Priority: 2
+    - Difficulty: 4
+    - Notes: Should be working I think
+    - Date: 2024-10-23
 
 ### CONSIDERATIONS
 - [ ] Organize meta files
