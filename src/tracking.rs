@@ -7,9 +7,8 @@ use std::fs::{self, File};
 use std::io::{self, Read, Write};
 use std::path::Path;
 
-use crate::misc::static_exec;
 use crate::package::{form_package, Package, PackageStatus};
-use crate::paths::{META, PKGSJSON, RBIN};
+use crate::paths::{META, PKGSJSON};
 use crate::pr;
 
 pub fn load_package_list(file_path: &Path) -> io::Result<Vec<Package>> {
@@ -29,10 +28,7 @@ pub fn save_package_list(pkg_list: &Vec<Package>, file_path: &Path) -> io::Resul
 }
 
 fn build_failed() -> bool {
-    let command = format!("{}/cbf", RBIN.display());
-    let output = static_exec(&command).expect("Failed to execute cbf");
-    pr!(format!("cbf output: {}", output), 'v');
-    matches!(output, _ if !output.trim().is_empty())
+    Path::new("/tmp/rid/failed").exists()
 }
 
 pub fn add_package(pkg_list: &mut Vec<Package>, pkg_str: &str) -> Result<(), String> {
