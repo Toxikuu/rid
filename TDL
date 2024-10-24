@@ -1,92 +1,67 @@
 # Project: rid
-# Updated: Tue Oct 22 22:25:03 CDT 2024
 
-## Tasks
+TODO
 
-### TODO
-- [ ] Add cmake abstractions
-    - Description: Same idea as mn* and cm*
-    - Priority: 4
-    - Difficulty: 9
-- [ ] Add config options in /etc/rid/config
-    - Description: Configuration options for how rid should behave by default
-    - Priority: 10
-    - Difficulty: 4
-- [ ] Wildcard matching
-    - Description: Add wildcard matching for package arguments
-    - Priority: 6
-    - Difficulty: 5
+    Add cmake abstractions
+    Same concept as mn* and cm* abstractions.
 
-### WIP
-- [ ] Work on meta files
-    - Description: Create and test LFS, TLFS, GLFS, and BLFS meta files
-    - Priority: 3
-    - Difficulty: 7
-    - Progress: 10%
-- [ ] Test UX
-    - Description: Use rid and fix any UX flaws
-    - Priority: 8
-    - Difficulty: 8
-    - Notes: I should get UX testers who aren't me to help with this
-    - Progress: 15%
-- [ ] Fix sourceforge downloads
-    - Description: The fix I've decided on is using direct download links
-    - Priority: 3
-    - Difficulty: 9
-    - Notes: Just annoying
-    - Progress: 5%
+    Add config options in /etc/rid/config
+    Default behavior configuration.
 
-### COMPLETED
-- [X] Revamp TDL
-    - Description: Make it a lot more readable and usable
-    - Priority: 6
-    - Difficulty: 10
-    - Date: 2024-10-22
-    - Notes: I was sick of using the old format
-- [X] Fix extraneous dependency matches
-    - Description: Bug where poor string matching resulted in showing extra dependencies
-    - Priority: 2
-    - Difficulty: 9
-    - Date: 2024-10-22
-    - Notes: Fixed by migrating to JSON which I wanted to do anyway
-- [X] Migrate to JSON
-    - Description: Migrate from using packages.txt to pkgs.json
-    - Priority: 1
-    - Difficulty: 4
-    - Date: 2024-10-22
-    - Notes: Pain in the ass but its done now
-- [X] Add caching to improve performance
-    - Description: Problem introduced by JSON migration and refactoring wherein every meta file was loaded into a struct, crippling performance
-    - Priority: 1
-    - Difficulty: 8
-    - Date: 2024-10-21
-    - Notes: Fairly easy fix, now available via -c
-- [X] Add logging
-    - Description: Add logging for build scripts, to be stored in /etc/rid/rid.log
-    - Priority: 1
-    - Difficulty: 8
-    - Date: 2024-10-23
-- [X] Add pruning
-    - Description: Pruning is the removal of outdated tarballs
-    - Priority: 7
-    - Difficulty: 7
-    - Date: 2024-10-23
-- [X] Fix bug where cache resets status
-    - Description: Title
-    - Priority: 0
-    - Difficulty: 7
-    - Notes: I'm pretty sure this is fixed now, but more testing is necessary
-    - Date: 2024-10-23
-- [X] Add an offline feature
-    - Description: Cargo feature to disable online functions
-    - Priority: 2
-    - Difficulty: 4
-    - Notes: Should be working I think
-    - Date: 2024-10-23
+    Add support for sets
+    Similar to what gentoo does
+    
+WIP
 
-### CONSIDERATIONS
-- [ ] Organize meta files
-    - Description: Come up with an organization metric for meta files
-    - Priority: 10
-    - Difficulty: 8
-    - Notes: Could probably be done via a TYPE variable in the build scripts, but this organization may also worsen UX
+    Work on meta files
+    Create and test LFS, TLFS, GLFS, and BLFS meta files.
+
+    Test UX
+    Fix UX flaws based on feedback.
+
+    Fix SourceForge downloads
+    Switching to direct download links.
+
+DONE
+
+    Revamp TDL
+    Improved format. Completed on 2024-10-22.
+
+    Fix extraneous dependency matches
+    Migrated to JSON. Fixed on 2024-10-22.
+
+    Migrate to JSON
+    Completed on 2024-10-22.
+
+    Add caching
+    Available with -c. Fixed on 2024-10-21.
+
+    Add logging
+    Logs stored in /etc/rid/rid.log. Added on 2024-10-23.
+
+    Add pruning
+    Prunes outdated tarballs. Added on 2024-10-23.
+
+    Fix bug where cache resets status
+    Confirmed fixed as of 2024-10-23.
+
+    Hid prerun command display
+    Added on 2024-10-23.
+
+    Add an offline feature
+    Cargo feature for disabling online functions. Added on 2024-10-23.
+
+    Fix fallacious install tracking
+    Added a check for build failures. Believed to be fixed as of 2024-10-24.
+
+    Migrate from EOF to '~fin.'
+    For consistency between build script heredocs. Done via sed on 2024-10-24. (I love sed.)
+
+    Change stderr from cyan to red
+    Added on 2024-10-24.
+
+    Tweak UDIR defaults
+    No longer evaluates RDIR by default. Added on 2024-10-24.
+
+    Reformat TDL
+    It's easier to use now. Updated 2024-10-24.
