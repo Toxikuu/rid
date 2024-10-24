@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# displays the value of BUILD_STATUS
+# this exists because of environment variable shenanigans with rust
+
+if [ $BUILD_FAILED ]; then
+    echo "Build failed!" >&2
+fi
