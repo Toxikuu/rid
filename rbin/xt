@@ -12,6 +12,6 @@ if [ $# -lt 3 ]; then
 fi
 
 rm -rf   /tmp/rid/{building,extraction}/*
-tar xf   /etc/rid/sources/"$1" -C /tmp/rid/extraction
+tar xf   /etc/rid/sources/"$1"* -C /tmp/rid/extraction
 mkdir -p /tmp/rid/building/"$2-$3"
 mv -Tf   /tmp/rid/extraction/*    /tmp/rid/building/"$2-$3"
