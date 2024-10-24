@@ -8,7 +8,7 @@ function pre {
   . /etc/rid/meta/"$METAFILE" || { die "Failed to source /etc/rid/meta/$METAFILE"; exit 1; }
   av=$(compgen -v)
 
-  export BUILD_FAILED=false
+  rm -f /tmp/rid/failed
 }
 
 function cleanup {
