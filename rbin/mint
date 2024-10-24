@@ -53,7 +53,6 @@ case $1 in
   u)
     if [ -z "$UDIR" ]; then
       echo "Updating $NAME (default)..."
-      rem
       ins
     else
       echo "Updating $NAME (custom)..."
