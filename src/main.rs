@@ -106,7 +106,13 @@ fn main() {
                     Ok(pkg_) => {
                         fetch::wrap(&pkg_);
                         eval_install_directions(&pkg);
-                        let _ = tracking::add_package(&mut pkg_list, &pkg);
+                        match tracking::add_package(&mut pkg_list, &pkg) {
+                            Ok(_) => pr!(format!(
+                                "\x1b[36;1mInstalled {}-{}\x1b[0m",
+                                &pkg, &pkg_.version
+                            )),
+                            Err(e) => eprintln!("Failed to track package '{}': {}", &pkg, e),
+                        }
                     }
                     Err(e) => eprintln!("Failed to form package '{}': {}", pkg, e),
                 }
