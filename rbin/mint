@@ -7,11 +7,13 @@ function pre {
   . /etc/rid/env || { echo "Failed to source /etc/rid/env"; exit 1; }
   . /etc/rid/meta/"$METAFILE" || { die "Failed to source /etc/rid/meta/$METAFILE"; exit 1; }
   av=$(compgen -v)
+
+  unset BUILD_FAILED
 }
 
 function cleanup {
-  for var in $after_vars; do
-    if ! echo "$before_vars" | grep -q "^$var$"; then
+  for var in $av; do
+    if ! echo "$bv" | grep -q "^$var$"; then
       unset "$var"
     fi
   done
@@ -39,10 +41,15 @@ function check_perms {
   fi
 }
 
+function alert_failed {
+    echo "BUILD FAILED FOR $NAME-$VERS" >&2
+    export BUILD_FAILED=true
+}
+
 pre
 case $1 in
   i)
-    ins
+    ins || alert_failed
     popd > /dev/null
     cleanup
     ;;
