@@ -49,6 +49,12 @@ pathappend /usr/bin
 pathappend /usr/sbin
 pathprepend /etc/rid/rbin
 
-[ -d /opt/pnpm ]      && pathappend  /opt/pnpm
-[ -d /opt/cargo/bin ] && pathprepend /opt/cargo/bin
-[ -d /opt/go/bin ]    && pathprepend /opt/go/bin
+if [ -d /opt/pnpm ]; then
+  pathappend /opt/pnpm
+fi
+if [ -d /opt/cargo/bin ]; then
+  pathprepend /opt/cargo/bin
+fi
+if [ -d /opt/go/bin ]; then
+  pathappend /opt/go/bin
+fi
