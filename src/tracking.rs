@@ -2,15 +2,15 @@
 //
 // responsible for keeping track of packages
 
-//use serde::{Deserialize, Serialize};
 use serde_json::{from_str, to_string_pretty};
+use std::env;
 use std::fs::{self, File};
 use std::io::{self, Read, Write};
 use std::path::Path;
 
 use crate::package::{form_package, Package, PackageStatus};
 use crate::paths::{META, PKGSJSON};
-//use crate::pr;
+use crate::pr;
 
 pub fn load_package_list(file_path: &Path) -> io::Result<Vec<Package>> {
     let mut file = File::open(file_path)?;
@@ -29,6 +29,16 @@ pub fn save_package_list(pkg_list: &Vec<Package>, file_path: &Path) -> io::Resul
 }
 
 pub fn add_package(pkg_list: &mut Vec<Package>, pkg_str: &str) -> Result<(), String> {
+    let build_failed = env::var("BUILD_FAILED").unwrap_or_else(|_| "false".to_string());
+
+    if build_failed == "true" {
+        pr!(format!(
+            "Not tracking package '{}' as it failed to build",
+            pkg_str
+        ));
+        return Err("Not tracking due to build failure".to_string());
+    }
+
     match form_package(pkg_str) {
         Ok(mut package) => {
             if let Some(existing_pkg) = pkg_list.iter_mut().find(|p| p.name == package.name) {
