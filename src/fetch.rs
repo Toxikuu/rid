@@ -105,10 +105,13 @@ fn extract(tarball: &str, pkg_str: &str, vers: &str) -> io::Result<()> {
                         ));
                         return Ok(());
                     } else {
-                        pr!(format!(
-                            "Forcibly extracting tarball for installed package '{}'",
-                            pkg_str
-                        ));
+                        pr!(
+                            format!(
+                                "Forcibly extracting tarball for installed package '{}'",
+                                pkg_str
+                            ),
+                            'v'
+                        );
                     }
                 }
                 PackageStatus::Available => {}
