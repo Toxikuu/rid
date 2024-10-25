@@ -73,7 +73,12 @@ struct Args {
 }
 
 fn main() {
-    let args = Args::parse();
+    let mut args = Args::parse();
+
+    if args.update.is_some() {
+        args.force = true;
+    }
+
     flags::set_flags(args.verbose, args.quiet, args.download, args.force);
     pr!(
         format!(
@@ -178,7 +183,7 @@ fn main() {
             check_perms();
 
             for pkg in pkgs {
-                pr!(format!("Removing package: {}", pkg));
+                pr!(format!("\x1b[36;1mRemoving {}\x1b[0m", pkg));
                 eval_removal_directions(&pkg);
                 let _ = tracking::remove_package(&mut pkg_list, &pkg);
                 clean::remove_tarballs(&pkg);
@@ -191,7 +196,7 @@ fn main() {
             check_perms();
 
             for pkg in pkgs {
-                pr!(format!("Pruning package: {}", pkg));
+                pr!(format!("\x1b[36;1mPruning {}\x1b[0m", pkg));
 
                 match form_package(&pkg) {
                     Ok(p) => clean::prune_sources(&p.name, &p.version),
@@ -206,7 +211,7 @@ fn main() {
             check_perms();
 
             for pkg in pkgs {
-                pr!(format!("Updating package: {}", pkg));
+                pr!(format!("\x1b[36;1mUpdating {}\x1b[0m", pkg));
 
                 match package::form_package(&pkg) {
                     Ok(pkg_) => {
