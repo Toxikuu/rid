@@ -786,7 +786,7 @@ dependencies = [
 
 [[package]]
 name = "rid"
-version = "0.7.10"
+version = "0.7.12"
 dependencies = [
  "clap",
  "lazy_static",
