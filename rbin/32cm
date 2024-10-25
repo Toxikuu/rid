@@ -22,10 +22,10 @@ $CFGPATH/configure                           \
   --host=i686-pc-linux-gnu                   \
   --disable-static                           \
   "$@"                                      ||
-die "Configure failed"
+die "32-bit configure failed"
 
 make                                        ||
-die "Make failed"         
+die "32-bit make failed"         
 make DESTDIR=/tmp/rid/dest install          ||
 die "32-bit make install failed"
 cp -vr /tmp/rid/dest/usr/lib32/* /usr/lib32 ||
