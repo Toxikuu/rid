@@ -305,7 +305,7 @@ fn main() {
         Args { sync, .. } if sync => {
             #[cfg(feature = "offline")]
             {
-                pr!("\x1b[36;1mSyncing is not supported for offline rid\x1b[0m");
+                erm!("Syncing is not supported for offline rid");
                 exit(1)
             }
 
@@ -320,7 +320,7 @@ fn main() {
         Args { sync_overwrite, .. } if sync_overwrite => {
             #[cfg(feature = "offline")]
             {
-                pr!("\x1b[36;1mSyncing is not supported for offline rid\x1b[0m");
+                erm!("Syncing is not supported for offline rid");
                 exit(1)
             }
 

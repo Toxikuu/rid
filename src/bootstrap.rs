@@ -92,7 +92,7 @@ pub fn get_rid_meta(overwrite: bool) {
     );
 
     match exec(&command) {
-        Ok(_) => pr!("Synced!"),
+        Ok(_) => pr!("\x1b[36;1mSynced!\x1b[0m"),
         Err(e) => {
             erm!("Failed to sync rid-meta: {}", e);
             exit(1);
