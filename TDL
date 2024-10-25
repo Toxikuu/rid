@@ -10,6 +10,9 @@ TODO
 
     Add support for sets
     Similar to what gentoo does
+
+    Reduce redundancy in build failure messages
+    "Not tracking package 'libelf' as it failed to build; Failed to track package 'libelf': Not tracking due to build failure"
     
 WIP
 
@@ -19,8 +22,6 @@ WIP
     Test UX
     Fix UX flaws based on feedback.
 
-    Fix SourceForge downloads
-    Switching to direct download links.
 
 DONE
 
@@ -65,3 +66,15 @@ DONE
 
     Reformat TDL
     It's easier to use now. Updated 2024-10-24.
+
+    Make die() accessible in rbin/xt
+    Currently this is done by just redefining it there, which is probably as good as it's getting. Added 2024-10-24.
+
+    Fix dependency tracking weirdness
+    Should be fixed as of 2024-10-24.
+
+    Add tarball removal for --remove
+    Added on 2024-10-24
+
+    Fix SourceForge downloads
+    Switched to direct download links on 2024-10-23. More work may be necessary.
