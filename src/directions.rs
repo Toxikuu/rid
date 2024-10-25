@@ -13,7 +13,7 @@ use crate::pr;
 pub fn eval_install_directions(pkg_str: &str) {
     match query_status(pkg_str) {
         Ok(status) => {
-            pr!(format!("Status: {:?}", status), 'v'); // Use debug formatting for enum
+            pr!(format!("Status: {:?}", status), 'v');
 
             match status {
                 PackageStatus::Installed => {
@@ -24,9 +24,7 @@ pub fn eval_install_directions(pkg_str: &str) {
                         pr!(format!("Forcibly installing package '{}'", pkg_str), 'v');
                     }
                 }
-                PackageStatus::Available => {
-                    // No action needed for available packages
-                }
+                PackageStatus::Available => {}
                 PackageStatus::Removed => {
                     pr!(format!(
                         "Package '{}' has been removed. Reinstalling.",
@@ -40,7 +38,7 @@ pub fn eval_install_directions(pkg_str: &str) {
                 eprintln!("Failed to evaluate install directions: {}", e);
             }
         }
-        Err(e) => eprintln!("Failed to query package status: {}", e), // Print error from querying status
+        Err(e) => eprintln!("Failed to query package status: {}", e),
     }
 }
 
