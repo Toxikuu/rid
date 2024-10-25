@@ -11,6 +11,9 @@ TODO
     Add support for sets
     Similar to what gentoo does
 
+    Add retries for downloads
+    Not for 404s though. Prompted by pixman's url failing on the first try.
+
     Reduce redundancy in build failure messages
     "Not tracking package 'libelf' as it failed to build; Failed to track package 'libelf': Not tracking due to build failure"
     
@@ -78,3 +81,9 @@ DONE
 
     Fix SourceForge downloads
     Switched to direct download links on 2024-10-23. More work may be necessary.
+
+    Consistent stderr formatting
+    Added with erm! on 2024-10-25.
+
+    Various minor bugfixes
+    Added on 2024-10-25.
