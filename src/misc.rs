@@ -79,9 +79,9 @@ pub fn exec(command: &str) -> io::Result<()> {
         OpenOptions::new()
             .append(true)
             .create(true)
-            .open("/etc/rid/rid.log")
+            .open("/tmp/rid/rid.log")
             .expect("Failed to open log file"),
-    )); // consider propogating instead?
+    )); // this should never fail but im handling it anyway :sunglasses:
 
     let log_file_stdout = Arc::clone(&log_file);
     let stdout_thread = thread::spawn(move || {
