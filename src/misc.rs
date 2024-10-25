@@ -12,11 +12,11 @@ use std::thread;
 use whoami::username;
 
 use crate::package::Package;
-use crate::pr;
+use crate::{erm, pr};
 
 pub fn check_perms() {
     if username() != "root" {
-        eprintln!("Insufficient privileges!");
+        erm!("Insufficient privileges!");
         process::exit(1);
     }
 }
@@ -94,7 +94,7 @@ pub fn exec(command: &str) -> io::Result<()> {
                     let mut log_file = log_file_stdout.lock().unwrap();
                     let _ = write!(log_file, "{}", log_line);
                 }
-                Err(e) => eprintln!("Error reading stdout: {}", e),
+                Err(e) => erm!("Error reading stdout: {}", e),
             }
         }
     });
@@ -110,7 +110,7 @@ pub fn exec(command: &str) -> io::Result<()> {
                     let mut log_file = log_file_stderr.lock().unwrap();
                     let _ = write!(log_file, "{}", log_line);
                 }
-                Err(e) => eprintln!("Error reading stderr: {}", e),
+                Err(e) => erm!("Error reading stderr: {}", e),
             }
         }
     });

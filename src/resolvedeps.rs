@@ -5,7 +5,7 @@
 use crate::package::{form_package, Package};
 use std::collections::HashSet;
 
-use crate::pr;
+use crate::{erm, pr};
 
 fn deep_deps(pkg: &Package, resolved: &mut HashSet<String>, order: &mut Vec<String>) {
     for dep in &pkg.deps {
@@ -17,7 +17,7 @@ fn deep_deps(pkg: &Package, resolved: &mut HashSet<String>, order: &mut Vec<Stri
                     deep_deps(&dep_pkg, resolved, order);
                 }
                 Err(_) => {
-                    eprintln!("Failed to load dependency '{}'", dep)
+                    erm!("Failed to load dependency '{}'", dep)
                 }
             }
         }

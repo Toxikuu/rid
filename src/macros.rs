@@ -38,3 +38,10 @@ macro_rules! pr {
         }
     }};
 }
+
+#[macro_export]
+macro_rules! erm {
+    ($($arg:tt)*) => {
+        eprintln!("\x1b[31;1m{}\x1b[0m", format!($($arg)*))
+    };
+}

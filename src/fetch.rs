@@ -6,8 +6,8 @@
 use crate::flags::FORCE;
 use crate::misc::exec;
 use crate::package::{Package, PackageStatus};
-use crate::pr;
 use crate::tracking::query_status;
+use crate::{erm, pr};
 use std::io;
 
 #[cfg(not(feature = "offline"))]
@@ -35,12 +35,12 @@ fn download(pkg: &Package) -> Result<String, Box<dyn Error>> {
             if !url.is_empty() {
                 url
             } else {
-                eprintln!("Package '{}' has no link!", pkg.name);
+                erm!("Package '{}' has no link!", pkg.name);
                 return Ok("no link".to_string());
             }
         }
         _ => {
-            eprintln!("Package '{}' has no link!", pkg.name);
+            erm!("Package '{}' has no link!", pkg.name);
             return Ok("no link".to_string());
         }
     };
@@ -124,14 +124,14 @@ fn extract(tarball: &str, pkg_str: &str, vers: &str) -> io::Result<()> {
             let command = format!("/etc/rid/rbin/xt {} {} {}", tarball, pkg_str, vers);
 
             exec(&command).map_err(|e| {
-                eprintln!("Execution failed: {}", e);
+                erm!("Execution failed: {}", e);
                 io::Error::new(io::ErrorKind::Other, format!("Execution failed: {}", e))
             })?;
 
             Ok(())
         }
         Err(e) => {
-            eprintln!("Error querying package: {}", e);
+            erm!("Error querying package: {}", e);
             Err(io::Error::new(
                 io::ErrorKind::Other,
                 format!("Error querying package: {}", e),
@@ -148,7 +148,7 @@ pub fn wrap(pkg: &Package) {
             Ok(()) => {
                 pr!("Successfully extracted tarball", 'v');
             }
-            Err(e) => eprintln!("Failed to extract tarball: {}", e),
+            Err(e) => erm!("Failed to extract tarball: {}", e),
         }
     }
 
@@ -160,9 +160,9 @@ pub fn wrap(pkg: &Package) {
                 Ok(()) => {
                     pr!("Successfully extracted tarball", 'v');
                 }
-                Err(e) => eprintln!("Failed to extract tarball: {}", e),
+                Err(e) => erm!("Failed to extract tarball: {}", e),
             }
         }
-        Err(e) => eprintln!("Failed to download package: {}", e),
+        Err(e) => erm!("Failed to download package: {}", e),
     }
 }

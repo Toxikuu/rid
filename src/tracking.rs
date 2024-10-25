@@ -9,7 +9,7 @@ use std::path::Path;
 
 use crate::package::{form_package, Package, PackageStatus};
 use crate::paths::{META, PKGSJSON};
-use crate::pr;
+use crate::{erm, pr};
 
 pub fn load_package_list(file_path: &Path) -> io::Result<Vec<Package>> {
     let mut file = File::open(file_path)?;
@@ -75,7 +75,7 @@ pub fn populate_json() -> io::Result<()> {
             match form_package(pkg_str) {
                 Ok(package) => package_list.push(package),
                 Err(e) if e == "refused" => continue,
-                Err(e) => eprintln!("Error processing '{}': {}", pkg_str, e),
+                Err(e) => erm!("Error processing '{}': {}", pkg_str, e),
             }
         }
     }
@@ -94,7 +94,7 @@ pub fn append_json(package_list: &mut Vec<Package>) -> io::Result<()> {
                 match form_package(pkg_str) {
                     Ok(package) => package_list.push(package),
                     Err(e) if e == "refused" => continue,
-                    Err(e) => eprintln!("Error processing '{}': {}", pkg_str, e),
+                    Err(e) => erm!("Error processing '{}': {}", pkg_str, e),
                 }
             }
         }

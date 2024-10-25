@@ -114,10 +114,10 @@ fn main() {
                                 format!("\x1b[36;1mInstalled {}-{}\x1b[0m", pkg, pkg_.version),
                                 'q'
                             ),
-                            Err(e) => eprintln!("Failed to track package '{}': {}", pkg, e),
+                            Err(e) => erm!("Failed to track package '{}': {}", pkg, e),
                         }
                     }
-                    Err(e) => eprintln!("Failed to form package '{}': {}", pkg, e),
+                    Err(e) => erm!("{}", e), // removed redundant error message
                 }
             }
         }
@@ -150,16 +150,16 @@ fn main() {
                                             &dep, &dep_.version
                                         )),
                                         Err(e) => {
-                                            eprintln!("Failed to track package '{}': {}", &dep, e)
+                                            erm!("Failed to track package '{}': {}", &dep, e)
                                         }
                                     }
                                 }
-                                Err(e) => eprintln!("Failed to form package '{}': {}", dep, e),
+                                Err(e) => erm!("{}", e),
                             }
                         }
                     }
                     Err(e) => {
-                        eprintln!("Failed to form package '{}': {}", pkg, e);
+                        erm!("{}", e);
                     }
                 }
             }
@@ -188,7 +188,7 @@ fn main() {
 
                 match form_package(&pkg) {
                     Ok(p) => clean::prune_sources(&p.name, &p.version),
-                    Err(e) => eprintln!("Failed to form package '{}': {}", pkg, e),
+                    Err(e) => erm!("{}", e),
                 }
             }
         }
@@ -207,7 +207,7 @@ fn main() {
                         eval_update_directions(&pkg);
                         let _ = tracking::add_package(&mut pkg_list, &pkg);
                     }
-                    Err(e) => eprintln!("Failed to form package '{}': {}", pkg, e),
+                    Err(e) => erm!("{}", e),
                 }
             }
         }
@@ -229,7 +229,7 @@ fn main() {
 
                                 for dep in &dependencies {
                                     if dep.is_empty() {
-                                        eprintln!("Undefined dependency detected!");
+                                        erm!("Undefined dependency detected!");
                                         std::process::exit(1);
                                     }
 
@@ -249,12 +249,12 @@ fn main() {
                                 }
                             }
                             Err(e) => {
-                                eprintln!("Error reading packages.json: {}", e);
+                                erm!("Error reading packages.json: {}", e);
                             }
                         }
                     }
                     Err(e) => {
-                        eprintln!("Failed to form package '{}': {}", pkg, e);
+                        erm!("{}", e);
                     }
                 }
             }
@@ -272,7 +272,7 @@ fn main() {
                     pr!(format!("  {}", formatted_line), 'q');
                 }
             }
-            Err(e) => eprintln!("Error reading file: {}", e),
+            Err(e) => erm!("Error reading file: {}", e),
         },
 
         Args { bootstrap, .. } if bootstrap => {

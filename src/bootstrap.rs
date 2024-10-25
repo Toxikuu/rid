@@ -3,7 +3,7 @@
 // responsible for bootsrapping rid
 
 use crate::paths::*;
-use crate::pr;
+use crate::{erm, pr};
 use std::fs;
 use std::io;
 use std::path::Path;
@@ -48,7 +48,7 @@ fn get_rid() {
     ) {
         Ok(_) => pr!("Downloaded rid tarball", 'v'),
         Err(e) => {
-            eprintln!("Failed to download rid tarball: {}", e);
+            erm!("Failed to download rid tarball: {}", e);
             exit(1);
         }
     }
@@ -61,7 +61,7 @@ fn get_rid() {
     ) {
         Ok(_) => pr!("Set up rid", 'v'),
         Err(e) => {
-            eprintln!("Failed to set up rid: {}", e);
+            erm!("Failed to set up rid: {}", e);
             exit(1);
         }
     }
@@ -76,7 +76,7 @@ pub fn get_rid_meta(overwrite: bool) {
     ) {
         Ok(_) => pr!("Downloaded rid-meta tarball", 'v'),
         Err(e) => {
-            eprintln!("Failed to download rid-meta tarball: {}", e);
+            erm!("Failed to download rid-meta tarball: {}", e);
             exit(1);
         }
     }
@@ -94,7 +94,7 @@ pub fn get_rid_meta(overwrite: bool) {
     match exec(&command) {
         Ok(_) => pr!("Synced!"),
         Err(e) => {
-            eprintln!("Failed to sync rid-meta: {}", e);
+            erm!("Failed to sync rid-meta: {}", e);
             exit(1);
         }
     }
@@ -112,7 +112,7 @@ fn bootstrap() {
     ) {
         Ok(_) => pr!("Made files in rbin executable"),
         Err(e) => {
-            eprintln!("Failed to make files in rbin executable: {}", e);
+            erm!("Failed to make files in rbin executable: {}", e);
             exit(1);
         }
     }
@@ -124,7 +124,7 @@ fn bootstrap() {
     ) {
         Ok(_) => pr!("Cleaned extras from /etc/rid"),
         Err(e) => {
-            eprintln!("Failed to clean /etc/rid: {}", e);
+            erm!("Failed to clean /etc/rid: {}", e);
             exit(1);
         }
     }
@@ -150,7 +150,7 @@ pub fn tmp() {
 
     for dir in dirs.iter() {
         if let Err(e) = mkdir(dir) {
-            eprintln!("Error creating directory: {}", e);
+            erm!("Error creating directory: {}", e);
         }
     }
 }
@@ -161,7 +161,7 @@ pub fn run() {
 
     for dir in dirs.iter() {
         if let Err(e) = mkdir(dir) {
-            eprintln!("Error creating directory: {}", e);
+            erm!("Error creating directory: {}", e);
         }
     }
 
