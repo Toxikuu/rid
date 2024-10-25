@@ -39,7 +39,7 @@ pathappend () {
 }
 
 die() {
-    echo "Error: $1" >&2
+    echo "Died with error: $1" >&2
     touch /tmp/rid/failed
     exit 1
 }
