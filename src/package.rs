@@ -1,4 +1,6 @@
 // src/package.rs
+//
+// defines core package-related functionality
 
 use crate::misc::static_exec;
 use crate::paths::{PKGSJSON, RBIN};

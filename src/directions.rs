@@ -1,6 +1,6 @@
 // src/directions.rs
 //
-// Responsible for executing various build directions
+// responsible for executing various build directions
 
 use crate::flags::FORCE;
 use crate::misc::exec;

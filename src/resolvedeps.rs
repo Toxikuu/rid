@@ -1,4 +1,6 @@
 // src/resolvedeps.rs
+//
+// responsible for dependency resolution
 
 use crate::package::{form_package, Package};
 use std::collections::HashSet;

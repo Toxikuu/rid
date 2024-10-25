@@ -1,6 +1,6 @@
 // src/fetch.rs
-
-// Responsible for fetching the tarball, extracting it, and entering the directory, as well as
+//
+// responsible for fetching the tarball, extracting it, and entering the directory, as well as
 // keeping the tarball around after.
 
 use crate::flags::FORCE;

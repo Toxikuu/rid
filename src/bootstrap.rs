@@ -1,6 +1,6 @@
 // src/bootstrap.rs
 //
-// Responsible for bootsrapping rid
+// responsible for bootsrapping rid
 
 use crate::paths::*;
 use crate::pr;
