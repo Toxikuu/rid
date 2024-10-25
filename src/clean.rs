@@ -2,11 +2,12 @@
 //
 // responsible for cleaning tasks
 
+use crate::misc::static_exec;
 use crate::paths::SOURCES;
 use crate::pr;
 use std::fs;
 
-pub fn sources(pkg_str: String, pkg_ver: String) {
+pub fn prune_sources(pkg_str: &str, pkg_ver: &str) {
     let kept = format!("{}-{}.tar", pkg_str, pkg_ver);
 
     if let Ok(entries) = fs::read_dir(&*SOURCES) {
@@ -28,4 +29,9 @@ pub fn sources(pkg_str: String, pkg_ver: String) {
     } else {
         eprintln!("Failed to read sources directory");
     }
+}
+
+pub fn remove_tarballs(pkg_str: &str) {
+    let command = format!("cd /etc/rid/sources && rm -vf {}-[0-9]*.t*", pkg_str);
+    let _ = static_exec(&command);
 }
