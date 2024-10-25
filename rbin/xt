@@ -11,7 +11,13 @@ if [ $# -lt 3 ]; then
     exit 1
 fi
 
+die() {
+    echo "Error: $1" >&2
+    touch /tmp/rid/failed
+    exit 1
+}
+
 rm -rf   /tmp/rid/{building,extraction}/*
-tar xf   /etc/rid/sources/"$1"* -C /tmp/rid/extraction
+tar xf   /etc/rid/sources/"$1"* -C /tmp/rid/extraction || die "Failed to extract tarball"
 mkdir -p /tmp/rid/building/"$2-$3"
 mv -Tf   /tmp/rid/extraction/*    /tmp/rid/building/"$2-$3"
