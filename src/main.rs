@@ -100,18 +100,21 @@ fn main() {
             check_perms();
 
             for pkg in pkgs {
-                pr!(format!("Installing package: {}", pkg));
-                pr!("Installing without dependencies", 'v');
                 match package::form_package(&pkg) {
                     Ok(pkg_) => {
                         fetch::wrap(&pkg_);
+                        pr!(
+                            format!("\x1b[36;1mInstalling {}-{}\x1b[0m", pkg, pkg_.version),
+                            'q'
+                        );
+                        pr!("Installing without dependencies", 'v');
                         eval_install_directions(&pkg);
                         match tracking::add_package(&mut pkg_list, &pkg) {
-                            Ok(_) => pr!(format!(
-                                "\x1b[36;1mInstalled {}-{}\x1b[0m",
-                                &pkg, &pkg_.version
-                            )),
-                            Err(e) => eprintln!("Failed to track package '{}': {}", &pkg, e),
+                            Ok(_) => pr!(
+                                format!("\x1b[36;1mInstalled {}-{}\x1b[0m", pkg, pkg_.version),
+                                'q'
+                            ),
+                            Err(e) => eprintln!("Failed to track package '{}': {}", pkg, e),
                         }
                     }
                     Err(e) => eprintln!("Failed to form package '{}': {}", pkg, e),
@@ -126,21 +129,30 @@ fn main() {
             check_perms();
 
             for pkg in pkgs {
-                pr!(format!("Installing package '{}'", pkg), 'v');
-
                 match package::form_package(&pkg) {
                     Ok(pkg_) => {
                         let dependencies = resolvedeps::resolve_deps(&pkg_);
                         for dep in &dependencies {
-                            pr!(format!("  {}", dep));
+                            pr!(format!("Dependency: {}", dep), 'v');
                         }
+
+                        // i may want to add a function for displaying dependencies and share it
+                        // between --dependencies and here
 
                         for dep in dependencies {
                             match package::form_package(&dep) {
                                 Ok(dep_) => {
                                     fetch::wrap(&dep_);
                                     eval_install_directions(&dep);
-                                    let _ = tracking::add_package(&mut pkg_list, &dep);
+                                    match tracking::add_package(&mut pkg_list, &dep) {
+                                        Ok(_) => pr!(format!(
+                                            "\x1b[36;1mInstalled {}-{}\x1b[0m",
+                                            &dep, &dep_.version
+                                        )),
+                                        Err(e) => {
+                                            eprintln!("Failed to track package '{}': {}", &dep, e)
+                                        }
+                                    }
                                 }
                                 Err(e) => eprintln!("Failed to form package '{}': {}", dep, e),
                             }
@@ -162,6 +174,7 @@ fn main() {
                 pr!(format!("Removing package: {}", pkg));
                 eval_removal_directions(&pkg);
                 let _ = tracking::remove_package(&mut pkg_list, &pkg);
+                clean::remove_tarballs(&pkg);
             }
         }
 
@@ -174,7 +187,7 @@ fn main() {
                 pr!(format!("Pruning package: {}", pkg));
 
                 match form_package(&pkg) {
-                    Ok(p) => clean::sources(p.name, p.version),
+                    Ok(p) => clean::prune_sources(&p.name, &p.version),
                     Err(e) => eprintln!("Failed to form package '{}': {}", pkg, e),
                 }
             }
