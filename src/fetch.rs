@@ -35,12 +35,12 @@ fn download(pkg: &Package) -> Result<String, Box<dyn Error>> {
             if !url.is_empty() {
                 url
             } else {
-                pr!(format!("Package '{}' has no link!", pkg.name));
+                pr!(format!("Package '{}' has no link!", pkg.name), 'v');
                 return Ok("no link".to_string());
             }
         }
         _ => {
-            pr!(format!("Package '{}' has no link!", pkg.name));
+            pr!(format!("Package '{}' has no link!", pkg.name), 'v');
             return Ok("no link".to_string());
         }
     };
