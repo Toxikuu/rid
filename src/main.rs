@@ -143,6 +143,13 @@ fn main() {
                             match package::form_package(&dep) {
                                 Ok(dep_) => {
                                     fetch::wrap(&dep_);
+                                    pr!(
+                                        format!(
+                                            "\x1b[36;1mInstalling {}-{}\x1b[0m",
+                                            pkg, pkg_.version
+                                        ),
+                                        'q'
+                                    );
                                     eval_install_directions(&dep);
                                     match tracking::add_package(&mut pkg_list, &dep) {
                                         Ok(_) => pr!(format!(
