@@ -16,7 +16,7 @@ TODO
 
     Reduce redundancy in build failure messages
     "Not tracking package 'libelf' as it failed to build; Failed to track package 'libelf': Not tracking due to build failure"
-    
+
 WIP
 
     Work on meta files
@@ -87,3 +87,6 @@ DONE
 
     Various minor bugfixes
     Added on 2024-10-25.
+
+    Updated --update
+    Added on 2024-10-24.
