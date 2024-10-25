@@ -30,7 +30,6 @@ make DESTDIR=/tmp/rid/dest install          ||
 die "32-bit make install failed"
 cp -vr /tmp/rid/dest/usr/lib32/* /usr/lib32 ||
 die "Failed to copy 32-bit libraries"
-rm -rf /tmp/rid/dest                        ||
-die "Failed to remove /tmp/rid/dest"
+rm -rf /tmp/rid/dest
 ldconfig                                    ||
 die "Failed to update library cache"
