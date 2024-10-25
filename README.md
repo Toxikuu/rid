@@ -15,7 +15,9 @@ Rid also creates some directories in /tmp/rid.
 - Some destdir installs are done in /tmp/rid/dest.
 - Some files get trashed in /tmp/rid/trash.
 
-Rid automatically resolves dependencies.
+A log file exists at /tmp/rid/rid.log.
+A package json exists at /etc/rid/pkgs.json.
+An environment file exists at /etc/rid/env.
 
 ## Usage
 ```bash
@@ -27,6 +29,7 @@ Options:
   -r, --remove <PACKAGE>...
   -u, --update <PACKAGE>...
   -d, --dependencies <PACKAGE>...
+  -p, --prune <PACKAGE>...
   -l, --list
   -b, --bootstrap
   -s, --sync
@@ -63,10 +66,19 @@ popd
 ```
 
 ### Dependencies
-Rid depends on very little. You need libssl, libcrypto, libc, and libgcc (and Linux). You may be able to get away with just libc and libgcc if you have the tarballs stored locally.
+Rid depends on the following:
+- linux
+- gcc
+- glibc
+- bash (runtime)
+- tar (runtime)
+- coreutils (runtime)
+- openssl (recommended)
+- ca-certificates (recommended)
 
 ## Credits
 Thanks to:
 - The LFS community
+- The *LFS authors and maintainers
 - The AUR (whose PKGBUILDs I referenced)
 - The crate authors whose work rid is built on
