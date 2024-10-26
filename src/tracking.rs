@@ -104,11 +104,14 @@ pub fn append_json(package_list: &mut Vec<Package>) -> io::Result<()> {
     Ok(())
 }
 
-// it may be possible to significantly improve performance for query_status() by reading pkgs.json
-// instead of calling form_package()
 pub fn query_status(pkg_name: &str) -> Result<PackageStatus, String> {
-    match form_package(pkg_name) {
-        Ok(package) => Ok(package.status),
-        Err(e) => Err(e),
+    let packages = load_package_list(PKGSJSON.as_path())
+        .map_err(|e| format!("Failed to load package list: {}", e))?;
+
+    for package in packages {
+        if package.name == pkg_name {
+            return Ok(package.status);
+        }
     }
+    Err(format!("Package '{}' not found", pkg_name))
 }
