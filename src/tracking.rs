@@ -104,6 +104,8 @@ pub fn append_json(package_list: &mut Vec<Package>) -> io::Result<()> {
     Ok(())
 }
 
+// it may be possible to significantly improve performance for query_status() by reading pkgs.json
+// instead of calling form_package()
 pub fn query_status(pkg_name: &str) -> Result<PackageStatus, String> {
     match form_package(pkg_name) {
         Ok(package) => Ok(package.status),
