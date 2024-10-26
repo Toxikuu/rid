@@ -185,7 +185,14 @@ fn main() {
             for pkg in pkgs {
                 pr!(format!("\x1b[36;1mRemoving {}\x1b[0m", pkg));
                 eval_removal_directions(&pkg);
-                let _ = tracking::remove_package(&mut pkg_list, &pkg);
+                match tracking::remove_package(&mut pkg_list, &pkg) {
+                    Ok(_) => {
+                        pr!(format!("\x1b[36;1mRemoved {}\x1b[0m", &pkg));
+                    }
+                    Err(e) => {
+                        erm!("Failed to track package '{}': {}", &pkg, e);
+                    }
+                }
                 clean::remove_tarballs(&pkg);
             }
         }
@@ -217,7 +224,17 @@ fn main() {
                     Ok(pkg_) => {
                         fetch::wrap(&pkg_);
                         eval_update_directions(&pkg);
-                        let _ = tracking::add_package(&mut pkg_list, &pkg);
+                        match tracking::add_package(&mut pkg_list, &pkg) {
+                            Ok(_) => {
+                                pr!(format!(
+                                    "\x1b[36;1mUpdated {}-{}\x1b[0m",
+                                    &pkg, &pkg_.version
+                                ));
+                            }
+                            Err(e) => {
+                                erm!("Failed to track package '{}': {}", &pkg, e);
+                            }
+                        }
                     }
                     Err(e) => erm!("{}", e),
                 }
