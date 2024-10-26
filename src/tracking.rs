@@ -2,14 +2,13 @@
 //
 // responsible for keeping track of packages
 
+use crate::erm;
+use crate::package::{form_package, Package, PackageStatus};
+use crate::paths::{META, PKGSJSON};
 use serde_json::{from_str, to_string_pretty};
 use std::fs::{self, File};
 use std::io::{self, Read, Write};
 use std::path::Path;
-
-use crate::package::{form_package, Package, PackageStatus};
-use crate::paths::{META, PKGSJSON};
-use crate::{erm, pr};
 
 pub fn load_package_list(file_path: &Path) -> io::Result<Vec<Package>> {
     let mut file = File::open(file_path)?;
@@ -33,10 +32,6 @@ fn build_failed() -> bool {
 
 pub fn add_package(pkg_list: &mut Vec<Package>, pkg_str: &str) -> Result<(), String> {
     if build_failed() {
-        pr!(
-            format!("Not tracking package '{}' as it failed to build", pkg_str),
-            'v'
-        );
         return Err("Not tracking due to build failure".to_string());
     }
 

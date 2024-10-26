@@ -2,6 +2,8 @@
 //
 // defines miscellaneous helper functions
 
+use crate::package::Package;
+use crate::{erm, pr};
 use serde_json::from_str;
 use std::fs::{read_to_string, OpenOptions};
 use std::io::{self, BufRead, Write};
@@ -10,9 +12,6 @@ use std::process::{self, Command, Stdio};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use whoami::username;
-
-use crate::package::Package;
-use crate::{erm, pr};
 
 pub fn check_perms() {
     if username() != "root" {

@@ -3,9 +3,8 @@
 // responsible for dependency resolution
 
 use crate::package::{form_package, Package};
-use std::collections::HashSet;
-
 use crate::{erm, pr};
+use std::collections::HashSet;
 
 fn deep_deps(pkg: &Package, resolved: &mut HashSet<String>, order: &mut Vec<String>) {
     for dep in &pkg.deps {
