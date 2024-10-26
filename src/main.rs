@@ -137,7 +137,7 @@ fn main() {
                             }
                         }
 
-                        pr!(format!("do_install = {}", do_install));
+                        pr!(format!("do_install = {}", do_install), 'v');
                         if do_install {
                             fetch::wrap(&pkg_);
                             eval_install_directions(&pkg);
@@ -204,6 +204,7 @@ fn main() {
                                         }
                                     }
 
+                                    pr!(format!("do_install = {}", do_install), 'v');
                                     if do_install {
                                         fetch::wrap(&dep_);
                                         eval_install_directions(&dep);
