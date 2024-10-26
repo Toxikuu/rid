@@ -1,4 +1,4 @@
-#!/bin/bash  # for syntax highlighting lol
+#!/bin/bash
 export MAKEFLAGS="-j$(nproc)"
 export CFLAGS="-O2 -march=native"
 export CXXFLAGS="${CFLAGS}"
@@ -9,7 +9,7 @@ export CARGO_HOME="/opt/cargo"
 export RUSTUP_HOME="/opt/rustup"
 
 export VDPAU_DRIVER="va_gl"
-export XORG_PREFIX="/usr"  # changing this is not supported
+export XORG_PREFIX="/usr"  # changing this is not supported (yet!)
 export XORG_CONFIG="--prefix=/usr         --sysconfdir=/etc \
                     --localstatedir=/var    --disable-static"
 
@@ -46,16 +46,15 @@ die() {
 
 export -f pathremove pathprepend pathappend die
 
-pathappend /usr/bin
-pathappend /usr/sbin
-pathprepend /etc/rid/rbin
+paths=(
+    /etc/rid/rbin
+    /usr/bin
+    /usr/sbin
+    /opt/pnpm
+    /opt/go/bin
+    /opt/cargo/bin
+)
 
-if [ -d /opt/pnpm ]; then
-  pathappend /opt/pnpm
-fi
-if [ -d /opt/cargo/bin ]; then
-  pathprepend /opt/cargo/bin
-fi
-if [ -d /opt/go/bin ]; then
-  pathappend /opt/go/bin
-fi
+for p in "${paths[@]}"; do
+    { [ -d "$p" ] && pathappend "$p"; } || true
+done
