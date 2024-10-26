@@ -17,6 +17,12 @@ TODO
     Reduce redundancy in build failure messages
     "Not tracking package 'libelf' as it failed to build; Failed to track package 'libelf': Not tracking due to build failure"
 
+    Allow fully custom directories
+    Would be done through variables defined in /etc/rid/env
+
+    Add an flag to check whether a link is valid
+    Make it return the status code as well. Maybe -L?
+
 WIP
 
     Work on meta files
@@ -25,8 +31,6 @@ WIP
     Test UX
     Fix UX flaws based on feedback.
 
-    Make query_status() much faster
-    Done by making it read the json instead of calling form_package()
 
 DONE
 
@@ -99,3 +103,8 @@ DONE
     Drop plans to add support for sets
     Dropped on 2024-10-26. Dropped because identical functionality can be achieved with $(<set.txt)
     
+    Make query_status() faster
+    Done by making it read the json instead of calling form_package(). Added on 2024-10-26.
+
+    Added msg!
+    Macro for displaying certain messages. Simplifies code. Added on 2024-10-26.
