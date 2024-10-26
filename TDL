@@ -2,14 +2,14 @@
 
 TODO
 
+    Migrate to using Package struct globally
+    Would make my code less of a mess
+
     Add cmake abstractions
     Same concept as mn* and cm* abstractions.
 
     Add config options in /etc/rid/config
     Default behavior configuration.
-
-    Add support for sets
-    Similar to what gentoo does
 
     Add retries for downloads
     Not for 404s though. Prompted by pixman's url failing on the first try.
@@ -92,3 +92,10 @@ DONE
 
     Updated --update
     Added on 2024-10-24.
+
+    Rewrote install arguments for better UX
+    Added on 2024-10-26.
+
+    Drop plans to add support for sets
+    Dropped on 2024-10-26. Dropped because identical functionality can be achieved with $(<set.txt)
+    
