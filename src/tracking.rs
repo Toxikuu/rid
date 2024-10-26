@@ -33,10 +33,10 @@ fn build_failed() -> bool {
 
 pub fn add_package(pkg_list: &mut Vec<Package>, pkg_str: &str) -> Result<(), String> {
     if build_failed() {
-        pr!(format!(
-            "Not tracking package '{}' as it failed to build",
-            pkg_str
-        ));
+        pr!(
+            format!("Not tracking package '{}' as it failed to build", pkg_str),
+            'v'
+        );
         return Err("Not tracking due to build failure".to_string());
     }
 
