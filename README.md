@@ -16,6 +16,7 @@ Rid also creates some directories in /tmp/rid.
 - Some files get trashed in /tmp/rid/trash.
 
 A log file exists at /tmp/rid/rid.log.
+A tempfile to track build status exists at /tmp/rid/failed.
 A package json exists at /etc/rid/pkgs.json.
 An environment file exists at /etc/rid/env.
 
@@ -45,13 +46,26 @@ Options:
 
 ## Installation
 ### Binary
-Rid can be bootstrapped from just the binary:
+A compressed tarball containing just the binary can be downloaded from the releases page. The following commands should work to download and install it:
+```bash
+wget https://github.com/Toxikuu/rid/releases/download/v0.7.19/rid.tar.xz
+tar xf rid.tar.xz
+sudo mv -vf rid /usr/bin
+```
+
+From there, rid can be bootstrapped from just the binary:
 ```bash
 rid -b
 ```
+Bootstrapping sets up all other files necessary for rid to function.
 
 ### From source
-Note, these commands have yet to be tested.
+The easiest way to build rid from source assumes you have the binary installed:
+```bash
+rid -u rid
+# rid -b # (if you haven't already bootstrapped rid)
+```
+
 ```bash
 # as root
 pushd /etc
