@@ -50,16 +50,16 @@ fn download(pkg: &Package) -> Result<String, Box<dyn Error>> {
 
     if Path::new(&file_path).exists() {
         if !*DOWNLOAD.lock().unwrap() {
-            pr!(format!(
-                "Skipping download for existing tarball '{}'",
-                file_name
-            ));
+            pr!(
+                format!("Skipping download for existing tarball '{}'", file_name),
+                'v'
+            );
             return Ok(file_name);
         } else {
-            pr!(format!(
-                "Forcefully redownloading existing tarball '{}'",
-                file_name
-            ));
+            pr!(
+                format!("Forcibly downloading existing tarball '{}'", file_name),
+                'v'
+            );
         }
     } else {
         pr!(format!("Downloading {}", url));
@@ -99,10 +99,10 @@ fn extract(tarball: &str, pkg_str: &str, vers: &str) -> io::Result<()> {
             match status {
                 PackageStatus::Installed => {
                     if !*FORCE.lock().unwrap() {
-                        pr!(format!(
-                            "Not extracting tarball for installed package '{}'",
-                            pkg_str
-                        ));
+                        pr!(
+                            format!("Not extracting tarball for installed package '{}'", pkg_str),
+                            'v'
+                        );
                         return Ok(());
                     } else {
                         pr!(
@@ -116,6 +116,7 @@ fn extract(tarball: &str, pkg_str: &str, vers: &str) -> io::Result<()> {
                 }
                 PackageStatus::Available => {}
                 _ => {
+                    // i dont think this is reachable(?)
                     pr!(format!("Package '{}' unavailable", pkg_str));
                     return Ok(());
                 }
