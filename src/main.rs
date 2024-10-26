@@ -227,7 +227,7 @@ fn main() {
                         match tracking::add_package(&mut pkg_list, &pkg) {
                             Ok(_) => {
                                 pr!(format!(
-                                    "\x1b[36;1mUpdated {}-{}\x1b[0m",
+                                    "\x1b[36;1mUpdated to {}-{}\x1b[0m",
                                     &pkg, &pkg_.version
                                 ));
                             }
