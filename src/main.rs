@@ -1,10 +1,11 @@
 // src/main.rs
 
+use crate::flags::FORCE;
 use crate::paths::PKGSJSON;
 use clap::Parser;
 use directions::{eval_install_directions, eval_removal_directions, eval_update_directions};
 use misc::check_perms;
-use package::form_package;
+use package::{form_package, PackageStatus};
 
 #[cfg(feature = "offline")]
 use std::process::exit;
@@ -107,22 +108,49 @@ fn main() {
             for pkg in pkgs {
                 match package::form_package(&pkg) {
                     Ok(pkg_) => {
-                        fetch::wrap(&pkg_);
-                        pr!(
-                            format!("\x1b[36;1mInstalling {}-{}\x1b[0m", pkg, pkg_.version),
-                            'q'
-                        );
-                        pr!("Installing without dependencies", 'v');
-                        eval_install_directions(&pkg);
-                        match tracking::add_package(&mut pkg_list, &pkg) {
-                            Ok(_) => pr!(
-                                format!("\x1b[36;1mInstalled {}-{}\x1b[0m", pkg, pkg_.version),
-                                'q'
-                            ),
-                            Err(e) => erm!("Failed to track package '{}': {}", pkg, e),
+                        let mut do_install = false;
+
+                        match &pkg_.status {
+                            PackageStatus::Installed => {
+                                pr!(
+                                    format!(
+                                        "\x1b[36;1m{}-{} is already installed\x1b[0m",
+                                        pkg, pkg_.version
+                                    ),
+                                    'q'
+                                );
+
+                                if *FORCE.lock().unwrap() {
+                                    do_install = true
+                                };
+                            }
+                            _ => {
+                                pr!(
+                                    format!(
+                                        "\x1b[36;1mInstalling {}-{} without dependencies\x1b[0m",
+                                        pkg, pkg_.version
+                                    ),
+                                    'q'
+                                );
+
+                                do_install = true;
+                            }
+                        }
+
+                        pr!(format!("do_install = {}", do_install));
+                        if do_install {
+                            fetch::wrap(&pkg_);
+                            eval_install_directions(&pkg);
+                            match tracking::add_package(&mut pkg_list, &pkg) {
+                                Ok(_) => pr!(
+                                    format!("\x1b[36;1mInstalled {}-{}\x1b[0m", pkg, pkg_.version),
+                                    'q'
+                                ),
+                                Err(e) => erm!("Failed to track package '{}': {}", pkg, e),
+                            }
                         }
                     }
-                    Err(e) => erm!("{}", e), // removed redundant error message
+                    Err(e) => erm!("{}", e),
                 }
             }
         }
@@ -147,22 +175,46 @@ fn main() {
                         for dep in dependencies {
                             match package::form_package(&dep) {
                                 Ok(dep_) => {
-                                    fetch::wrap(&dep_);
-                                    pr!(
-                                        format!(
-                                            "\x1b[36;1mInstalling {}-{}\x1b[0m",
-                                            pkg, pkg_.version
-                                        ),
-                                        'q'
-                                    );
-                                    eval_install_directions(&dep);
-                                    match tracking::add_package(&mut pkg_list, &dep) {
-                                        Ok(_) => pr!(format!(
-                                            "\x1b[36;1mInstalled {}-{}\x1b[0m",
-                                            &dep, &dep_.version
-                                        )),
-                                        Err(e) => {
-                                            erm!("Failed to track package '{}': {}", &dep, e)
+                                    let mut do_install = false;
+
+                                    match &dep_.status {
+                                        PackageStatus::Installed => {
+                                            pr!(
+                                                format!(
+                                                    "\x1b[36;1m{}-{} is already installed\x1b[0m",
+                                                    dep, dep_.version
+                                                ),
+                                                'q'
+                                            );
+
+                                            if *FORCE.lock().unwrap() {
+                                                do_install = true
+                                            };
+                                        }
+                                        _ => {
+                                            pr!(
+                                                format!(
+                                                    "\x1b[36;1mInstalling {}-{}\x1b[0m",
+                                                    dep, dep_.version
+                                                ),
+                                                'q'
+                                            );
+
+                                            do_install = true;
+                                        }
+                                    }
+
+                                    if do_install {
+                                        fetch::wrap(&dep_);
+                                        eval_install_directions(&dep);
+                                        match tracking::add_package(&mut pkg_list, &dep) {
+                                            Ok(_) => pr!(format!(
+                                                "\x1b[36;1mInstalled {}-{}\x1b[0m",
+                                                &dep, &dep_.version
+                                            )),
+                                            Err(e) => {
+                                                erm!("Failed to track package '{}': {}", &dep, e)
+                                            }
                                         }
                                     }
                                 }
@@ -297,7 +349,7 @@ fn main() {
                         "{}={} ~ {:?}",
                         package.name, package.version, package.status,
                     );
-                    let formatted_line = misc::format_line(&line, 30);
+                    let formatted_line = misc::format_line(&line, 32);
                     pr!(format!("  {}", formatted_line), 'q');
                 }
             }
