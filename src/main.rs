@@ -6,8 +6,6 @@ use clap::Parser;
 use directions::{eval_install_directions, eval_removal_directions, eval_update_directions};
 use misc::check_perms;
 use package::{form_package, PackageStatus};
-
-#[cfg(feature = "offline")]
 use std::process::exit;
 
 mod bootstrap;
@@ -112,27 +110,13 @@ fn main() {
 
                         match &pkg_.status {
                             PackageStatus::Installed => {
-                                pr!(
-                                    format!(
-                                        "\x1b[36;1m{}-{} is already installed\x1b[0m",
-                                        pkg, pkg_.version
-                                    ),
-                                    'q'
-                                );
-
+                                msg!("{}-{} is already installed", pkg, pkg_.version);
                                 if *FORCE.lock().unwrap() {
                                     do_install = true
                                 };
                             }
                             _ => {
-                                pr!(
-                                    format!(
-                                        "\x1b[36;1mInstalling {}-{} without dependencies\x1b[0m",
-                                        pkg, pkg_.version
-                                    ),
-                                    'q'
-                                );
-
+                                msg!("Installing {}-{} without dependencies", pkg, pkg_.version);
                                 do_install = true;
                             }
                         }
@@ -142,11 +126,11 @@ fn main() {
                             fetch::wrap(&pkg_);
                             eval_install_directions(&pkg);
                             match tracking::add_package(&mut pkg_list, &pkg) {
-                                Ok(_) => pr!(
-                                    format!("\x1b[36;1mInstalled {}-{}\x1b[0m", pkg, pkg_.version),
-                                    'q'
-                                ),
-                                Err(e) => erm!("Failed to track package '{}': {}", pkg, e),
+                                Ok(_) => msg!("Installed {}-{}", pkg, pkg_.version),
+                                Err(e) => {
+                                    erm!("Failed to track package '{}': {}", pkg, e);
+                                    exit(1);
+                                }
                             }
                         }
                     }
@@ -179,27 +163,13 @@ fn main() {
 
                                     match &dep_.status {
                                         PackageStatus::Installed => {
-                                            pr!(
-                                                format!(
-                                                    "\x1b[36;1m{}-{} is already installed\x1b[0m",
-                                                    dep, dep_.version
-                                                ),
-                                                'q'
-                                            );
-
+                                            msg!("{}-{} is already installed", dep, dep_.version);
                                             if *FORCE.lock().unwrap() {
                                                 do_install = true
                                             };
                                         }
                                         _ => {
-                                            pr!(
-                                                format!(
-                                                    "\x1b[36;1mInstalling {}-{}\x1b[0m",
-                                                    dep, dep_.version
-                                                ),
-                                                'q'
-                                            );
-
+                                            msg!("Installing {}-{}", dep, dep_.version);
                                             do_install = true;
                                         }
                                     }
@@ -209,10 +179,7 @@ fn main() {
                                         fetch::wrap(&dep_);
                                         eval_install_directions(&dep);
                                         match tracking::add_package(&mut pkg_list, &dep) {
-                                            Ok(_) => pr!(format!(
-                                                "\x1b[36;1mInstalled {}-{}\x1b[0m",
-                                                &dep, &dep_.version
-                                            )),
+                                            Ok(_) => msg!("Installed {}-{}", dep, dep_.version),
                                             Err(e) => {
                                                 erm!("Failed to track package '{}': {}", &dep, e)
                                             }
@@ -236,14 +203,12 @@ fn main() {
             check_perms();
 
             for pkg in pkgs {
-                pr!(format!("\x1b[36;1mRemoving {}\x1b[0m", pkg));
+                msg!("Removing {}", pkg);
                 eval_removal_directions(&pkg);
                 match tracking::remove_package(&mut pkg_list, &pkg) {
-                    Ok(_) => {
-                        pr!(format!("\x1b[36;1mRemoved {}\x1b[0m", &pkg));
-                    }
+                    Ok(_) => msg!("Removed {}", pkg),
                     Err(e) => {
-                        erm!("Failed to track package '{}': {}", &pkg, e);
+                        erm!("Failed to track package '{}': {}", pkg, e);
                     }
                 }
                 clean::remove_tarballs(&pkg);
@@ -256,7 +221,7 @@ fn main() {
             check_perms();
 
             for pkg in pkgs {
-                pr!(format!("\x1b[36;1mPruning {}\x1b[0m", pkg));
+                msg!("Pruning {}", pkg);
 
                 match form_package(&pkg) {
                     Ok(p) => clean::prune_sources(&p.name, &p.version),
@@ -271,19 +236,14 @@ fn main() {
             check_perms();
 
             for pkg in pkgs {
-                pr!(format!("\x1b[36;1mUpdating {}\x1b[0m", pkg));
+                msg!("Updating {}", pkg);
 
                 match package::form_package(&pkg) {
                     Ok(pkg_) => {
                         fetch::wrap(&pkg_);
                         eval_update_directions(&pkg);
                         match tracking::add_package(&mut pkg_list, &pkg) {
-                            Ok(_) => {
-                                pr!(format!(
-                                    "\x1b[36;1mUpdated to {}-{}\x1b[0m",
-                                    &pkg, &pkg_.version
-                                ));
-                            }
+                            Ok(_) => msg!("Updated to {}-{}", pkg, pkg_.version),
                             Err(e) => {
                                 erm!("Failed to track package '{}': {}", &pkg, e);
                             }
@@ -299,7 +259,7 @@ fn main() {
             ..
         } => {
             for pkg in pkgs {
-                pr!(format!("\x1b[30;1;3mDependencies for {}:\x1b[0m", pkg));
+                msg!("Dependencies for {}:", pkg);
 
                 match package::form_package(&pkg) {
                     Ok(pkg_) => {
@@ -344,7 +304,7 @@ fn main() {
 
         Args { list, .. } if list => match misc::read_json(PKGSJSON.clone()) {
             Ok(package_list) => {
-                pr!("\x1b[30;1;3mPACKAGES\x1b[0m");
+                msg!("PACKAGES");
                 for package in package_list {
                     let line = format!(
                         "{}={} ~ {:?}",
@@ -360,14 +320,14 @@ fn main() {
         Args { bootstrap, .. } if bootstrap => {
             #[cfg(feature = "offline")]
             {
-                pr!("\x1b[36;1mBootstrapping is not supported for offline rid\x1b[0m");
+                erm!("Bootstrapping is not supported for offline rid");
                 exit(1)
             }
 
             #[cfg(not(feature = "offline"))]
             {
                 check_perms();
-                pr!("\x1b[36;1mBootstrapping rid...\x1b[0m");
+                msg!("Bootstrapping rid...");
                 bootstrap::run();
             }
         }
@@ -382,7 +342,7 @@ fn main() {
             #[cfg(not(feature = "offline"))]
             {
                 check_perms();
-                pr!("\x1b[36;1mSyncing rid-meta...\x1b[0m");
+                msg!("Syncing rid-meta...");
                 bootstrap::get_rid_meta(false);
             }
         }
@@ -397,7 +357,7 @@ fn main() {
             #[cfg(not(feature = "offline"))]
             {
                 check_perms();
-                pr!("\x1b[36;1mSyncing rid-meta with overwrite...\x1b[0m");
+                msg!("Syncing rid-meta with overwrite...");
                 bootstrap::get_rid_meta(true);
             }
         }
