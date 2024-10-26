@@ -25,6 +25,8 @@ WIP
     Test UX
     Fix UX flaws based on feedback.
 
+    Make query_status() much faster
+    Done by making it read the json instead of calling form_package()
 
 DONE
 
