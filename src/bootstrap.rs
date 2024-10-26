@@ -11,6 +11,7 @@ use std::path::Path;
 #[cfg(not(feature = "offline"))]
 mod online {
     pub use crate::misc::exec;
+    pub use crate::msg;
     pub use crate::tracking::populate_json;
     pub use reqwest::blocking::get;
     pub use std::error::Error;
@@ -56,7 +57,7 @@ fn get_rid() {
     match exec(
         "cd       /tmp/rid/building      && \
          tar -xf  master.tar.gz          && \
-         mv  -v   rid-master/* /etc/rid/ && \
+         mv  -vf  rid-master/* /etc/rid/ && \
          rm  -rf  /tmp/rid/building/*",
     ) {
         Ok(_) => pr!("Set up rid", 'v'),
@@ -92,7 +93,7 @@ pub fn get_rid_meta(overwrite: bool) {
     );
 
     match exec(&command) {
-        Ok(_) => pr!("\x1b[36;1mSynced!\x1b[0m"),
+        Ok(_) => msg!("Synced!"),
         Err(e) => {
             erm!("Failed to sync rid-meta: {}", e);
             exit(1);
@@ -110,7 +111,7 @@ fn bootstrap() {
                 chmod 666 /etc/rid/pkgs.json    && \
                 chmod 755 /etc/rid/rbin/*",
     ) {
-        Ok(_) => pr!("Made files in rbin executable"),
+        Ok(_) => pr!("Made files in rbin executable", 'v'),
         Err(e) => {
             erm!("Failed to make files in rbin executable: {}", e);
             exit(1);
@@ -122,14 +123,14 @@ fn bootstrap() {
         "cd /etc/rid && rm -rf .git* Cargo.* src TDL && \
                 cd /etc/rid && rm -rf LICENSE README.md",
     ) {
-        Ok(_) => pr!("Cleaned extras from /etc/rid"),
+        Ok(_) => pr!("Cleaned extras from /etc/rid", 'v'),
         Err(e) => {
             erm!("Failed to clean /etc/rid: {}", e);
             exit(1);
         }
     }
 
-    pr!("\x1b[36;1m  All done!\x1b[0m")
+    msg!("All done!")
 }
 
 fn mkdir<P: AsRef<Path>>(path: P) -> io::Result<()> {
