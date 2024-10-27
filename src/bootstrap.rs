@@ -41,6 +41,7 @@ fn dl(url: &str, outdir: &str) -> Result<String, Box<dyn Error>> {
     }
 }
 
+#[cfg(not(feature = "offline"))]
 fn get_rid_version() -> String {
     env!("CARGO_PKG_VERSION").to_string()
 }
