@@ -6,8 +6,8 @@
 use crate::flags::FORCE;
 use crate::misc::exec;
 use crate::package::{Package, PackageStatus};
-use crate::tracking::query_status;
-use crate::{erm, pr};
+use crate::paths::RBIN;
+use crate::{erm, vpr};
 use std::io;
 
 #[cfg(not(feature = "offline"))]
@@ -25,51 +25,40 @@ mod online {
 use online::*;
 
 #[cfg(not(feature = "offline"))]
-fn download(pkg: &Package) -> Result<String, Box<dyn Error>> {
-    let url = match &pkg.link {
+fn download(p: &Package) -> Result<String, Box<dyn Error>> {
+    let url = match &p.link {
         Some(url) => {
-            pr!(
-                format!("Detected url: '{:?}' for package '{:?}'", url, pkg.name),
-                'v'
-            );
+            vpr!("Detected url: '{}' for package {}", url, p.name);
+
             if !url.is_empty() {
                 url
             } else {
-                pr!(format!("Package '{}' has no link!", pkg.name), 'v');
-                return Ok("no link".to_string());
+                vpr!("Package '{}' has no link!", p.name);
+                return Ok("no link".to_string()); // might replace these with Err()
             }
         }
         _ => {
-            pr!(format!("Package '{}' has no link!", pkg.name), 'v');
-            return Ok("no link".to_string());
+            vpr!("Package '{}' has no link!", p.name);
+            return Ok("no link".to_string()); // might replace these with Err()
         }
     };
 
-    let file_name = format!("{}-{}.tar", pkg.name, pkg.version);
-    let file_path = SOURCES.join(&file_name);
+    let tarball = format!("{}-{}.tar", p.name, p.version);
+    let file_path = SOURCES.join(&tarball);
 
     if Path::new(&file_path).exists() {
         if !*DOWNLOAD.lock().unwrap() {
-            pr!(
-                format!("Skipping download for existing tarball '{}'", file_name),
-                'v'
-            );
-            return Ok(file_name);
+            vpr!("Skipping download for existing tarball '{}'", tarball);
+            return Ok(tarball);
         } else {
-            pr!(
-                format!("Forcibly downloading existing tarball '{}'", file_name),
-                'v'
-            );
+            vpr!("Forcibly downloading existing tarball '{}'", tarball);
         }
     } else {
-        pr!(format!("Downloading {}", url));
+        vpr!("Downloading {}", url);
     }
 
     if url.contains("sourceforge") {
-        pr!(
-            "Detected a sourceforge domain; I hope you have a direct url!",
-            'v'
-        )
+        vpr!("Detected a sourceforge domain; I hope you have a direct url!");
     }
 
     let r = get(url)?;
@@ -79,87 +68,65 @@ fn download(pkg: &Package) -> Result<String, Box<dyn Error>> {
         let content = r.bytes()?;
         file.write_all(&content)?;
 
-        Ok(file_name)
+        Ok(tarball)
     } else {
         Err(format!("Failed to download tarball: HTTP status {}", r.status()).into())
     }
 }
 
-fn extract(tarball: &str, pkg_str: &str, vers: &str) -> io::Result<()> {
+fn extract(tarball: &str, p: &Package) -> io::Result<()> {
     if tarball == "no link" {
-        let command = format!("mkdir -pv /tmp/rid/building/{}-{}", pkg_str, vers);
+        let command = format!("mkdir -pv /tmp/rid/building/{}-{}", p.name, p.version);
         let _ = exec(&command);
         return Ok(());
     }
 
-    match query_status(pkg_str) {
-        Ok(status) => {
-            pr!(format!("Status: {:?}", status), 'v');
-
-            match status {
-                PackageStatus::Installed => {
-                    if !*FORCE.lock().unwrap() {
-                        pr!(
-                            format!("Not extracting tarball for installed package '{}'", pkg_str),
-                            'v'
-                        );
-                        return Ok(());
-                    } else {
-                        pr!(
-                            format!(
-                                "Forcibly extracting tarball for installed package '{}'",
-                                pkg_str
-                            ),
-                            'v'
-                        );
-                    }
-                }
-                PackageStatus::Available => {}
-                _ => {
-                    // i dont think this is reachable(?)
-                    pr!(format!("Package '{}' unavailable", pkg_str));
-                    return Ok(());
-                }
+    match p.status {
+        PackageStatus::Installed => {
+            if !*FORCE.lock().unwrap() {
+                vpr!("Not extracting tarball for installed package '{}'", p.name);
+                return Ok(());
+            } else {
+                vpr!(
+                    "Forcibly extracting tarball for installed package '{}'",
+                    p.name
+                );
             }
-
-            let command = format!("/etc/rid/rbin/xt {} {} {}", tarball, pkg_str, vers);
-
-            exec(&command).map_err(|e| {
-                erm!("Execution failed: {}", e);
-                io::Error::new(io::ErrorKind::Other, format!("Execution failed: {}", e))
-            })?;
-
-            Ok(())
         }
-        Err(e) => {
-            erm!("Error querying package: {}", e);
-            Err(io::Error::new(
-                io::ErrorKind::Other,
-                format!("Error querying package: {}", e),
-            ))
+        _ => {
+            // do nothing
         }
     }
+
+    let command = format!("{}/xt {} {} {}", RBIN.display(), tarball, p.name, p.version);
+
+    exec(&command).map_err(|e| {
+        erm!("Execution failed: {}", e);
+        io::Error::new(io::ErrorKind::Other, format!("Execution failed: {}", e))
+    })?;
+
+    Ok(())
 }
 
-pub fn wrap(pkg: &Package) {
+pub fn wrap(p: &Package) {
     #[cfg(feature = "offline")]
     {
-        let tarball = format!("{}-{}.tar", pkg.name, pkg.version);
-        match extract(&tarball, &pkg.name, &pkg.version) {
+        let tarball = format!("{}-{}.tar", p.name, p.version);
+        match extract(&tarball, &p) {
             Ok(()) => {
-                pr!("Successfully extracted tarball", 'v');
+                vpr!("Successfully extracted tarball");
             }
             Err(e) => erm!("Failed to extract tarball: {}", e),
         }
     }
 
     #[cfg(not(feature = "offline"))]
-    match download(pkg) {
+    match download(p) {
         Ok(tarball) => {
-            pr!("Successfully downloaded tarball", 'v');
-            match extract(&tarball, &pkg.name, &pkg.version) {
+            vpr!("Successfully downloaded tarball");
+            match extract(&tarball, p) {
                 Ok(()) => {
-                    pr!("Successfully extracted tarball", 'v');
+                    vpr!("Successfully extracted tarball");
                 }
                 Err(e) => erm!("Failed to extract tarball: {}", e),
             }

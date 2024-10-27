@@ -79,12 +79,12 @@ fn main() {
     }
 
     flags::set_flags(args.verbose, args.quiet, args.download, args.force);
-    pr!(
-        format!(
-            "Flags: verbose={}, quiet={}, download={}, force={}",
-            args.verbose, args.quiet, args.download, args.force
-        ),
-        'v'
+    vpr!(
+        "Flags:\nverbose={}\nquiet={}\ndownload={}\nforce={}",
+        args.verbose,
+        args.quiet,
+        args.download,
+        args.force
     );
 
     bootstrap::tmp();
@@ -121,11 +121,11 @@ fn main() {
                             }
                         }
 
-                        pr!(format!("do_install = {}", do_install), 'v');
+                        vpr!("do_install = {}", do_install);
                         if do_install {
                             fetch::wrap(&p);
                             eval_install_directions(&p.name);
-                            match tracking::add_package(&mut pkg_list, &pkg) {
+                            match tracking::add_package(&mut pkg_list, &p) {
                                 Ok(_) => msg!("Installed {}-{}", p.name, p.version),
                                 Err(e) => {
                                     erm!("Failed to track package '{}': {}", pkg, e);
@@ -150,7 +150,7 @@ fn main() {
                     Ok(p) => {
                         let deps = resolvedeps::resolve_deps(&p);
                         for dep in &deps {
-                            pr!(format!("Dependency: {}", dep), 'v');
+                            vpr!("Dependency: {}", dep);
                         }
 
                         // i may want to add a function for displaying dependencies and share it
@@ -174,11 +174,11 @@ fn main() {
                                         }
                                     }
 
-                                    pr!(format!("do_install = {}", do_install), 'v');
+                                    vpr!("do_install = {}", do_install);
                                     if do_install {
                                         fetch::wrap(&d);
                                         eval_install_directions(&dep);
-                                        match tracking::add_package(&mut pkg_list, &dep) {
+                                        match tracking::add_package(&mut pkg_list, &d) {
                                             Ok(_) => msg!("Installed {}-{}", d.name, d.version),
                                             Err(e) => {
                                                 erm!("Failed to track package '{}': {}", dep, e)
@@ -224,7 +224,7 @@ fn main() {
                 msg!("Pruning {}", pkg);
 
                 match form_package(&pkg) {
-                    Ok(p) => clean::prune_sources(&p.name, &p.version),
+                    Ok(p) => clean::prune_sources(&p),
                     Err(e) => erm!("{}", e),
                 }
             }
@@ -242,7 +242,7 @@ fn main() {
                     Ok(p) => {
                         fetch::wrap(&p);
                         eval_update_directions(&p.name);
-                        match tracking::add_package(&mut pkg_list, &pkg) {
+                        match tracking::add_package(&mut pkg_list, &p) {
                             Ok(_) => msg!("Updated to {}-{}", p.name, p.version),
                             Err(e) => {
                                 erm!("Failed to track package '{}': {}", pkg, e);
@@ -287,7 +287,7 @@ fn main() {
 
                                 for m in matches {
                                     let formatted_m = misc::format_line(&m, 30);
-                                    pr!(format!("  {}", formatted_m), 'q')
+                                    println!("  {}", formatted_m)
                                 }
                             }
                             Err(e) => {
@@ -311,7 +311,7 @@ fn main() {
                         package.name, package.version, package.status,
                     );
                     let formatted_line = misc::format_line(&line, 32);
-                    pr!(format!("  {}", formatted_line), 'q');
+                    println!("  {}", formatted_line);
                 }
             }
             Err(e) => erm!("Error reading file: {}", e),
@@ -363,7 +363,7 @@ fn main() {
         }
 
         _ => {
-            pr!("No valid arguments provided.", 'q')
+            println!("No valid arguments provided.")
         }
     }
 }

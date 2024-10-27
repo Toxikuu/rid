@@ -3,12 +3,13 @@
 // responsible for cleaning tasks
 
 use crate::misc::static_exec;
+use crate::package::Package;
 use crate::paths::SOURCES;
-use crate::pr;
+use crate::{erm, vpr};
 use std::fs;
 
-pub fn prune_sources(pkg_str: &str, pkg_ver: &str) {
-    let kept = format!("{}-{}.tar", pkg_str, pkg_ver);
+pub fn prune_sources(p: &Package) {
+    let kept = format!("{}-{}.tar", p.name, p.version);
 
     if let Ok(entries) = fs::read_dir(&*SOURCES) {
         for entry in entries.filter_map(Result::ok) {
@@ -16,18 +17,18 @@ pub fn prune_sources(pkg_str: &str, pkg_ver: &str) {
             let file_name_str = file_name.to_string_lossy();
 
             if entry.file_type().map_or(false, |t| t.is_file())
-                && file_name_str.starts_with(&pkg_str)
+                && file_name_str.starts_with(&p.name)
                 && file_name_str != kept
             {
                 if let Err(e) = fs::remove_file(entry.path()) {
-                    eprintln!("Failed to remove file '{}': {}", file_name_str, e);
+                    erm!("Failed to remove file '{}': {}", file_name_str, e);
                 } else {
-                    pr!(format!("Removed '{}'", file_name_str));
+                    vpr!("Removed '{}'", file_name_str);
                 }
             }
         }
     } else {
-        eprintln!("Failed to read sources directory");
+        erm!("Failed to read sources directory");
     }
 }
 
