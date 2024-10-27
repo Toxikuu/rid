@@ -3,7 +3,7 @@
 // responsible for bootsrapping rid
 
 use crate::paths::*;
-use crate::{erm, pr};
+use crate::{erm, vpr};
 use std::fs;
 use std::io;
 use std::path::Path;
@@ -28,6 +28,7 @@ fn dl(url: &str, outdir: &str) -> Result<String, Box<dyn Error>> {
     let file_name = url.split('/').last().ok_or("Invalid URL")?;
     let file_path = Path::new(outdir).join(file_name);
 
+    vpr!("Downloading {} to {}", url, outdir);
     let r = get(url)?;
     if r.status().is_success() {
         let mut file = File::create(&file_path)?;
@@ -42,27 +43,22 @@ fn dl(url: &str, outdir: &str) -> Result<String, Box<dyn Error>> {
 }
 
 #[cfg(not(feature = "offline"))]
-fn get_rid_version() -> String {
-    env!("CARGO_PKG_VERSION").to_string()
-}
-
-#[cfg(not(feature = "offline"))]
 fn get_rid() {
     let link = format!(
         "https://github.com/Toxikuu/rid/releases/download/v{}/rid-root.tar.xz",
-        get_rid_version()
+        env!("CARGO_PKG_VERSION")
     );
 
     match dl(&link, "/tmp/rid/building/") {
-        Ok(_) => pr!("Downloaded rid-root tarball to /tmp/rid/building", 'v'),
+        Ok(_) => vpr!("Downloaded rid-root tarball to /tmp/rid/building"),
         Err(e) => {
             erm!("Failed to download rid-root tarball: {}", e);
             exit(1);
         }
     }
 
-    match exec("cd /tmp/rid/building && tar xf rid-root.tar.gz -C /etc/rid") {
-        Ok(_) => pr!("Extracted rid-root", 'v'),
+    match exec("cd /tmp/rid/building && tar xf rid-root.tar.xz -C /etc/rid") {
+        Ok(_) => vpr!("Extracted rid-root"),
         Err(e) => {
             erm!("Failed to set up rid: {}", e);
             exit(1);
@@ -77,7 +73,7 @@ pub fn get_rid_meta(overwrite: bool) {
         "https://github.com/Toxikuu/rid-meta/archive/refs/heads/master.tar.gz",
         "/tmp/rid/building/",
     ) {
-        Ok(_) => pr!("Downloaded rid-meta tarball", 'v'),
+        Ok(_) => vpr!("Downloaded rid-meta tarball"),
         Err(e) => {
             erm!("Failed to download rid-meta tarball: {}", e);
             exit(1);
@@ -113,7 +109,7 @@ fn bootstrap() {
                 chmod 666 /etc/rid/pkgs.json    && \
                 chmod 755 /etc/rid/rbin/*",
     ) {
-        Ok(_) => pr!("Made files in rbin executable", 'v'),
+        Ok(_) => vpr!("Made files in rbin executable"),
         Err(e) => {
             erm!("Failed to make files in rbin executable: {}", e);
             exit(1);
@@ -125,7 +121,7 @@ fn bootstrap() {
         "cd /etc/rid && rm -rf .git* Cargo.* src TDL && \
                 cd /etc/rid && rm -rf LICENSE README.md",
     ) {
-        Ok(_) => pr!("Cleaned extras from /etc/rid", 'v'),
+        Ok(_) => vpr!("Cleaned extras from /etc/rid"),
         Err(e) => {
             erm!("Failed to clean /etc/rid: {}", e);
             exit(1);
@@ -139,16 +135,16 @@ fn mkdir<P: AsRef<Path>>(path: P) -> io::Result<()> {
     let path_ref = path.as_ref();
 
     if path_ref.exists() {
-        pr!(format!("Directory '{}' extant", path_ref.display()), 'v');
+        vpr!("Directory '{}' extant", path_ref.display());
     } else {
         fs::create_dir_all(path_ref)?;
-        pr!(format!("Created directory '{}'", path_ref.display()), 'v');
+        vpr!("Created directory '{}'", path_ref.display());
     }
     Ok(())
 }
 
 pub fn tmp() {
-    pr!("Attempting to create temp dirs...", 'v');
+    vpr!("Attempting to create temp dirs...");
     let dirs = [&*TMPRID, &*BUILDING, &*EXTRACTION, &*DEST, &*TRASH];
 
     for dir in dirs.iter() {
