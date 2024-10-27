@@ -73,6 +73,7 @@ struct Args {
 
 fn main() {
     let mut args = Args::parse();
+    let mut matched = false;
 
     if args.update.is_some() {
         args.force = true;
@@ -90,280 +91,272 @@ fn main() {
     bootstrap::tmp();
     let mut pkg_list =
         tracking::load_package_list(PKGSJSON.as_path()).unwrap_or_else(|_| Vec::new());
-    let _ = tracking::append_json(&mut pkg_list);
+    let _ = tracking::append_json(&mut pkg_list); // appends any new metafiles to the json
 
-    match args {
-        Args { cache, .. } if cache => {
-            let _ = tracking::populate_json();
+    if args.bootstrap {
+        matched = true;
+        #[cfg(feature = "offline")]
+        {
+            erm!("Bootstrapping is not supported for offline rid");
+            exit(1)
         }
 
-        Args { bootstrap, .. } if bootstrap => {
-            #[cfg(feature = "offline")]
-            {
-                erm!("Bootstrapping is not supported for offline rid");
-                exit(1)
-            }
-
-            #[cfg(not(feature = "offline"))]
-            {
-                check_perms();
-                msg!("Bootstrapping rid...");
-                bootstrap::run();
-            }
-        }
-
-        Args { sync, .. } if sync => {
-            #[cfg(feature = "offline")]
-            {
-                erm!("Syncing is not supported for offline rid");
-                exit(1)
-            }
-
-            #[cfg(not(feature = "offline"))]
-            {
-                check_perms();
-                msg!("Syncing rid-meta...");
-                bootstrap::get_rid_meta(false);
-            }
-        }
-
-        Args { sync_overwrite, .. } if sync_overwrite => {
-            #[cfg(feature = "offline")]
-            {
-                erm!("Syncing is not supported for offline rid");
-                exit(1)
-            }
-
-            #[cfg(not(feature = "offline"))]
-            {
-                check_perms();
-                msg!("Syncing rid-meta with overwrite...");
-                bootstrap::get_rid_meta(true);
-            }
-        }
-
-        Args {
-            install_no_deps: Some(pkgs),
-            ..
-        } => {
+        #[cfg(not(feature = "offline"))]
+        {
             check_perms();
+            msg!("Bootstrapping rid...");
+            bootstrap::run();
+        }
+    }
 
-            for pkg in pkgs {
-                match package::form_package(&pkg) {
-                    Ok(p) => {
-                        let mut do_install = false;
+    if args.cache {
+        matched = true;
+        let _ = tracking::populate_json();
+    }
 
-                        match &p.status {
-                            PackageStatus::Installed => {
-                                msg!("{}-{} is already installed", p.name, p.version);
-                                if *FORCE.lock().unwrap() {
-                                    do_install = true
-                                };
-                            }
-                            _ => {
-                                msg!("Installing {}-{} without dependencies", p.name, p.version);
-                                do_install = true;
-                            }
-                        }
-
-                        vpr!("do_install = {}", do_install);
-                        if do_install {
-                            fetch::wrap(&p);
-                            eval_install_directions(&p.name);
-                            match tracking::add_package(&mut pkg_list, &p) {
-                                Ok(_) => msg!("Installed {}-{}", p.name, p.version),
-                                Err(e) => {
-                                    erm!("Failed to track package '{}': {}", pkg, e);
-                                    exit(1);
-                                }
-                            }
-                        }
-                    }
-                    Err(e) => erm!("{}", e),
-                }
-            }
+    if args.sync {
+        matched = true;
+        #[cfg(feature = "offline")]
+        {
+            erm!("Syncing is not supported for offline rid");
+            exit(1)
         }
 
-        Args {
-            install: Some(pkgs),
-            ..
-        } => {
+        #[cfg(not(feature = "offline"))]
+        {
             check_perms();
+            msg!("Syncing rid-meta...");
+            bootstrap::get_rid_meta(false);
+        }
+    }
 
-            for pkg in pkgs {
-                match package::form_package(&pkg) {
-                    Ok(p) => {
-                        let deps = resolvedeps::resolve_deps(&p);
-                        for dep in &deps {
-                            vpr!("Dependency: {}", dep);
-                        }
-
-                        // i may want to add a function for displaying dependencies and share it
-                        // between --dependencies and here
-
-                        for dep in deps {
-                            match package::form_package(&dep) {
-                                Ok(d) => {
-                                    let mut do_install = false;
-
-                                    match &d.status {
-                                        PackageStatus::Installed => {
-                                            msg!("{}-{} is already installed", d.name, d.version);
-                                            if *FORCE.lock().unwrap() {
-                                                do_install = true
-                                            };
-                                        }
-                                        _ => {
-                                            msg!("Installing {}-{}", d.name, d.version);
-                                            do_install = true;
-                                        }
-                                    }
-
-                                    vpr!("do_install = {}", do_install);
-                                    if do_install {
-                                        fetch::wrap(&d);
-                                        eval_install_directions(&dep);
-                                        match tracking::add_package(&mut pkg_list, &d) {
-                                            Ok(_) => msg!("Installed {}-{}", d.name, d.version),
-                                            Err(e) => {
-                                                erm!("Failed to track package '{}': {}", dep, e)
-                                            }
-                                        }
-                                    }
-                                }
-                                Err(e) => erm!("{}", e),
-                            }
-                        }
-                    }
-                    Err(e) => {
-                        erm!("{}", e);
-                    }
-                }
-            }
+    if args.sync_overwrite {
+        matched = true;
+        #[cfg(feature = "offline")]
+        {
+            erm!("Syncing is not supported for offline rid");
+            exit(1)
         }
 
-        Args {
-            remove: Some(pkgs), ..
-        } => {
+        #[cfg(not(feature = "offline"))]
+        {
             check_perms();
-
-            for pkg in pkgs {
-                msg!("Removing {}", pkg);
-                eval_removal_directions(&pkg);
-                match tracking::remove_package(&mut pkg_list, &pkg) {
-                    Ok(_) => msg!("Removed {}", pkg),
-                    Err(e) => {
-                        erm!("Failed to track package '{}': {}", pkg, e);
-                    }
-                }
-                clean::remove_tarballs(&pkg);
-            }
+            msg!("Syncing rid-meta with overwrite...");
+            bootstrap::get_rid_meta(true);
         }
+    }
 
-        Args {
-            prune: Some(pkgs), ..
-        } => {
-            check_perms();
-
-            for pkg in pkgs {
-                msg!("Pruning {}", pkg);
-
-                match form_package(&pkg) {
-                    Ok(p) => clean::prune_sources(&p),
-                    Err(e) => erm!("{}", e),
-                }
-            }
-        }
-
-        Args {
-            update: Some(pkgs), ..
-        } => {
-            check_perms();
-
-            for pkg in pkgs {
-                msg!("Updating {}", pkg);
-
-                match package::form_package(&pkg) {
-                    Ok(p) => {
-                        fetch::wrap(&p);
-                        eval_update_directions(&p.name);
-                        match tracking::add_package(&mut pkg_list, &p) {
-                            Ok(_) => msg!("Updated to {}-{}", p.name, p.version),
-                            Err(e) => {
-                                erm!("Failed to track package '{}': {}", pkg, e);
-                            }
-                        }
-                    }
-                    Err(e) => erm!("{}", e),
-                }
-            }
-        }
-
-        Args {
-            dependencies: Some(pkgs),
-            ..
-        } => {
-            for pkg in pkgs {
-                msg!("Dependencies for {}:", pkg);
-
-                match package::form_package(&pkg) {
-                    Ok(p) => {
-                        let deps = resolvedeps::resolve_deps(&p);
-
-                        match misc::read_json(PKGSJSON.clone()) {
-                            Ok(package_list) => {
-                                let mut matches: Vec<String> = Vec::new();
-
-                                for dep in &deps {
-                                    if dep.is_empty() {
-                                        erm!("Undefined dependency detected!");
-                                        std::process::exit(1);
-                                    }
-
-                                    for package in &package_list {
-                                        if package.name == *dep {
-                                            matches.push(format!(
-                                                "{}={} ~ {:?}",
-                                                package.name, package.version, package.status
-                                            ))
-                                        }
-                                    }
-                                }
-
-                                for m in matches {
-                                    let formatted_m = misc::format_line(&m, 30);
-                                    println!("  {}", formatted_m)
-                                }
-                            }
-                            Err(e) => {
-                                erm!("Error reading packages.json: {}", e);
-                            }
-                        }
-                    }
-                    Err(e) => {
-                        erm!("{}", e);
-                    }
-                }
-            }
-        }
-
-        Args { list, .. } if list => match misc::read_json(PKGSJSON.clone()) {
+    if args.list {
+        matched = true;
+        match misc::read_json(PKGSJSON.clone()) {
             Ok(package_list) => {
                 msg!("PACKAGES");
-                for package in package_list {
-                    let line = format!(
-                        "{}={} ~ {:?}",
-                        package.name, package.version, package.status,
-                    );
+                for p in package_list {
+                    let line = format!("{}={} ~ {:?}", p.name, p.version, p.status,);
+
                     let formatted_line = misc::format_line(&line, 32);
                     println!("  {}", formatted_line);
                 }
             }
-            Err(e) => erm!("Error reading file: {}", e),
-        },
-
-        _ => {
-            println!("No valid arguments provided.")
+            Err(e) => erm!("Errror reading pkgs.json: {}", e),
         }
+    }
+
+    if let Some(pkgs) = args.remove {
+        matched = true;
+        check_perms();
+        for pkg in pkgs {
+            msg!("Removing {}", pkg);
+            eval_removal_directions(&pkg);
+            match tracking::remove_package(&mut pkg_list, &pkg) {
+                Ok(_) => msg!("Removed {}", pkg),
+                Err(e) => {
+                    erm!("Failed to track package '{}': {}", pkg, e);
+                }
+            }
+            clean::remove_tarballs(&pkg);
+        }
+    }
+
+    if let Some(pkgs) = args.prune {
+        matched = true;
+        check_perms();
+
+        for pkg in pkgs {
+            msg!("Pruning {}", pkg);
+            match form_package(&pkg) {
+                Ok(p) => clean::prune_sources(&p),
+                Err(e) => erm!("{}", e),
+            }
+        }
+    }
+
+    if let Some(pkgs) = args.install_no_deps {
+        matched = true;
+        check_perms();
+
+        for pkg in pkgs {
+            match package::form_package(&pkg) {
+                Ok(p) => {
+                    let mut do_install = false;
+
+                    match &p.status {
+                        PackageStatus::Installed => {
+                            msg!("{}-{} is already installed", p.name, p.version);
+                            if *FORCE.lock().unwrap() {
+                                do_install = true
+                            };
+                        }
+                        _ => {
+                            msg!("Installing {}-{} without dependencies", p.name, p.version);
+                            do_install = true;
+                        }
+                    }
+
+                    vpr!("do_install = {}", do_install);
+                    if do_install {
+                        fetch::wrap(&p);
+                        eval_install_directions(&p.name);
+                        match tracking::add_package(&mut pkg_list, &p) {
+                            Ok(_) => msg!("Installed {}-{}", p.name, p.version),
+                            Err(e) => {
+                                erm!("Failed to track package '{}': {}", pkg, e);
+                                exit(1);
+                            }
+                        }
+                    }
+                }
+                Err(e) => erm!("{}", e),
+            }
+        }
+    }
+
+    if let Some(pkgs) = args.install {
+        matched = true;
+        check_perms();
+
+        for pkg in pkgs {
+            match package::form_package(&pkg) {
+                Ok(p) => {
+                    let deps = resolvedeps::resolve_deps(&p);
+                    for dep in &deps {
+                        vpr!("Dependency: {}", dep);
+                    }
+
+                    // i may want to add a function for displaying dependencies and share it
+                    // between --dependencies and here
+
+                    for dep in deps {
+                        match package::form_package(&dep) {
+                            Ok(d) => {
+                                let mut do_install = false;
+
+                                match &d.status {
+                                    PackageStatus::Installed => {
+                                        msg!("{}-{} is already installed", d.name, d.version);
+                                        if *FORCE.lock().unwrap() {
+                                            do_install = true
+                                        };
+                                    }
+                                    _ => {
+                                        msg!("Installing {}-{}", d.name, d.version);
+                                        do_install = true;
+                                    }
+                                }
+
+                                vpr!("do_install = {}", do_install);
+                                if do_install {
+                                    fetch::wrap(&d);
+                                    eval_install_directions(&dep);
+                                    match tracking::add_package(&mut pkg_list, &d) {
+                                        Ok(_) => msg!("Installed {}-{}", d.name, d.version),
+                                        Err(e) => {
+                                            erm!("Failed to track package '{}': {}", dep, e)
+                                        }
+                                    }
+                                }
+                            }
+                            Err(e) => erm!("{}", e),
+                        }
+                    }
+                }
+                Err(e) => {
+                    erm!("{}", e);
+                }
+            }
+        }
+    }
+
+    if let Some(pkgs) = args.update {
+        matched = true;
+        check_perms();
+
+        for pkg in pkgs {
+            msg!("Updating {}", pkg);
+
+            match package::form_package(&pkg) {
+                Ok(p) => {
+                    fetch::wrap(&p);
+                    eval_update_directions(&p.name);
+                    match tracking::add_package(&mut pkg_list, &p) {
+                        Ok(_) => msg!("Updated to {}-{}", p.name, p.version),
+                        Err(e) => {
+                            erm!("Failed to track package '{}': {}", pkg, e);
+                        }
+                    }
+                }
+                Err(e) => erm!("{}", e),
+            }
+        }
+    }
+
+    if let Some(pkgs) = args.dependencies {
+        matched = true;
+        for pkg in pkgs {
+            msg!("Dependencies for {}:", pkg);
+
+            match package::form_package(&pkg) {
+                Ok(p) => {
+                    let deps = resolvedeps::resolve_deps(&p);
+
+                    match misc::read_json(PKGSJSON.clone()) {
+                        Ok(package_list) => {
+                            let mut matches: Vec<String> = Vec::new();
+
+                            for dep in &deps {
+                                if dep.is_empty() {
+                                    erm!("Undefined dependency detected!");
+                                    std::process::exit(1);
+                                }
+
+                                for package in &package_list {
+                                    if package.name == *dep {
+                                        matches.push(format!(
+                                            "{}={} ~ {:?}",
+                                            package.name, package.version, package.status
+                                        ))
+                                    }
+                                }
+                            }
+
+                            for m in matches {
+                                let formatted_m = misc::format_line(&m, 30);
+                                println!("  {}", formatted_m)
+                            }
+                        }
+                        Err(e) => {
+                            erm!("Error reading packages.json: {}", e);
+                        }
+                    }
+                }
+                Err(e) => {
+                    erm!("{}", e);
+                }
+            }
+        }
+    }
+
+    if !matched {
+        erm!("No valid arguments provided")
     }
 }
