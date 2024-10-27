@@ -5,16 +5,6 @@ TODO
     Add a way to specify global version variables
     Maybe do it in env; useful for Python, Perl, or any other packages which rely on the version of another
 
-
-    Add cmake abstractions
-    Same concept as mn* and cm* abstractions.
-
-    Add config options in /etc/rid/config
-    Default behavior configuration.
-
-    Add retries for downloads
-    Not for 404s though. Prompted by pixman's url failing on the first try.
-
     Allow fully custom directories
     Would be done through variables defined in /etc/rid/env
 
@@ -28,90 +18,3 @@ WIP
 
     Test UX
     Fix UX flaws based on feedback.
-
-
-DONE
-
-    Revamp TDL
-    Improved format. Completed on 2024-10-22.
-
-    Fix extraneous dependency matches
-    Migrated to JSON. Fixed on 2024-10-22.
-
-    Migrate to JSON
-    Completed on 2024-10-22.
-
-    Add caching
-    Available with -c. Fixed on 2024-10-21.
-
-    Add logging
-    Logs stored in /etc/rid/rid.log. Added on 2024-10-23.
-
-    Add pruning
-    Prunes outdated tarballs. Added on 2024-10-23.
-
-    Fix bug where cache resets status
-    Confirmed fixed as of 2024-10-23.
-
-    Hid prerun command display
-    Added on 2024-10-23.
-
-    Add an offline feature
-    Cargo feature for disabling online functions. Added on 2024-10-23.
-
-    Fix fallacious install tracking
-    Added a check for build failures. Believed to be fixed as of 2024-10-24.
-
-    Migrate from EOF to '~fin.'
-    For consistency between build script heredocs. Done via sed on 2024-10-24. (I love sed.)
-
-    Change stderr from cyan to red
-    Added on 2024-10-24.
-
-    Tweak UDIR defaults
-    No longer evaluates RDIR by default. Added on 2024-10-24.
-
-    Reformat TDL
-    It's easier to use now. Updated 2024-10-24.
-
-    Make die() accessible in rbin/xt
-    Currently this is done by just redefining it there, which is probably as good as it's getting. Added 2024-10-24.
-
-    Fix dependency tracking weirdness
-    Should be fixed as of 2024-10-24.
-
-    Add tarball removal for --remove
-    Added on 2024-10-24
-
-    Fix SourceForge downloads
-    Switched to direct download links on 2024-10-23. More work may be necessary.
-
-    Consistent stderr formatting
-    Added with erm! on 2024-10-25.
-
-    Various minor bugfixes
-    Added on 2024-10-25.
-
-    Updated --update
-    Added on 2024-10-24.
-
-    Rewrote install arguments for better UX
-    Added on 2024-10-26.
-
-    Drop plans to add support for sets
-    Dropped on 2024-10-26. Dropped because identical functionality can be achieved with $(<set.txt)
-    
-    Make query_status() faster
-    Done by making it read the json instead of calling form_package(). Added on 2024-10-26.
-
-    Added msg!
-    Macro for displaying certain messages. Simplifies code. Added on 2024-10-26.
-
-    Added and migrated to vpr!
-    Macro for displaying verbose messages. Simplifies code. Added on 2024-10-26.
-
-    Rewrote pr!
-    Simplifies code. Added on 2024-10-26.
-
-    Migrate to using Package struct (more or less) globally
-    Simplifies code. Added on 2024-10-26.
