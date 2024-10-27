@@ -3,7 +3,7 @@
 // responsible for dependency resolution
 
 use crate::package::{form_package, Package};
-use crate::{erm, pr};
+use crate::{erm, vpr};
 use std::collections::HashSet;
 
 fn deep_deps(pkg: &Package, resolved: &mut HashSet<String>, order: &mut Vec<String>) {
@@ -29,6 +29,6 @@ pub fn resolve_deps(pkg: &Package) -> Vec<String> {
     let mut order = Vec::new();
     deep_deps(pkg, &mut resolved, &mut order);
 
-    pr!(format!("Resolved dependencies: {:?}", order), 'v');
+    vpr!("Resolved dependencies: {:?}", order);
     order
 }
