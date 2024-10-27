@@ -105,28 +105,28 @@ fn main() {
 
             for pkg in pkgs {
                 match package::form_package(&pkg) {
-                    Ok(pkg_) => {
+                    Ok(p) => {
                         let mut do_install = false;
 
-                        match &pkg_.status {
+                        match &p.status {
                             PackageStatus::Installed => {
-                                msg!("{}-{} is already installed", pkg, pkg_.version);
+                                msg!("{}-{} is already installed", p.name, p.version);
                                 if *FORCE.lock().unwrap() {
                                     do_install = true
                                 };
                             }
                             _ => {
-                                msg!("Installing {}-{} without dependencies", pkg, pkg_.version);
+                                msg!("Installing {}-{} without dependencies", p.name, p.version);
                                 do_install = true;
                             }
                         }
 
                         pr!(format!("do_install = {}", do_install), 'v');
                         if do_install {
-                            fetch::wrap(&pkg_);
-                            eval_install_directions(&pkg);
+                            fetch::wrap(&p);
+                            eval_install_directions(&p.name);
                             match tracking::add_package(&mut pkg_list, &pkg) {
-                                Ok(_) => msg!("Installed {}-{}", pkg, pkg_.version),
+                                Ok(_) => msg!("Installed {}-{}", p.name, p.version),
                                 Err(e) => {
                                     erm!("Failed to track package '{}': {}", pkg, e);
                                     exit(1);
@@ -147,41 +147,41 @@ fn main() {
 
             for pkg in pkgs {
                 match package::form_package(&pkg) {
-                    Ok(pkg_) => {
-                        let dependencies = resolvedeps::resolve_deps(&pkg_);
-                        for dep in &dependencies {
+                    Ok(p) => {
+                        let deps = resolvedeps::resolve_deps(&p);
+                        for dep in &deps {
                             pr!(format!("Dependency: {}", dep), 'v');
                         }
 
                         // i may want to add a function for displaying dependencies and share it
                         // between --dependencies and here
 
-                        for dep in dependencies {
+                        for dep in deps {
                             match package::form_package(&dep) {
-                                Ok(dep_) => {
+                                Ok(d) => {
                                     let mut do_install = false;
 
-                                    match &dep_.status {
+                                    match &d.status {
                                         PackageStatus::Installed => {
-                                            msg!("{}-{} is already installed", dep, dep_.version);
+                                            msg!("{}-{} is already installed", d.name, d.version);
                                             if *FORCE.lock().unwrap() {
                                                 do_install = true
                                             };
                                         }
                                         _ => {
-                                            msg!("Installing {}-{}", dep, dep_.version);
+                                            msg!("Installing {}-{}", d.name, d.version);
                                             do_install = true;
                                         }
                                     }
 
                                     pr!(format!("do_install = {}", do_install), 'v');
                                     if do_install {
-                                        fetch::wrap(&dep_);
+                                        fetch::wrap(&d);
                                         eval_install_directions(&dep);
                                         match tracking::add_package(&mut pkg_list, &dep) {
-                                            Ok(_) => msg!("Installed {}-{}", dep, dep_.version),
+                                            Ok(_) => msg!("Installed {}-{}", d.name, d.version),
                                             Err(e) => {
-                                                erm!("Failed to track package '{}': {}", &dep, e)
+                                                erm!("Failed to track package '{}': {}", dep, e)
                                             }
                                         }
                                     }
@@ -239,13 +239,13 @@ fn main() {
                 msg!("Updating {}", pkg);
 
                 match package::form_package(&pkg) {
-                    Ok(pkg_) => {
-                        fetch::wrap(&pkg_);
-                        eval_update_directions(&pkg);
+                    Ok(p) => {
+                        fetch::wrap(&p);
+                        eval_update_directions(&p.name);
                         match tracking::add_package(&mut pkg_list, &pkg) {
-                            Ok(_) => msg!("Updated to {}-{}", pkg, pkg_.version),
+                            Ok(_) => msg!("Updated to {}-{}", p.name, p.version),
                             Err(e) => {
-                                erm!("Failed to track package '{}': {}", &pkg, e);
+                                erm!("Failed to track package '{}': {}", pkg, e);
                             }
                         }
                     }
@@ -262,14 +262,14 @@ fn main() {
                 msg!("Dependencies for {}:", pkg);
 
                 match package::form_package(&pkg) {
-                    Ok(pkg_) => {
-                        let dependencies = resolvedeps::resolve_deps(&pkg_);
+                    Ok(p) => {
+                        let deps = resolvedeps::resolve_deps(&p);
 
                         match misc::read_json(PKGSJSON.clone()) {
                             Ok(package_list) => {
                                 let mut matches: Vec<String> = Vec::new();
 
-                                for dep in &dependencies {
+                                for dep in &deps {
                                     if dep.is_empty() {
                                         erm!("Undefined dependency detected!");
                                         std::process::exit(1);
