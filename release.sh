@@ -16,14 +16,20 @@ rm -vf rid*
 echo -e "\x1b[36;1m  Packaging rid-offline...\x1b[0m"
 cargo build --release --no-default-features --features=offline
 mv -vf rid{,-offline}
-tar cJvf rid-offline.tar.xz rid-offline
+echo "Compressing rid-offline"
+tar cJvf rid-offline.tar.xz rid-offline > /dev/null
+echo "Done"
 
 echo -e "\x1b[36;1m  Packaging rid...\x1b[0m"
 cargo build --release
-tar cJvf rid.tar.xz rid
+echo "Compressing rid"
+tar cJvf rid.tar.xz rid > /dev/null
+echo "Done"
 
 echo -e "\x1b[36;1m  Packaging project root...\x1b[0m"
-tar cJvf rid-root.tar.xz ../../rbin ../../env
+echo "Compressing rid-root"
+tar cJvf rid-root.tar.xz ../../rbin ../../env > /dev/null
+echo "Done"
 
 popd > /dev/null
 popd > /dev/null 2>&1 || true # in case project root was guessed
