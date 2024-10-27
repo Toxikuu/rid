@@ -8,7 +8,7 @@
 macro_rules! pr {
     ($($arg:tt)*) => {{
         use $crate::flags::QUIET;
-        if *QUIET.lock().unwrap() {
+        if !*QUIET.lock().unwrap() {
             println!("\x1b[30;3m{}\x1b[0m", format!($($arg)*))
         }
     }};
