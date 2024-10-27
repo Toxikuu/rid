@@ -97,6 +97,51 @@ fn main() {
             let _ = tracking::populate_json();
         }
 
+        Args { bootstrap, .. } if bootstrap => {
+            #[cfg(feature = "offline")]
+            {
+                erm!("Bootstrapping is not supported for offline rid");
+                exit(1)
+            }
+
+            #[cfg(not(feature = "offline"))]
+            {
+                check_perms();
+                msg!("Bootstrapping rid...");
+                bootstrap::run();
+            }
+        }
+
+        Args { sync, .. } if sync => {
+            #[cfg(feature = "offline")]
+            {
+                erm!("Syncing is not supported for offline rid");
+                exit(1)
+            }
+
+            #[cfg(not(feature = "offline"))]
+            {
+                check_perms();
+                msg!("Syncing rid-meta...");
+                bootstrap::get_rid_meta(false);
+            }
+        }
+
+        Args { sync_overwrite, .. } if sync_overwrite => {
+            #[cfg(feature = "offline")]
+            {
+                erm!("Syncing is not supported for offline rid");
+                exit(1)
+            }
+
+            #[cfg(not(feature = "offline"))]
+            {
+                check_perms();
+                msg!("Syncing rid-meta with overwrite...");
+                bootstrap::get_rid_meta(true);
+            }
+        }
+
         Args {
             install_no_deps: Some(pkgs),
             ..
@@ -316,51 +361,6 @@ fn main() {
             }
             Err(e) => erm!("Error reading file: {}", e),
         },
-
-        Args { bootstrap, .. } if bootstrap => {
-            #[cfg(feature = "offline")]
-            {
-                erm!("Bootstrapping is not supported for offline rid");
-                exit(1)
-            }
-
-            #[cfg(not(feature = "offline"))]
-            {
-                check_perms();
-                msg!("Bootstrapping rid...");
-                bootstrap::run();
-            }
-        }
-
-        Args { sync, .. } if sync => {
-            #[cfg(feature = "offline")]
-            {
-                erm!("Syncing is not supported for offline rid");
-                exit(1)
-            }
-
-            #[cfg(not(feature = "offline"))]
-            {
-                check_perms();
-                msg!("Syncing rid-meta...");
-                bootstrap::get_rid_meta(false);
-            }
-        }
-
-        Args { sync_overwrite, .. } if sync_overwrite => {
-            #[cfg(feature = "offline")]
-            {
-                erm!("Syncing is not supported for offline rid");
-                exit(1)
-            }
-
-            #[cfg(not(feature = "offline"))]
-            {
-                check_perms();
-                msg!("Syncing rid-meta with overwrite...");
-                bootstrap::get_rid_meta(true);
-            }
-        }
 
         _ => {
             println!("No valid arguments provided.")
