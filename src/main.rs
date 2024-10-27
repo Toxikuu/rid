@@ -94,7 +94,6 @@ fn main() {
     let _ = tracking::append_json(&mut pkg_list); // appends any new metafiles to the json
 
     if args.bootstrap {
-        matched = true;
         #[cfg(feature = "offline")]
         {
             erm!("Bootstrapping is not supported for offline rid");
@@ -103,6 +102,7 @@ fn main() {
 
         #[cfg(not(feature = "offline"))]
         {
+            matched = true;
             check_perms();
             msg!("Bootstrapping rid...");
             bootstrap::run();
@@ -115,7 +115,6 @@ fn main() {
     }
 
     if args.sync {
-        matched = true;
         #[cfg(feature = "offline")]
         {
             erm!("Syncing is not supported for offline rid");
@@ -124,6 +123,7 @@ fn main() {
 
         #[cfg(not(feature = "offline"))]
         {
+            matched = true;
             check_perms();
             msg!("Syncing rid-meta...");
             bootstrap::get_rid_meta(false);
@@ -131,7 +131,6 @@ fn main() {
     }
 
     if args.sync_overwrite {
-        matched = true;
         #[cfg(feature = "offline")]
         {
             erm!("Syncing is not supported for offline rid");
@@ -140,6 +139,7 @@ fn main() {
 
         #[cfg(not(feature = "offline"))]
         {
+            matched = true;
             check_perms();
             msg!("Syncing rid-meta with overwrite...");
             bootstrap::get_rid_meta(true);
