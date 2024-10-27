@@ -2,8 +2,9 @@
 
 TODO
 
-    Migrate to using Package struct globally
-    Would make my code less of a mess
+    Add a way to specify global version variables
+    Maybe do it in env; useful for Python, Perl, or any other packages which rely on the version of another
+
 
     Add cmake abstractions
     Same concept as mn* and cm* abstractions.
@@ -13,9 +14,6 @@ TODO
 
     Add retries for downloads
     Not for 404s though. Prompted by pixman's url failing on the first try.
-
-    Reduce redundancy in build failure messages
-    "Not tracking package 'libelf' as it failed to build; Failed to track package 'libelf': Not tracking due to build failure"
 
     Allow fully custom directories
     Would be done through variables defined in /etc/rid/env
@@ -108,3 +106,12 @@ DONE
 
     Added msg!
     Macro for displaying certain messages. Simplifies code. Added on 2024-10-26.
+
+    Added and migrated to vpr!
+    Macro for displaying verbose messages. Simplifies code. Added on 2024-10-26.
+
+    Rewrote pr!
+    Simplifies code. Added on 2024-10-26.
+
+    Migrate to using Package struct (more or less) globally
+    Simplifies code. Added on 2024-10-26.
