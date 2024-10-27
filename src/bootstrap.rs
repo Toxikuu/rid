@@ -135,7 +135,7 @@ fn mkdir<P: AsRef<Path>>(path: P) -> io::Result<()> {
     let path_ref = path.as_ref();
 
     if path_ref.exists() {
-        vpr!("Directory '{}' extant", path_ref.display());
+        vpr!("Extant directory '{}'", path_ref.display());
     } else {
         fs::create_dir_all(path_ref)?;
         vpr!("Created directory '{}'", path_ref.display());
