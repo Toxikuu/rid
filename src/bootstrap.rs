@@ -41,26 +41,27 @@ fn dl(url: &str, outdir: &str) -> Result<String, Box<dyn Error>> {
     }
 }
 
+fn get_rid_version() -> String {
+    env!("CARGO_PKG_VERSION").to_string()
+}
+
 #[cfg(not(feature = "offline"))]
 fn get_rid() {
-    match dl(
-        "https://github.com/Toxikuu/rid/archive/refs/heads/master.tar.gz",
-        "/tmp/rid/building/",
-    ) {
-        Ok(_) => pr!("Downloaded rid tarball", 'v'),
+    let link = format!(
+        "https://github.com/Toxikuu/rid/releases/download/v{}/rid-root.tar.xz",
+        get_rid_version()
+    );
+
+    match dl(&link, "/tmp/rid/building/") {
+        Ok(_) => pr!("Downloaded rid-root tarball to /tmp/rid/building", 'v'),
         Err(e) => {
-            erm!("Failed to download rid tarball: {}", e);
+            erm!("Failed to download rid-root tarball: {}", e);
             exit(1);
         }
     }
 
-    match exec(
-        "cd       /tmp/rid/building      && \
-         tar -xf  master.tar.gz          && \
-         mv  -vf  rid-master/* /etc/rid/ && \
-         rm  -rf  /tmp/rid/building/*",
-    ) {
-        Ok(_) => pr!("Set up rid", 'v'),
+    match exec("cd /tmp/rid/building && tar xf rid-root.tar.gz -C /etc/rid") {
+        Ok(_) => pr!("Extracted rid-root", 'v'),
         Err(e) => {
             erm!("Failed to set up rid: {}", e);
             exit(1);
@@ -85,10 +86,10 @@ pub fn get_rid_meta(overwrite: bool) {
     let c = if overwrite { ' ' } else { 'n' };
     let command = format!(
         "cd     /tmp/rid/building                     && \
-        tar -xf master.tar.gz                         && \
-        rm -f   rid-meta-master/{{LICENSE,README.md}} && \
+        tar xvf master.tar.gz                         && \
+        rm -vf  rid-meta-master/{{LICENSE,README.md}} && \
         mv -v{} rid-meta-master/* /etc/rid/meta/      && \
-        rm -rf  master.tar.gz rid-meta-master",
+        rm -rvf master.tar.gz rid-meta-master",
         c
     );
 
@@ -96,7 +97,7 @@ pub fn get_rid_meta(overwrite: bool) {
         Ok(_) => msg!("Synced!"),
         Err(e) => {
             erm!("Failed to sync rid-meta: {}", e);
-            exit(1);
+            exit(1)
         }
     }
 }
