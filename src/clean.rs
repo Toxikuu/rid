@@ -33,6 +33,6 @@ pub fn prune_sources(p: &Package) {
 }
 
 pub fn remove_tarballs(pkg_str: &str) {
-    let command = format!("cd /etc/rid/sources && rm -vf {}-[0-9]*.t*", pkg_str);
+    let command = format!("cd {} && rm -vf {}-[0-9]*.t*", SOURCES.display(), pkg_str);
     let _ = static_exec(&command);
 }

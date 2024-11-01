@@ -24,11 +24,11 @@ mod online {
 use online::*;
 
 #[cfg(not(feature = "offline"))]
-fn dl(url: &str, outdir: &str) -> Result<String, Box<dyn Error>> {
+fn dl(url: &str, outdir: &Path) -> Result<String, Box<dyn Error>> {
     let file_name = url.split('/').last().ok_or("Invalid URL")?;
     let file_path = Path::new(outdir).join(file_name);
 
-    vpr!("Downloading {} to {}", url, outdir);
+    vpr!("Downloading {} to {}", url, outdir.display());
     let r = get(url)?;
     if r.status().is_success() {
         let mut file = File::create(&file_path)?;
@@ -49,15 +49,21 @@ fn get_rid() {
         env!("CARGO_PKG_VERSION")
     );
 
-    match dl(&link, "/tmp/rid/building/") {
-        Ok(_) => vpr!("Downloaded rid-root tarball to /tmp/rid/building"),
+    match dl(&link, &BUILDING) {
+        Ok(_) => vpr!("Downloaded rid-root tarball to {}", BUILDING.display()),
         Err(e) => {
             erm!("Failed to download rid-root tarball: {}", e);
             exit(1);
         }
     }
 
-    match exec("cd /tmp/rid/building && tar xf rid-root.tar.xz -C /etc/rid") {
+    let command = format!(
+        "cd {} && tar xf rid-root.tar.xz -C {}",
+        BUILDING.display(),
+        RIDHOME.display()
+    );
+
+    match exec(&command) {
         Ok(_) => vpr!("Extracted rid-root"),
         Err(e) => {
             erm!("Failed to set up rid: {}", e);
@@ -71,7 +77,7 @@ pub fn get_rid_meta(overwrite: bool) {
     // used for bootstrapping and syncing
     match dl(
         "https://github.com/Toxikuu/rid-meta/archive/refs/heads/master.tar.gz",
-        "/tmp/rid/building/",
+        &*BUILDING,
     ) {
         Ok(_) => vpr!("Downloaded rid-meta tarball"),
         Err(e) => {
@@ -82,12 +88,14 @@ pub fn get_rid_meta(overwrite: bool) {
 
     let c = if overwrite { ' ' } else { 'n' };
     let command = format!(
-        "cd     /tmp/rid/building                     && \
+        "cd     {}                                    && \
         tar xvf master.tar.gz                         && \
         rm -vf  rid-meta-master/{{LICENSE,README.md}} && \
-        mv -v{} rid-meta-master/* /etc/rid/meta/      && \
+        mv -v{} rid-meta-master/* {}                  && \
         rm -rvf master.tar.gz rid-meta-master",
-        c
+        BUILDING.display(),
+        c,
+        RIDHOME.display(),
     );
 
     match exec(&command) {
@@ -104,11 +112,15 @@ fn bootstrap() {
     get_rid();
     get_rid_meta(false);
 
-    match exec(
-        "touch /etc/rid/pkgs.json               && \
-                chmod 666 /etc/rid/pkgs.json    && \
-                chmod 755 /etc/rid/rbin/*",
-    ) {
+    let command = format!(
+        "touch {}            &&
+                chmod 666 {} &&
+                chmod 755 {}/*",
+        PKGSJSON.display(),
+        PKGSJSON.display(),
+        RBIN.display(),
+    );
+    match exec(&command) {
         Ok(_) => vpr!("Made files in rbin executable"),
         Err(e) => {
             erm!("Failed to make files in rbin executable: {}", e);
@@ -117,13 +129,14 @@ fn bootstrap() {
     }
 
     // cleanup
-    match exec(
-        "cd /etc/rid && rm -rf .git* Cargo.* src TDL && \
-                cd /etc/rid && rm -rf LICENSE README.md",
-    ) {
-        Ok(_) => vpr!("Cleaned extras from /etc/rid"),
+    let command = format!(
+        "cd {} && rm -rf .git* Cargo.* src TDL LICENSE README.md",
+        RIDHOME.display()
+    );
+    match exec(&command) {
+        Ok(_) => vpr!("Cleaned extras from {}", RIDHOME.display()),
         Err(e) => {
-            erm!("Failed to clean /etc/rid: {}", e);
+            erm!("Failed to clean {}: {}", RIDHOME.display(), e);
             exit(1);
         }
     }
@@ -156,7 +169,7 @@ pub fn tmp() {
 
 #[cfg(not(feature = "offline"))]
 pub fn run() {
-    let dirs = [&*ETCRID, &*SOURCES, &*META];
+    let dirs = [&*RIDHOME, &*SOURCES, &*META];
 
     for dir in dirs.iter() {
         if let Err(e) = mkdir(dir) {

@@ -6,7 +6,7 @@
 use crate::flags::FORCE;
 use crate::misc::exec;
 use crate::package::{Package, PackageStatus};
-use crate::paths::RBIN;
+use crate::paths::{BUILDING, RBIN};
 use crate::{erm, vpr};
 use std::io;
 
@@ -76,7 +76,7 @@ fn download(p: &Package) -> Result<String, Box<dyn Error>> {
 
 fn extract(tarball: &str, p: &Package) -> io::Result<()> {
     if tarball == "no link" {
-        let command = format!("mkdir -pv /tmp/rid/building/{}-{}", p.name, p.version);
+        let command = format!("mkdir -pv {}/{}-{}", BUILDING.display(), p.name, p.version);
         let _ = exec(&command);
         return Ok(());
     }

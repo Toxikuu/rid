@@ -4,7 +4,7 @@
 
 use crate::erm;
 use crate::package::{form_package, Package, PackageStatus};
-use crate::paths::{META, PKGSJSON};
+use crate::paths::{META, PKGSJSON, TMPRID};
 use serde_json::{from_str, to_string_pretty};
 use std::fs::{self, File};
 use std::io::{self, Read, Write};
@@ -27,7 +27,7 @@ pub fn save_package_list(pkg_list: &Vec<Package>, file_path: &Path) {
 }
 
 fn build_failed() -> bool {
-    Path::new("/tmp/rid/failed").exists()
+    Path::new(&format!("{}/failed", TMPRID.display())).exists()
 }
 
 pub fn add_package(pkg_list: &mut Vec<Package>, p: &Package) -> Result<(), String> {

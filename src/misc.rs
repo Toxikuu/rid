@@ -3,6 +3,7 @@
 // defines miscellaneous helper functions
 
 use crate::package::Package;
+use crate::paths::TMPRID;
 use crate::{erm, pr};
 use serde_json::from_str;
 use std::fs::{read_to_string, OpenOptions};
@@ -78,9 +79,9 @@ pub fn exec(command: &str) -> io::Result<()> {
         OpenOptions::new()
             .append(true)
             .create(true)
-            .open("/tmp/rid/rid.log")
+            .open(format!("{}/rid.log", TMPRID.display()))
             .expect("Failed to open log file"),
-    )); // this should never fail but im handling it anyway :sunglasses:
+    ));
 
     let log_file_stdout = Arc::clone(&log_file);
     let stdout_thread = thread::spawn(move || {
