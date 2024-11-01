@@ -26,10 +26,10 @@ die "32-bit configure failed"
 
 make                                        ||
 die "32-bit make failed"         
-make DESTDIR=/tmp/rid/dest install          ||
+make DESTDIR=$RIDDEST install               ||
 die "32-bit make install failed"
-cp -vr /tmp/rid/dest/usr/lib32/* /usr/lib32 ||
+cp -vr $RIDDEST/usr/lib32/* /usr/lib32      ||
 die "Failed to copy 32-bit libraries"
-rm -rf /tmp/rid/dest
+rm -rf $RIDDEST
 ldconfig                                    ||
 die "Failed to update library cache"

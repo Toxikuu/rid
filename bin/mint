@@ -2,14 +2,17 @@
 
 METAFILE="$2"
 
-[ -z $RIDHOME ] && RIDHOME="/etc/rid"
-[ -z $RIDBUILDING ] && RIDBUILDING="/tmp/rid/building"
-[ -z $RIDTMP ] && RIDTMP="/tmp/rid"
+[ -z $RIDHOME ]       && { echo "\$RIDHOME is unset"; exit 1; }
+[ -z $RIDMETA ]       && { echo "\$RIDHOME is unset"; exit 1; }
+[ -z $RIDTMP ]        && { echo "\$RIDHOME is unset"; exit 1; }
+[ -z $RIDBUILDING ]   && { echo "\$RIDHOME is unset"; exit 1; }
+[ -z $RIDEXTRACTION ] && { echo "\$RIDHOME is unset"; exit 1; }
 
 function pre {
   bv=$(compgen -v)
+  . /etc/env 
   . $RIDHOME/env || { echo "Failed to source $RIDHOME/env"; exit 1; }
-  . $RIDHOME/meta/"$METAFILE" || { die "Failed to source $RIDHOME/meta/$METAFILE"; exit 1; }
+  . "$RIDMETA/$METAFILE" || die "Failed to source $RIDHOME/meta/$METAFILE"
   av=$(compgen -v)
 
   rm -f $RIDTMP/failed

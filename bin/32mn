@@ -24,10 +24,10 @@ die "32-bit meson setup failed"
 ninja                                       ||
 die "32-bit ninja failed"
 
-DESTDIR=/tmp/rid/dest ninja install         ||
+DESTDIR=$RIDDEST ninja install              ||
 die "32-bit ninja install failed"
-cp -vr /tmp/rid/dest/usr/lib32/* /usr/lib32 ||
+cp -vr $RIDDEST/usr/lib32/* /usr/lib32      ||
 die "Failed to copy 32-bit libraries"
-rm -rf /tmp/rid/dest
+rm -rf $RIDDEST
 ldconfig                                    ||
 die "Failed to update library cache"

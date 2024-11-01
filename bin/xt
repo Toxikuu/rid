@@ -13,11 +13,11 @@ fi
 
 die() {
     echo "Error: $1" >&2
-    touch /tmp/rid/failed
+    touch "$RIDTMP"/failed
     exit 1
 }
 
-rm -rf   /tmp/rid/{building,extraction}/*
-tar xf   /etc/rid/sources/"$1"* -C /tmp/rid/extraction || die "Failed to extract tarball"
-mkdir -p /tmp/rid/building/"$2-$3"
-mv -Tf   /tmp/rid/extraction/*    /tmp/rid/building/"$2-$3"
+rm -rf   "$RIDBUILDING/"*     "$RIDEXTRACTION/"*
+tar xf   "$RIDSOURCES/$1"* -C "$RIDEXTRACTION" || die "Failed to extract tarball"
+mkdir -p "$RIDBUILDING/$2-$3"
+mv -Tf   "$RIDEXTRACTION/"*   "$RIDBUILDING/$2-$3"
