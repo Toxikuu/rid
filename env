@@ -43,14 +43,14 @@ pathappend () {
 
 die() {
     echo "Died with error: $1" >&2
-    touch /tmp/rid/failed
+    touch $RIDTMP/failed
     exit 1
 }
 
 export -f pathremove pathprepend pathappend die
 
 paths=(
-    /etc/rid/rbin
+    $RIDBIN
     /usr/bin
     /usr/sbin
     /opt/pnpm
