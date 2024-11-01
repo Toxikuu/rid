@@ -14,7 +14,7 @@ lazy_static! {
     pub static ref META: PathBuf =
         PathBuf::from(env::var("RIDMETA").unwrap_or_else(|_| "/etc/rid/meta".to_string()));
     pub static ref RBIN: PathBuf =
-        PathBuf::from(env::var("RIDBIN").unwrap_or_else(|_| "/etc/rid/rbin".to_string()));
+        PathBuf::from(env::var("RIDBIN").unwrap_or_else(|_| "/etc/rid/bin".to_string()));
     pub static ref SOURCES: PathBuf =
         PathBuf::from(env::var("RIDSOURCES").unwrap_or_else(|_| "/etc/rid/sources".to_string()));
     pub static ref TMPRID: PathBuf =
