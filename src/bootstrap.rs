@@ -77,7 +77,7 @@ pub fn get_rid_meta(overwrite: bool) {
     // used for bootstrapping and syncing
     match dl(
         "https://github.com/Toxikuu/rid-meta/archive/refs/heads/master.tar.gz",
-        &*BUILDING,
+        &BUILDING,
     ) {
         Ok(_) => vpr!("Downloaded rid-meta tarball"),
         Err(e) => {
@@ -95,7 +95,7 @@ pub fn get_rid_meta(overwrite: bool) {
         rm -rvf master.tar.gz rid-meta-master",
         BUILDING.display(),
         c,
-        RIDHOME.display(),
+        META.display(),
     );
 
     match exec(&command) {
