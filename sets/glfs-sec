@@ -1,0 +1,12 @@
+dbus1
+linux-pam
+shadow
+elogind
+duktape
+pcre2
+glib
+icu
+libxml2
+shared-mime-info
+desktop-file-utils
+polkit

@@ -1,0 +1,13 @@
+libglvnd
+pciutils
+hwdata
+nvidiia
+rust
+mako
+libdrm
+libva
+libvdpau
+libvdpau-va-gl
+libyaml
+pyyaml
+mesa

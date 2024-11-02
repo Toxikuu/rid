@@ -1,0 +1,11 @@
+libtasn1
+nspr
+nss
+p11-kit
+make-ca
+libunistring
+libidn2
+libpsl
+curl
+wget
+git
