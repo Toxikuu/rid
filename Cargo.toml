@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.11.3"
+version = "0.11.4"
 edition = "2021"
 
 [features]
@@ -9,6 +9,7 @@ default = ["reqwest"]
 
 [dependencies]
 clap = { version = "4.5.19", features = ["derive"] }
+glob = "0.3.1"
 lazy_static = "1.5.0"
 regex = "1.11.0"
 reqwest = { version = "0.12.8", features = ["blocking"], optional = true }
