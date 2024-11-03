@@ -2,12 +2,11 @@
 # xt = extract
 # wraps the extraction process for rid
 #
-# $1 = tarball
 # $2 = pkg_str
 # $3 = vers
 
-if [ $# -lt 3 ]; then
-    echo "Usage: $0 <tarball> <pkg_str> <vers>"
+if [ $# -lt 2 ]; then
+    echo "Usage: $0 <pkg_str> <vers>"
     exit 1
 fi
 
@@ -18,6 +17,6 @@ die() {
 }
 
 rm -rf   "$RIDBUILDING/"*     "$RIDEXTRACTION/"*
-tar xf   "$RIDSOURCES/$1"* -C "$RIDEXTRACTION" || die "Failed to extract tarball"
-mkdir -p "$RIDBUILDING/$2-$3"
-mv -Tf   "$RIDEXTRACTION/"*   "$RIDBUILDING/$2-$3"
+tar xf   "$RIDSOURCES/$1-$2.t"* -C "$RIDEXTRACTION" || die "Failed to extract tarball"
+mkdir -p "$RIDBUILDING/$1-$2"
+mv -Tf   "$RIDEXTRACTION/"*   "$RIDBUILDING/$1-$2"
