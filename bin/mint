@@ -10,9 +10,8 @@ METAFILE="$2"
 
 function pre {
   bv=$(compgen -v)
-  . /etc/env 
-  . $RIDHOME/env || { echo "Failed to source $RIDHOME/env"; exit 1; }
-  . "$RIDMETA/$METAFILE" || die "Failed to source $RIDHOME/meta/$METAFILE"
+  . "$RIDHOME/env" || { echo "Failed to source $RIDHOME/env"; exit 1; }
+  . "$RIDMETA/$METAFILE" || die "Failed to source $RIDMETA/$METAFILE"
   av=$(compgen -v)
 
   rm -f $RIDTMP/failed
@@ -79,6 +78,7 @@ case $1 in
     echo "LINK: $LINK"
     echo "STAT: $STAT"
     echo "DEPS: $DEPS"
+    echo "UPST: $UPST"
     echo ""
     echo "IDIR: $IDIR"
     echo "RDIR: $RDIR"
