@@ -1,5 +1,5 @@
 #!/bin/bash
-source versions
+source $RIDHOME/versions
 
 export TARGET_USER="t"  # your user
 export H="/home/${TARGET_USER}"
