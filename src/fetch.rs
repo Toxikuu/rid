@@ -6,14 +6,14 @@
 use crate::flags::FORCE;
 use crate::misc::exec;
 use crate::package::{Package, PackageStatus};
-use crate::paths::{BUILDING, RBIN};
+use crate::paths::RBIN;
 use crate::{erm, vpr};
 use std::io;
 
 #[cfg(not(feature = "offline"))]
 mod online {
     pub use crate::flags::DOWNLOAD;
-    pub use crate::paths::SOURCES;
+    pub use crate::paths::{BUILDING, SOURCES};
     pub use glob::glob;
     pub use reqwest::blocking::get;
     pub use std::error::Error;
