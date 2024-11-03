@@ -20,6 +20,7 @@ pub struct Package {
     pub version: String,
     pub link: Option<String>,
     pub upstream: Option<String>,
+    pub selector: Option<String>,
     pub deps: Vec<String>,
     pub status: PackageStatus,
 }
@@ -33,6 +34,7 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
     let mut version = String::new();
     let mut link = None;
     let mut upstream = None;
+    let mut selector = None;
     let mut deps = Vec::new();
 
     let command = format!("{}/mint v {}", RBIN.display(), pkg_str);
@@ -44,6 +46,7 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
                     _ if line.starts_with("VERS: ") => version = line[6..].trim().to_string(),
                     _ if line.starts_with("LINK: ") => link = Some(line[6..].trim().to_string()),
                     _ if line.starts_with("UPST: ") => upstream = Some(line[6..].trim().to_string()),
+                    _ if line.starts_with("SELE: ") => selector = Some(line[6..].trim().to_string()),
                     _ if line.starts_with("DEPS: ") => {
                         deps = line[6..]
                             .split_whitespace()
@@ -69,6 +72,7 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
                 version,
                 link,
                 upstream,
+                selector,
                 deps,
                 status,
             })
