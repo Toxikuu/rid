@@ -8,6 +8,7 @@ use crate::misc::exec;
 use crate::package::{Package, PackageStatus};
 use crate::paths::{BUILDING, RBIN};
 use crate::{erm, vpr};
+use glob::glob;
 use std::io;
 
 #[cfg(not(feature = "offline"))]
@@ -25,33 +26,35 @@ mod online {
 use online::*;
 
 #[cfg(not(feature = "offline"))]
-fn download(p: &Package) -> Result<String, Box<dyn Error>> {
+fn download(p: &Package) -> Result<(), Box<dyn Error>> {
     let url = match &p.link {
-        Some(url) => {
+        Some(url) if !url.is_empty() => {
             vpr!("Detected url: '{}' for package {}", url, p.name);
-
-            if !url.is_empty() {
-                url
-            } else {
-                vpr!("Package '{}' has no link!", p.name);
-                return Ok("no link".to_string()); // might replace these with Err()
-            }
+            url
         }
-        _ => {
-            vpr!("Package '{}' has no link!", p.name);
-            return Ok("no link".to_string()); // might replace these with Err()
+        Some(_) | None => {
+            vpr!("No link for {}", p.name);
+            return Err("no link".into());
         }
     };
 
-    let tarball = format!("{}-{}.tar", p.name, p.version);
-    let file_path = SOURCES.join(&tarball);
+    let tarball_pattern = format!("{}-{}.t*", p.name, p.version);
+    let file_pattern = SOURCES.join(&tarball_pattern);
 
-    if Path::new(&file_path).exists() {
+    let file_exists = glob(file_pattern.to_str().unwrap())
+        .expect("Failed to read glob pattern")
+        .any(|entry| entry.is_ok() && Path::new(&entry.unwrap()).exists());
+
+    if file_exists {
         if !*DOWNLOAD.lock().unwrap() {
-            vpr!("Skipping download for existing tarball '{}'", tarball);
-            return Ok(tarball);
+            vpr!("Skipping download for {}-{}", p.name, p.version);
+            return Ok(());
         } else {
-            vpr!("Forcibly downloading existing tarball '{}'", tarball);
+            vpr!(
+                "Forcibly downloading existing tarball for {}-{}",
+                p.name,
+                p.version
+            );
         }
     } else {
         vpr!("Downloading {}", url);
@@ -63,42 +66,38 @@ fn download(p: &Package) -> Result<String, Box<dyn Error>> {
 
     let r = get(url)?;
 
+    let tb = format!("{}-{}.tar", p.name, p.version);
+    let file_path = SOURCES.join(&tb);
     if r.status().is_success() {
         let mut file = File::create(&file_path)?;
         let content = r.bytes()?;
         file.write_all(&content)?;
 
-        Ok(tarball)
+        Ok(())
     } else {
         Err(format!("Failed to download tarball: HTTP status {}", r.status()).into())
     }
 }
 
-fn extract(tarball: &str, p: &Package) -> io::Result<()> {
-    if tarball == "no link" {
-        let command = format!("mkdir -pv {}/{}-{}", BUILDING.display(), p.name, p.version);
-        let _ = exec(&command);
-        return Ok(());
-    }
+fn retract(p: &Package) {
+    let command = format!("mkdir -pv {}/{}-{}", BUILDING.display(), p.name, p.version);
+    let _ = exec(&command);
+}
 
-    match p.status {
-        PackageStatus::Installed => {
-            if !*FORCE.lock().unwrap() {
-                vpr!("Not extracting tarball for installed package '{}'", p.name);
-                return Ok(());
-            } else {
-                vpr!(
-                    "Forcibly extracting tarball for installed package '{}'",
-                    p.name
-                );
-            }
-        }
-        _ => {
-            // do nothing
+fn extract(p: &Package) -> io::Result<()> {
+    if let PackageStatus::Installed = p.status {
+        if !*FORCE.lock().unwrap() {
+            vpr!("Not extracting tarball for installed package '{}'", p.name);
+            return Ok(());
+        } else {
+            vpr!(
+                "Forcibly extracting tarball for installed package '{}'",
+                p.name
+            );
         }
     }
 
-    let command = format!("{}/xt {} {} {}", RBIN.display(), tarball, p.name, p.version);
+    let command = format!("{}/xt {} {}", RBIN.display(), p.name, p.version);
 
     exec(&command).map_err(|e| {
         erm!("Execution failed: {}", e);
@@ -111,8 +110,7 @@ fn extract(tarball: &str, p: &Package) -> io::Result<()> {
 pub fn wrap(p: &Package) {
     #[cfg(feature = "offline")]
     {
-        let tarball = format!("{}-{}.tar", p.name, p.version);
-        match extract(&tarball, &p) {
+        match extract(&p) {
             Ok(()) => {
                 vpr!("Successfully extracted tarball");
             }
@@ -122,15 +120,16 @@ pub fn wrap(p: &Package) {
 
     #[cfg(not(feature = "offline"))]
     match download(p) {
-        Ok(tarball) => {
+        Ok(()) => {
             vpr!("Successfully downloaded tarball");
-            match extract(&tarball, p) {
+            match extract(p) {
                 Ok(()) => {
-                    vpr!("Successfully extracted tarball");
+                    vpr!("Extracted tarball for '{}'", p.name);
                 }
-                Err(e) => erm!("Failed to extract tarball: {}", e),
+                Err(e) => erm!("Failed to extract tarball for '{}': {}", p.name, e),
             }
         }
+        Err(e) if e.to_string() == "no link" => retract(p),
         Err(e) => erm!("Failed to download package: {}", e),
     }
 }
