@@ -15,11 +15,11 @@ mod online {
     pub use crate::flags::DOWNLOAD;
     pub use crate::paths::{BUILDING, SOURCES};
     pub use glob::glob;
-    pub use reqwest::blocking::get;
     pub use std::error::Error;
     pub use std::fs::File;
     pub use std::io::Write;
     pub use std::path::Path;
+    pub use ureq::get;
 }
 
 #[cfg(not(feature = "offline"))]
@@ -64,19 +64,29 @@ fn download(p: &Package) -> Result<(), Box<dyn Error>> {
         vpr!("Detected a sourceforge domain; I hope you have a direct url!");
     }
 
-    let r = get(url)?;
+    let r = get(url).call()?;
+
+    if r.status() != 200 {
+        return Err(format!("Failed to download file: HTTP status {}", r.status()).into());
+    }
 
     let tb = format!("{}-{}.tar", p.name, p.version);
     let file_path = SOURCES.join(&tb);
-    if r.status().is_success() {
-        let mut file = File::create(&file_path)?;
-        let content = r.bytes()?;
-        file.write_all(&content)?;
 
-        Ok(())
-    } else {
-        Err(format!("Failed to download tarball: HTTP status {}", r.status()).into())
+    let mut file = File::create(&file_path)?;
+
+    match r.header("Content-Type") {
+        Some(content_type) if content_type.starts_with("text/") => {
+            let text = r.into_string()?;
+            file.write_all(text.as_bytes())?;
+        }
+        _ => {
+            let mut reader = r.into_reader();
+            io::copy(&mut reader, &mut file)?;
+        }
     }
+
+    Ok(())
 }
 
 // it is assumed that all offline packages must have an associated tarball

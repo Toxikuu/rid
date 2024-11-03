@@ -13,33 +13,42 @@ mod online {
     pub use crate::misc::exec;
     pub use crate::msg;
     pub use crate::tracking::populate_json;
-    pub use reqwest::blocking::get;
     pub use std::error::Error;
     pub use std::fs::File;
     pub use std::io::Write;
     pub use std::process::exit;
+    pub use ureq::get;
 }
 
 #[cfg(not(feature = "offline"))]
 use online::*;
 
 #[cfg(not(feature = "offline"))]
-fn dl(url: &str, outdir: &Path) -> Result<String, Box<dyn Error>> {
+fn dl(url: &str, outdir: &Path) -> Result<(), Box<dyn Error>> {
     let file_name = url.split('/').last().ok_or("Invalid URL")?;
-    let file_path = Path::new(outdir).join(file_name);
+    let file_path = outdir.join(file_name);
 
     vpr!("Downloading {} to {}", url, outdir.display());
-    let r = get(url)?;
-    if r.status().is_success() {
-        let mut file = File::create(&file_path)?;
+    let r = get(url).call()?;
 
-        let content = r.bytes()?;
-        file.write_all(&content)?;
-
-        Ok(file_name.to_string())
-    } else {
-        Err(format!("Failed to download file: HTTP status {}", r.status()).into())
+    if r.status() != 200 {
+        return Err(format!("Failed to download file: HTTP status {}", r.status()).into());
     }
+
+    let mut file = File::create(&file_path)?;
+
+    match r.header("Content-Type") {
+        Some(content_type) if content_type.starts_with("text/") => {
+            let text = r.into_string()?;
+            file.write_all(text.as_bytes())?;
+        }
+        _ => {
+            let mut reader = r.into_reader();
+            io::copy(&mut reader, &mut file)?;
+        }
+    }
+
+    Ok(())
 }
 
 #[cfg(not(feature = "offline"))]
