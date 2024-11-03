@@ -14,11 +14,8 @@ use std::io;
 mod online {
     pub use crate::flags::DOWNLOAD;
     pub use crate::paths::{BUILDING, SOURCES};
-    pub use glob::glob;
     pub use std::error::Error;
     pub use std::fs::File;
-    pub use std::io::Write;
-    pub use std::path::Path;
     pub use ureq::get;
 }
 
@@ -38,14 +35,10 @@ fn download(p: &Package) -> Result<(), Box<dyn Error>> {
         }
     };
 
-    let tarball_pattern = format!("{}-{}.t*", p.name, p.version);
-    let file_pattern = SOURCES.join(&tarball_pattern);
+    let tb = format!("{}-{}.tar", p.name, p.version);
+    let file_path = SOURCES.join(&tb);
 
-    let file_exists = glob(file_pattern.to_str().unwrap())
-        .expect("Failed to read glob pattern")
-        .any(|entry| entry.is_ok() && Path::new(&entry.unwrap()).exists());
-
-    if file_exists {
+    if file_path.exists() {
         if !*DOWNLOAD.lock().unwrap() {
             vpr!("Skipping download for {}-{}", p.name, p.version);
             return Ok(());
@@ -70,21 +63,10 @@ fn download(p: &Package) -> Result<(), Box<dyn Error>> {
         return Err(format!("Failed to download file: HTTP status {}", r.status()).into());
     }
 
-    let tb = format!("{}-{}.tar", p.name, p.version);
-    let file_path = SOURCES.join(&tb);
-
     let mut file = File::create(&file_path)?;
 
-    match r.header("Content-Type") {
-        Some(content_type) if content_type.starts_with("text/") => {
-            let text = r.into_string()?;
-            file.write_all(text.as_bytes())?;
-        }
-        _ => {
-            let mut reader = r.into_reader();
-            io::copy(&mut reader, &mut file)?;
-        }
-    }
+    let mut reader = r.into_reader();
+    io::copy(&mut reader, &mut file)?;
 
     Ok(())
 }
