@@ -1,4 +1,6 @@
 #!/bin/bash
+source versions
+
 export TARGET_USER="t"  # your user
 export H="/home/${TARGET_USER}"
 
