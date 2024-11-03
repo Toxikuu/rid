@@ -2,8 +2,8 @@
 # xt = extract
 # wraps the extraction process for rid
 #
-# $2 = pkg_str
-# $3 = vers
+# $1 = pkg_str
+# $2 = vers
 
 if [ $# -lt 2 ]; then
     echo "Usage: $0 <pkg_str> <vers>"
