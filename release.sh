@@ -28,7 +28,7 @@ echo "Done"
 
 echo -e "\x1b[36;1m  Packaging project root...\x1b[0m"
 echo "Compressing rid-root"
-tar cJvf rid-root.tar.xz ../../bin ../../env > /dev/null
+tar cJvf rid-root.tar.xz ../../bin ../../sets ../../env ../../versions > /dev/null
 echo "Done"
 
 popd > /dev/null
