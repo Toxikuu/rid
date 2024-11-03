@@ -2,16 +2,16 @@
 
 TODO
 
-    Add a way to specify global version variables
-    Maybe do it in env; useful for Python, Perl, or any other packages which rely on the version of another
+    Add "upstream" variable to meta and mimic tabs functionality.
+    Add the flag "-U" to check upstream version.
 
-    Allow fully custom directories
-    Would be done through variables defined in /etc/rid/env
-
-    Add an flag to check whether a link is valid
+    Add a flag to check whether a link is valid
     Make it return the status code as well. Maybe -L?
 
 WIP
+
+    Add a way to specify global version variables
+    Doing it with $RIDHOME/versions
 
     Work on meta files
     Create and test LFS, TLFS, GLFS, and BLFS meta files.
