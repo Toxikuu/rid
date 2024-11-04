@@ -18,14 +18,15 @@ pub fn prune_sources(p: &Package) -> u8 {
             let file_name_str = file_name.to_string_lossy();
 
             if entry.file_type().map_or(false, |t| t.is_file())
-                && file_name_str.starts_with(&p.name)
+                && (file_name_str.starts_with(&p.name) || file_name_str.starts_with(&p.name.replace("_", "-")))
                 && file_name_str != kept
             {
-                if let Err(e) = fs::remove_file(entry.path()) {
-                    erm!("Failed to remove file '{}': {}", file_name_str, e);
-                } else {
-                    num_removed += 1;
-                    vpr!("Removed '{}'", file_name_str);
+                match fs::remove_file(entry.path()) {
+                    Ok(_) => {
+                        num_removed += 1;
+                        vpr!("Removed '{}'", file_name_str);
+                    }
+                    Err(e) => erm!("Failed to remove file '{}': {}", file_name_str, e),
                 }
             }
         }
