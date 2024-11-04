@@ -30,6 +30,12 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
         return Err("refused".to_string());
     }
 
+    let pkg_str = if pkg_str.contains("-") {
+        pkg_str.replace("-", "_")
+    } else {
+        pkg_str.to_string()
+    };
+
     let mut name = String::new();
     let mut version = String::new();
     let mut link = None;

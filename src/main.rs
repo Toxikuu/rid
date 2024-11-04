@@ -185,7 +185,10 @@ fn main() {
         for pkg in pkgs {
             msg!("Pruning {}", pkg);
             match form_package(&pkg) {
-                Ok(p) => clean::prune_sources(&p),
+                Ok(p) => {
+                    let num_removed = clean::prune_sources(&p);
+                    msg!("Pruned {} tarballs for {}", num_removed, pkg);
+                }
                 Err(e) => erm!("{}", e),
             }
         }

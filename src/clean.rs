@@ -8,8 +8,9 @@ use crate::paths::SOURCES;
 use crate::{erm, vpr};
 use std::fs;
 
-pub fn prune_sources(p: &Package) {
+pub fn prune_sources(p: &Package) -> u8 {
     let kept = format!("{}-{}.tar", p.name, p.version);
+    let mut num_removed: u8 = 0;
 
     if let Ok(entries) = fs::read_dir(&*SOURCES) {
         for entry in entries.filter_map(Result::ok) {
@@ -23,6 +24,7 @@ pub fn prune_sources(p: &Package) {
                 if let Err(e) = fs::remove_file(entry.path()) {
                     erm!("Failed to remove file '{}': {}", file_name_str, e);
                 } else {
+                    num_removed += 1;
                     vpr!("Removed '{}'", file_name_str);
                 }
             }
@@ -30,6 +32,7 @@ pub fn prune_sources(p: &Package) {
     } else {
         erm!("Failed to read sources directory");
     }
+    num_removed
 }
 
 pub fn remove_tarballs(pkg_str: &str) {

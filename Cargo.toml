@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.12.2" # selectors
+version = "0.12.3" # ux improvements
 edition = "2021"
 
 [features]
