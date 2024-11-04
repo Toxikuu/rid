@@ -79,6 +79,7 @@ case $1 in
     echo "STAT: $STAT"
     echo "DEPS: $DEPS"
     echo "UPST: $UPST"
+    echo "SELE: $SELE"
     echo ""
     echo "IDIR: $IDIR"
     echo "RDIR: $RDIR"
