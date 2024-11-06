@@ -1,0 +1,36 @@
+#!/bin/bash
+# 32CN = 32bit version of CN
+# 32CN wraps cmake and ninja for 64-bit packages
+# any arguments passed to it are interpreted as cmake arguments
+
+CFGPATH="."
+if [ -z $RIDBUILD ]; then
+  rm    -rf ridbuild                &&
+  mkdir -pv ridbuild                &&
+  cd        ridbuild                &&
+  CFGPATH=".."
+fi
+
+CC="gcc -m32" CXX="g++ -m32"            \
+PKG_CONFIG_PATH=/usr/lib32/pkgconfig    \
+cmake                                   \
+  -D CMAKE_INSTALL_PREFIX=/usr          \
+  -D CMAKE_INSTALL_LIBDIR=lib32         \
+  -D CMAKE_BUILD_TYPE=Release           \
+  -D CMAKE_SKIP_INSTALL_RPATH=ON        \
+  -D CMAKE_INSTALL_DOCDIR=$RIDTRASH     \
+  -D BUILD_SHARED_LIBS=ON               \
+  "$@"                                  \
+  -W no-dev -G Ninja $CFGPATH          ||
+die "32-bit cmake failed"
+
+ninja                                  ||
+die "32-bit ninja failed"
+
+DESTDIR=$RIDDEST ninja install         ||
+die "32-bit ninja install failed"
+cp -vr $RIDDEST/usr/lib32/* /usr/lib32 ||
+die "Failed to copy 32-bit libraries"
+rm -rf $RIDDEST
+ldconfig                               ||
+die "Failed to update library cache"

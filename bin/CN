@@ -1,0 +1,24 @@
+#!/bin/bash
+# CN = CMake, NINJA
+# CN wraps cmake and ninja for 64-bit packages
+# any arguments passed to it are interpreted as cmake arguments
+
+CFGPATH="."
+if [ -z $RIDBUILD ]; then
+  mkdir -pv ridbuild               &&
+  cd        ridbuild               &&
+  CFGPATH=".."
+fi
+
+cmake                               \
+  -D CMAKE_INSTALL_PREFIX=/usr      \
+  -D CMAKE_BUILD_TYPE=Release       \
+  -D BUILD_SHARED_LIBS=ON           \
+  -D CMAKE_SKIP_INSTALL_RPATH=ON    \
+  -D CMAKE_INSTALL_DOCDIR=$RIDTRASH \
+  "$@"                              \
+  -W no-dev -G Ninja $CFGPATH      ||
+die "cmake failed"
+
+ninja ||
+die "ninja failed"
