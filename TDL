@@ -2,19 +2,14 @@
 
 TODO
 
-    Add "upstream" variable to meta and mimic tabs functionality.
-    Add the flag "-U" to check upstream version.
+    Add flags for stab and linkval (-U and -L respectively)
 
-    Add a flag to check whether a link is valid
-    Make it return the status code as well. Maybe -L?
+    Improve documentation
+
+    Improve system for $RID* env vars (maybe a wrapper bash script?)
 
 WIP
 
-    Add a way to specify global version variables
-    Doing it with $RIDHOME/versions
-
     Work on meta files
-    Create and test LFS, TLFS, GLFS, and BLFS meta files.
 
-    Test UX
-    Fix UX flaws based on feedback.
+    UX Improvements
