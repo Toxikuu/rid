@@ -5,7 +5,6 @@
 use crate::flags::FORCE;
 use crate::paths::PKGSJSON;
 use crate::{vpr, die, erm, msg, sets};
-use crate::bootstrap;
 use crate::tracking;
 use crate::misc::{self, check_perms};
 use crate::clean;
@@ -14,6 +13,9 @@ use crate::directions::eval_action;
 use crate::fetch;
 use crate::resolvedeps::resolve_deps;
 use crate::sets::*;
+
+#[cfg(not(feature = "offline" ))]
+use crate::bootstrap;
 
 #[cfg(feature = "offline")]
 fn not_supported(feature: &str) {
