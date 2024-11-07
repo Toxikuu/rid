@@ -2,9 +2,9 @@
 //
 // responsible for keeping track of packages
 
-use crate::erm;
+use crate::{erm, die};
 use crate::package::{form_package, Package, PackageStatus};
-use crate::paths::{META, PKGSJSON, TMPRID};
+use crate::paths::{META, PKGSJSON, FAILED};
 use serde_json::{from_str, to_string_pretty};
 use std::fs::{self, File};
 use std::io::{self, Read, Write};
@@ -15,19 +15,18 @@ pub fn load_package_list(file_path: &Path) -> io::Result<Vec<Package>> {
     let mut content = String::new();
 
     file.read_to_string(&mut content)?;
-    let package_list: Vec<Package> = from_str(&content).expect("Failed to parse packages.json");
-    Ok(package_list)
+    let pkg_list: Vec<Package> = from_str(&content)?;
+    Ok(pkg_list)
 }
 
-pub fn save_package_list(pkg_list: &Vec<Package>, file_path: &Path) {
+pub fn save_package_list(pkg_list: &Vec<Package>) {
     let jsdata = to_string_pretty(pkg_list).expect("Failed to serialize package data");
-    let mut file = File::create(file_path).expect("Failed to create pkgs.json");
-    file.write_all(jsdata.as_bytes())
-        .expect("Failed to write to pkgs.json");
+    let mut file = File::create(&*PKGSJSON).expect("Failed to create pkgs.json");
+    file.write_all(jsdata.as_bytes()).expect("Failed to write to pkgs.json");
 }
 
 fn build_failed() -> bool {
-    Path::new(&format!("{}/failed", TMPRID.display())).exists()
+    Path::new(&*FAILED).exists()
 }
 
 pub fn add_package(pkg_list: &mut Vec<Package>, p: &Package) -> Result<(), String> {
@@ -43,14 +42,14 @@ pub fn add_package(pkg_list: &mut Vec<Package>, p: &Package) -> Result<(), Strin
         pkg_list.push(new_pkg);
     }
 
-    save_package_list(pkg_list, PKGSJSON.as_path());
+    save_package_list(pkg_list);
     Ok(())
 }
 
 pub fn remove_package(pkg_list: &mut Vec<Package>, pkg_name: &str) -> Result<(), String> {
     if let Some(package) = pkg_list.iter_mut().find(|p| p.name == pkg_name) {
         package.status = PackageStatus::Available;
-        save_package_list(pkg_list, PKGSJSON.as_path());
+        save_package_list(pkg_list);
         Ok(())
     } else {
         Err(format!("Package '{}' not found", pkg_name))
@@ -58,33 +57,33 @@ pub fn remove_package(pkg_list: &mut Vec<Package>, pkg_name: &str) -> Result<(),
 }
 
 pub fn populate_json() -> io::Result<()> {
-    let mut package_list = Vec::new();
+    let mut pkg_list = Vec::new();
     for entry in fs::read_dir(&*META)? {
         let entry = entry?;
         let path = entry.path();
 
         if let Some(pkg_str) = path.file_name().and_then(|n| n.to_str()) {
             match form_package(pkg_str) {
-                Ok(package) => package_list.push(package),
+                Ok(p) => pkg_list.push(p),
                 Err(e) if e == "refused" => continue,
-                Err(e) => erm!("Error processing '{}': {}", pkg_str, e),
+                Err(e) => die!("Error processing '{}': {}", pkg_str, e),
             }
         }
     }
 
-    save_package_list(&package_list, PKGSJSON.as_path());
+    save_package_list(&pkg_list);
     Ok(())
 }
 
-pub fn append_json(package_list: &mut Vec<Package>) -> io::Result<()> {
+pub fn append_json(pkg_list: &mut Vec<Package>) -> io::Result<()> {
     for entry in fs::read_dir(&*META)? {
         let entry = entry?;
         let path = entry.path();
 
         if let Some(pkg_str) = path.file_name().and_then(|n| n.to_str()) {
-            if !package_list.iter().any(|p| p.name == pkg_str) {
+            if !pkg_list.iter().any(|p| p.name == pkg_str) {
                 match form_package(pkg_str) {
-                    Ok(package) => package_list.push(package),
+                    Ok(p) => pkg_list.push(p),
                     Err(e) if e == "refused" => continue,
                     Err(e) => erm!("Error processing '{}': {}", pkg_str, e),
                 }
@@ -92,6 +91,6 @@ pub fn append_json(package_list: &mut Vec<Package>) -> io::Result<()> {
         }
     }
 
-    save_package_list(package_list, PKGSJSON.as_path());
+    save_package_list(pkg_list);
     Ok(())
 }

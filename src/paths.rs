@@ -5,20 +5,24 @@
 use lazy_static::lazy_static;
 use std::env;
 use std::path::PathBuf;
+use crate::die;
+
+fn wrap(var: &str) -> PathBuf {
+    PathBuf::from(env::var(var).unwrap_or_else(|_| die!("Set ${}", var)))
+}
 
 lazy_static! {
-    pub static ref RIDHOME: PathBuf = PathBuf::from(env::var("RIDHOME").expect("Set $RIDHOME"));
-    pub static ref PKGSJSON: PathBuf =
-        PathBuf::from(env::var("RIDPKGSJSON").expect("Set $RIDPKGSJSON"));
-    pub static ref META: PathBuf = PathBuf::from(env::var("RIDMETA").expect("Set $RIDMETA"));
-    pub static ref RBIN: PathBuf = PathBuf::from(env::var("RIDBIN").expect("Set $RIDBIN"));
-    pub static ref SOURCES: PathBuf =
-        PathBuf::from(env::var("RIDSOURCES").expect("Set $RIDSOURCES"));
-    pub static ref TMPRID: PathBuf = PathBuf::from(env::var("RIDTMP").expect("Set $RIDTMP"));
-    pub static ref BUILDING: PathBuf =
-        PathBuf::from(env::var("RIDBUILDING").expect("Set $RIDBUILDING"));
-    pub static ref EXTRACTION: PathBuf =
-        PathBuf::from(env::var("RIDEXTRACTION").expect("Set $RIDEXTRACTION"));
-    pub static ref TRASH: PathBuf = PathBuf::from(env::var("RIDTRASH").expect("Set $RIDTRASH"));
-    pub static ref DEST: PathBuf = PathBuf::from(env::var("RIDDEST").expect("Set $RIDDEST"));
+    pub static ref RIDHOME:    PathBuf = wrap("RIDHOME");
+    pub static ref PKGSJSON:   PathBuf = wrap("RIDPKGSJSON");
+    pub static ref PKGSVERS:   PathBuf = wrap("RIDPKGSVERS");
+    pub static ref META:       PathBuf = wrap("RIDMETA");
+    pub static ref SETS:       PathBuf = wrap("RIDSETS");
+    pub static ref BIN:        PathBuf = wrap("RIDBIN");
+    pub static ref SOURCES:    PathBuf = wrap("RIDSOURCES");
+    pub static ref TMPRID:     PathBuf = wrap("RIDTMP");
+    pub static ref BUILDING:   PathBuf = wrap("RIDBUILDING");
+    pub static ref EXTRACTION: PathBuf = wrap("RIDEXTRACTION");
+    pub static ref TRASH:      PathBuf = wrap("RIDTRASH");
+    pub static ref DEST:       PathBuf = wrap("RIDDEST");
+    pub static ref FAILED:     PathBuf = wrap("RIDFAILED");
 }

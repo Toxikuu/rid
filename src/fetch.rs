@@ -6,7 +6,7 @@
 use crate::flags::FORCE;
 use crate::misc::exec;
 use crate::package::{Package, PackageStatus};
-use crate::paths::RBIN;
+use crate::paths::BIN;
 use crate::{erm, vpr};
 use std::io;
 
@@ -91,7 +91,7 @@ fn extract(p: &Package) -> io::Result<()> {
         }
     }
 
-    let command = format!("{}/xt {} {}", RBIN.display(), p.name, p.version);
+    let command = format!("{}/xt {} {}", BIN.display(), p.name, p.version);
 
     exec(&command).map_err(|e| {
         erm!("Execution failed: {}", e);

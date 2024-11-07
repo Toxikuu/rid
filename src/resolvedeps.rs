@@ -2,8 +2,8 @@
 //
 // responsible for dependency resolution
 
-use crate::package::{form_package, Package};
-use crate::{erm, vpr};
+use crate::package::{defp, Package};
+use crate::vpr;
 use std::collections::HashSet;
 
 fn deep_deps(pkg: &Package, resolved: &mut HashSet<String>, order: &mut Vec<String>) {
@@ -11,14 +11,8 @@ fn deep_deps(pkg: &Package, resolved: &mut HashSet<String>, order: &mut Vec<Stri
         if !resolved.contains(dep) {
             resolved.insert(dep.clone());
 
-            match form_package(dep) {
-                Ok(dep_pkg) => {
-                    deep_deps(&dep_pkg, resolved, order);
-                }
-                Err(_) => {
-                    erm!("Failed to load dependency '{}'", dep)
-                }
-            }
+            let d = defp("Failed to load dependency: ", dep);
+            deep_deps(&d, resolved, order);
         }
     }
     order.push(pkg.name.clone());
