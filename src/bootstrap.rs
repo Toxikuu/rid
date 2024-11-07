@@ -127,12 +127,12 @@ fn bootstrap() {
                 chmod 755 {}/*",
         PKGSJSON.display(),
         PKGSJSON.display(),
-        RBIN.display(),
+        BIN.display(),
     );
     match exec(&command) {
-        Ok(_) => vpr!("Made files in rbin executable"),
+        Ok(_) => vpr!("Made files in bin executable"),
         Err(e) => {
-            erm!("Failed to make files in rbin executable: {}", e);
+            erm!("Failed to make files in bin executable: {}", e);
             exit(1);
         }
     }
