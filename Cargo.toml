@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.12.5" # pruning logic improvement, other stuff
+version = "0.13.0" # major refactoring and new features
 edition = "2021"
 
 [features]
