@@ -37,3 +37,10 @@ macro_rules! msg {
         println!("\x1b[36;1m  {}\x1b[0m", format!($($arg)*))
     };
 }
+
+#[macro_export]
+macro_rules! die {
+    ($($arg:tt)*) => {
+        panic!("\x1b[31;1m  {}\x1b[0m", format!($($arg)*))
+    };
+}
