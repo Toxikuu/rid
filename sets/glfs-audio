@@ -1,6 +1,6 @@
-alsa-lib
-alsa-plugins
-alsa-utils
+alsa_lib
+alsa_plugins
+alsa_utils
 libogg
 libvorbis
 flac

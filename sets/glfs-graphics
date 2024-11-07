@@ -1,13 +1,13 @@
 libglvnd
 pciutils
 hwdata
-nvidiia
+nvidia
 rust
 mako
 libdrm
 libva
 libvdpau
-libvdpau-va-gl
+libvdpau_va_gl
 libyaml
 pyyaml
 mesa
