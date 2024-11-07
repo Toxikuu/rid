@@ -8,6 +8,8 @@ TODO
 
     Improve system for $RID* env vars (maybe a wrapper bash script?)
 
+    Migrate RIDPKGSVERS to rid-meta
+
 WIP
 
     Work on meta files
