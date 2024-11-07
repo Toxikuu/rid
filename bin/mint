@@ -1,12 +1,14 @@
 #!/bin/bash
 
+set -e
+
 METAFILE="$2"
 
-[ -z $RIDHOME ]       && { echo "\$RIDHOME is unset"; exit 1; }
-[ -z $RIDMETA ]       && { echo "\$RIDHOME is unset"; exit 1; }
-[ -z $RIDTMP ]        && { echo "\$RIDHOME is unset"; exit 1; }
-[ -z $RIDBUILDING ]   && { echo "\$RIDHOME is unset"; exit 1; }
-[ -z $RIDEXTRACTION ] && { echo "\$RIDHOME is unset"; exit 1; }
+[ -z $RIDHOME ]       && { echo '$RIDHOME is unset'; exit 1; }
+[ -z $RIDMETA ]       && { echo '$RIDHOME is unset'; exit 1; }
+[ -z $RIDTMP ]        && { echo '$RIDHOME is unset'; exit 1; }
+[ -z $RIDBUILDING ]   && { echo '$RIDHOME is unset'; exit 1; }
+[ -z $RIDEXTRACTION ] && { echo '$RIDHOME is unset'; exit 1; }
 
 function pre {
   bv=$(compgen -v)
