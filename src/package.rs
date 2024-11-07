@@ -3,7 +3,8 @@
 // defines core package-related functionality
 
 use crate::misc::static_exec;
-use crate::paths::{PKGSJSON, RBIN};
+use crate::die;
+use crate::paths::{PKGSJSON, BIN};
 use crate::tracking::load_package_list;
 use serde::{Deserialize, Serialize};
 
@@ -25,6 +26,13 @@ pub struct Package {
     pub status: PackageStatus,
 }
 
+pub fn defp(erm: &str, pkg: &str) -> Package {
+    match form_package(pkg) {
+        Ok(p) => p,
+        Err(e) => die!("{}{}", erm, e)
+    }
+}
+
 pub fn form_package(pkg_str: &str) -> Result<Package, String> {
     if pkg_str == ".git" || pkg_str == "README.md" || pkg_str == "LICENSE" {
         return Err("refused".to_string());
@@ -43,7 +51,7 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
     let mut selector = None;
     let mut deps = Vec::new();
 
-    let command = format!("{}/mint v {}", RBIN.display(), pkg_str);
+    let command = format!("{}/mint v {}", BIN.display(), pkg_str);
     match static_exec(&command) {
         Ok(output) => {
             for line in output.lines() {
@@ -64,7 +72,7 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
             }
 
             if name.is_empty() {
-                return Err("Likely nonexistent metafile".to_string());
+                return Err("NAME variable is empty".to_string());
             }
 
             let package_list = load_package_list(&PKGSJSON).unwrap_or_else(|_| Vec::new());
