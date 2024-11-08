@@ -101,7 +101,7 @@ fn extract(p: &Package) -> io::Result<()> {
     Ok(())
 }
 
-pub fn wrap(p: &Package) {
+pub fn fetch(p: &Package) {
     #[cfg(feature = "offline")]
     {
         match extract(&p) {
