@@ -3,7 +3,8 @@
 // responsible for bootsrapping rid
 
 use crate::paths::*;
-use crate::{erm, vpr};
+use crate::misc::create_json;
+use crate::{erm, vpr, die};
 use std::fs;
 use std::io;
 use std::path::Path;
@@ -153,39 +154,32 @@ fn bootstrap() {
     msg!("All done!")
 }
 
-fn mkdir<P: AsRef<Path>>(path: P) -> io::Result<()> {
-    let path_ref = path.as_ref();
-
-    if path_ref.exists() {
-        vpr!("Extant directory '{}'", path_ref.display());
-    } else {
-        fs::create_dir_all(path_ref)?;
-        vpr!("Created directory '{}'", path_ref.display());
+fn mkdir(path: &Path) {
+    if !path.exists() {
+        if let Err(e) = fs::create_dir_all(path) {
+            die!("Failed to create '{}': {}", path.display(), e)
+        }
+        vpr!("Created directory '{}'", path.display());
     }
-    Ok(())
 }
 
 pub fn tmp() {
-    vpr!("Attempting to create temp dirs...");
+    vpr!("Creating temp dirs...");
     let dirs = [&*TMPRID, &*BUILDING, &*EXTRACTION, &*DEST, &*TRASH];
 
-    for dir in dirs.iter() {
-        if let Err(e) = mkdir(dir) {
-            erm!("Error creating directory: {}", e);
-        }
-    }
+    for dir in dirs.iter() { mkdir(dir) }
+    vpr!("Creating pkgs.json if nonexistent...");
+    create_json().expect("Failed to create $RIDPKGSJSON");
 }
 
 #[cfg(not(feature = "offline"))]
 pub fn run() {
     let dirs = [&*RIDHOME, &*SOURCES, &*META];
 
-    for dir in dirs.iter() {
-        if let Err(e) = mkdir(dir) {
-            erm!("Error creating directory: {}", e);
-        }
+    for dir in dirs.iter() { mkdir(dir) }
+    match populate_json() {
+        Ok(num) => msg!("Cached {} meta files!", num),
+        Err(e) => erm!("Failed to cache: {}", e)
     }
-
-    let _ = populate_json();
     bootstrap();
 }

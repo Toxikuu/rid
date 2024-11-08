@@ -11,7 +11,7 @@ fn deep_deps(pkg: &Package, resolved: &mut HashSet<String>, order: &mut Vec<Stri
         if !resolved.contains(dep) {
             resolved.insert(dep.clone());
 
-            let d = defp("Failed to load dependency: ", dep);
+            let d = defp(dep);
             deep_deps(&d, resolved, order);
         }
     }

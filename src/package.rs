@@ -3,9 +3,12 @@
 // defines core package-related functionality
 
 use crate::misc::static_exec;
-use crate::die;
+use std::io::BufReader;
+use std::fs::File;
+use crate::{vpr, die};
 use crate::paths::{PKGSJSON, BIN};
 use crate::tracking::load_package_list;
+use crate::sets::handle_sets;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -26,23 +29,35 @@ pub struct Package {
     pub status: PackageStatus,
 }
 
-pub fn defp(erm: &str, pkg: &str) -> Package {
-    match form_package(pkg) {
-        Ok(p) => p,
-        Err(e) => die!("{}{}", erm, e)
+pub fn defp(pkg: &str) -> Package {
+    vpr!("Defining {} from json", pkg);
+    let file = File::open(&*PKGSJSON).expect("Failed to open $RIDPKGSJSON");
+    let reader = BufReader::new(file);
+
+    let stream: Vec<Package> = serde_json::from_reader(reader).expect("Error parsing $RIDPKGSJSON");
+
+    for pkg_data in stream {
+        if pkg_data.name == pkg {
+            return pkg_data
+        }
     }
+
+    die!("Package '{}' not found in $RIDPKGSJSON", pkg);
 }
 
 pub fn form_package(pkg_str: &str) -> Result<Package, String> {
-    if pkg_str == ".git" || pkg_str == "README.md" || pkg_str == "LICENSE" {
-        return Err("refused".to_string());
-    }
+    if  pkg_str == ".git"      ||
+        pkg_str == "README.md" || 
+        pkg_str == "LICENSE" 
+    { return Err("refused".to_string()) }
 
     let pkg_str = if pkg_str.contains("-") {
         pkg_str.replace("-", "_")
     } else {
         pkg_str.to_string()
     };
+
+    vpr!("Forming {}", pkg_str);
 
     let mut name = String::new();
     let mut version = String::new();
@@ -61,12 +76,7 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
                     _ if line.starts_with("LINK: ") => link = Some(line[6..].trim().to_string()),
                     _ if line.starts_with("UPST: ") => upstream = Some(line[6..].trim().to_string()),
                     _ if line.starts_with("SELE: ") => selector = Some(line[6..].trim().to_string()),
-                    _ if line.starts_with("DEPS: ") => {
-                        deps = line[6..]
-                            .split_whitespace()
-                            .map(|s| s.to_string())
-                            .collect();
-                    }
+                    _ if line.starts_with("DEPS: ") => deps = line[6..].split_whitespace().map(|s| s.to_string()).collect(),
                     _ => (),
                 }
             }
@@ -75,7 +85,9 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
                 return Err("NAME variable is empty".to_string());
             }
 
-            let package_list = load_package_list(&PKGSJSON).unwrap_or_else(|_| Vec::new());
+            let deps = handle_sets(deps);
+
+            let package_list = load_package_list();
             let status = package_list
                 .iter()
                 .find(|p| p.name == name)
