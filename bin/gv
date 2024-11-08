@@ -1,0 +1,5 @@
+#!/bin/bash
+# gv = get version
+# $1 = target package
+
+echo $(grep "VERS=" "$RIDMETA/$1" | sed -E 's/^.*="(.*)"$/\1/')
