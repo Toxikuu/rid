@@ -4,19 +4,18 @@
 
 use crate::paths::*;
 use crate::misc::create_json;
-use crate::{erm, vpr, die};
+use crate::{vpr, die};
 use std::fs;
-use std::io;
 use std::path::Path;
 
 #[cfg(not(feature = "offline"))]
 mod online {
     pub use crate::misc::exec;
-    pub use crate::msg;
+    pub use crate::{erm, msg};
     pub use crate::tracking::populate_json;
     pub use std::error::Error;
     pub use std::fs::File;
-    pub use std::io::Write;
+    pub use std::io::{self, Write};
     pub use std::process::exit;
     pub use ureq::get;
 }

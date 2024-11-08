@@ -5,7 +5,7 @@
 use crate::flags::FORCE;
 use crate::{die, erm, msg};
 use crate::tracking;
-use crate::misc::{self, exec};
+use crate::misc;
 use crate::clean;
 use crate::package::*;
 use crate::directions::eval_action;
@@ -13,8 +13,14 @@ use crate::fetch;
 use crate::resolvedeps::resolve_deps;
 use crate::sets::*;
 
-#[cfg(not(feature = "offline" ))]
-use crate::bootstrap;
+#[cfg(not(feature = "offline"))]
+mod online {
+    pub use crate::misc::exec;
+    pub(crate) use crate::bootstrap;
+}
+
+#[cfg(not(feature = "offline"))]
+use online::*;
 
 #[cfg(feature = "offline")]
 fn not_supported(feature: &str) {
