@@ -11,7 +11,6 @@ export RIDHOME="/etc/rid"
 export RIDMETA="$RIDHOME/meta"
 export RIDBIN="$RIDHOME/bin"
 export RIDPKGSJSON="$RIDHOME/pkgs.json"
-export RIDPKGSVERS="$RIDMETA/VERS"
 export RIDSOURCES="$RIDHOME/sources"
 export RIDSETS="$RIDHOME/sets"
 

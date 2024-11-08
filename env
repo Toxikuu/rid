@@ -1,6 +1,4 @@
 #!/bin/bash
-source $RIDPKGSVERS
-
 export TARGET_USER="t"  # your user
 export H="/home/${TARGET_USER}"
 
