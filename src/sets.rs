@@ -5,7 +5,7 @@
 use std::fs::File;
 use std::io::{BufReader, BufRead};
 use crate::paths::SETS;
-use crate::{erm, vpr};
+use crate::{erm, die, vpr};
 
 pub fn is_set(pkg: &str) -> bool {
     pkg.contains("@")
@@ -22,8 +22,7 @@ pub fn expand_set(set: &str) -> Vec<String> {
     let file = match File::open(file_path) {
         Ok(f) => f,
         Err(e) => {
-            erm!("Error opening set '{}': {}", set, e);
-            return Vec::new();
+            die!("Error opening set '{}': {}", set, e);
         }
     };
 
@@ -50,4 +49,18 @@ pub fn expand_set(set: &str) -> Vec<String> {
     
     vpr!("unraveled set: {:?}", all_packages);
     all_packages
+}
+
+pub fn handle_sets(pkgs: Vec<String>) -> Vec<String> {
+    // unravels any sets in the pkgs vector, returning a vector without sets
+    let mut all = Vec::new();
+    for pkg in pkgs {
+        if is_set(&pkg) {
+            let set = expand_set(&pkg);
+            all.extend(set);
+        } else {
+            all.push(pkg)
+        }
+    }
+    all
 }
