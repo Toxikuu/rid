@@ -14,7 +14,6 @@ fn wrap(var: &str) -> PathBuf {
 lazy_static! {
     pub static ref RIDHOME:    PathBuf = wrap("RIDHOME");
     pub static ref PKGSJSON:   PathBuf = wrap("RIDPKGSJSON");
-    pub static ref PKGSVERS:   PathBuf = wrap("RIDPKGSVERS");
     pub static ref META:       PathBuf = wrap("RIDMETA");
     pub static ref SETS:       PathBuf = wrap("RIDSETS");
     pub static ref BIN:        PathBuf = wrap("RIDBIN");
