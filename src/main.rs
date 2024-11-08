@@ -1,10 +1,12 @@
 // src/main.rs
 
-use crate::paths::PKGSJSON;
-use clap::Parser;
+use misc::check_perms;
+use defargs::init_args;
+use tracking::populate_json;
 
 mod sets;
 mod args;
+mod defargs;
 mod bootstrap;
 mod clean;
 mod directions;
@@ -17,70 +19,11 @@ mod paths;
 mod resolvedeps;
 mod tracking;
 
-// TODO: Add color to #[command()]
-#[derive(Parser, Debug)]
-#[command(
-    version,
-    about = "Source-based LFS package manager",
-    long_about,
-    arg_required_else_help = true,
-    after_help = "If you have any questions, you can DM me on Discord @toxikuu"
-)]
-struct Args {
-    #[arg(short = 'i', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
-    install: Option<Vec<String>>,
-
-    #[arg(short = 'n', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
-    install_no_deps: Option<Vec<String>>,
-
-    #[arg(short = 'r', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
-    remove: Option<Vec<String>>,
-
-    #[arg(short = 'u', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
-    update: Option<Vec<String>>,
-
-    #[arg(short = 'd', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
-    dependencies: Option<Vec<String>>,
-
-    #[arg(short = 'p', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
-    prune: Option<Vec<String>>,
-
-    // function flags
-    #[arg(short = 'l', long, value_name = "PACKAGE", num_args = 0.., value_delimiter = ' ')]
-    list: Option<Vec<String>>, // TODO: rewrite this without Option<>
-
-    #[arg(short = 'b', long)]
-    bootstrap: bool,
-
-    #[arg(short = 's', long)]
-    sync: bool,
-
-    #[arg(short = 'S', long)]
-    sync_overwrite: bool,
-
-    // generic flags
-    #[arg(short = 'v', long)]
-    verbose: bool,
-
-    #[arg(short = 'q', long)]
-    quiet: bool,
-
-    #[arg(short = 'D', long)]
-    download: bool,
-
-    #[arg(short = 'f', long)]
-    force: bool,
-
-    #[arg(short = 'c', long)]
-    cache: bool,
-}
-
 fn main() {
-    let mut args = Args::parse();
-
-    if args.update.is_some() {
-        args.force = true;
-    }
+    let args = init_args();
+    check_perms(); // for sake of simplicity
+    // TODO: Either use `shopt login_shell` to check for login shell or work around the
+    // inconsistencies otherwise
 
     flags::set_flags(args.verbose, args.quiet, args.download, args.force);
     vpr!(
@@ -92,15 +35,40 @@ fn main() {
     );
 
     bootstrap::tmp();
-    let mut pkg_list = tracking::load_package_list(PKGSJSON.as_path()).unwrap_or_else(|_| Vec::new());
-    let _ = tracking::append_json(&mut pkg_list); // appends any new metafiles to the json
+
+    vpr!("Loading pkg_list...");
+    let mut pkg_list = tracking::load_package_list();
+    vpr!("Loaded! (Length: {})", pkg_list.len());
+
+    if pkg_list.is_empty() {
+        populate_json().unwrap();
+    }
+
+    if !args.cache {
+        vpr!("Autocaching...");
+        match tracking::cache_changes(&mut pkg_list) {
+            Ok(num) => vpr!("Autocached {} meta files", num),
+            Err(e) => die!("Error autocaching: {}", e)
+        }
+    }
+
+    // vpr!("Appending json to pkgs.json...");
+    // let _ = tracking::append_json(&mut pkg_list); // appends any new metafiles to the json
 
     if args.bootstrap {
         args::bootstrap();
     }
 
     if args.cache {
-        args::cache();
+        args::cache(&mut pkg_list);
+    }
+
+    if args.upstream {
+        args::upstream();
+    }
+
+    if args.validate_links {
+        args::validate_links();
     }
 
     if args.sync {
