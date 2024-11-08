@@ -8,8 +8,6 @@ TODO
 
     break up xorg-* into sets
 
-    make rid auto-detect when it needs to cache and do so automatically and efficiently 
-
     dependency resolution tweaks
         adjust flags such that -i and -r resolve and -I and -R do not resolve dependencies
 
@@ -31,6 +29,10 @@ WIP
     Work on meta files
 
     UX Improvements
+
+DONEISH
+
+    make rid auto-detect when it needs to cache and do so automatically and efficiently 
 
 DROPPED
 
