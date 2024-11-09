@@ -10,7 +10,7 @@ freetype1
 harfbuzz
 freetype2
 fontconfig
-xorg_libraries
+@xorg-libraries
 libxcvt
 cmake
 dbus2
