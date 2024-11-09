@@ -120,24 +120,3 @@ pub fn cache_changes(pkg_list: &mut Vec<Package>) -> io::Result<u16> {
 
     Ok(updated_count)
 }
-
-// pub fn append_json(pkg_list: &mut Vec<Package>) -> io::Result<()> {
-//     for entry in fs::read_dir(&*META)? {
-//         let entry = entry?;
-//         let path = entry.path();
-//
-//         if let Some(pkg_str) = path.file_name().and_then(|n| n.to_str()) {
-//             if !pkg_list.iter().any(|p| p.name == pkg_str) {
-//                 vpr!("Appending package '{}' to pkgs.json", pkg_str);
-//                 match form_package(pkg_str) {
-//                     Ok(p) => pkg_list.push(p),
-//                     Err(e) if e == "refused" => continue,
-//                     Err(e) => erm!("Error processing '{}': {}", pkg_str, e),
-//                 }
-//             }
-//         }
-//     }
-//
-//     save_package_list(pkg_list);
-//     Ok(())
-// }

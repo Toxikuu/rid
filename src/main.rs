@@ -52,9 +52,6 @@ fn main() {
         }
     }
 
-    // vpr!("Appending json to pkgs.json...");
-    // let _ = tracking::append_json(&mut pkg_list); // appends any new metafiles to the json
-
     if args.bootstrap {
         args::bootstrap();
     }
