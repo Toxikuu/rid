@@ -12,9 +12,35 @@ export CARGO_HOME="/opt/cargo"
 export RUSTUP_HOME="/opt/rustup"
 
 export VDPAU_DRIVER="va_gl"
-export XORG_PREFIX="/usr"  # changing this is not supported (yet!)
-export XORG_CONFIG="--prefix=/usr         --sysconfdir=/etc \
-                    --localstatedir=/var    --disable-static"
+export XORG_CONFIG="--prefix=/usr                 \
+                    --sysconfdir=/etc             \
+                    --localstatedir=/var          \
+                    --disable-static              \
+                    --enable-static=no            \
+                    --enable-shared=yes           \
+                    --enable-docs=no              \
+                    --disable-docs                \
+                    --disable-devel-docs          \
+                    --without-docs                \
+                    --disable-dependency-tracking \
+                    --docdir=/tmp/rid/trash       \
+                    --with-appdefaultdir=/etc/X11/app-defaults"
+
+export XORG_CONFIG_32="--prefix=/usr                  \
+                       --sysconfdir=/etc              \
+                       --localstatedir=/var           \
+                       --disable-static               \
+                       --libdir=/usr/lib32            \
+                       --host=i686-pc-linux-gnu       \
+                       --enable-static=no             \
+                       --enable-shared=yes            \
+                       --enable-docs=no               \
+                       --disable-docs                 \
+                       --disable-devel-docs           \
+                       --without-docs                 \
+                       --disable-dependency-tracking  \
+                       --docdir=/tmp/rid/trash        \
+                       --with-appdefaultdir=/etc/X11/app-defaults"
 
 pathremove () {
         local IFS=':'
