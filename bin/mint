@@ -29,24 +29,15 @@ function cleanup {
 }
 
 function ins {
-  check_perms
-  pushd "$RIDBUILDING/$NAME-$VERS" > /dev/null || { die "Failed to enter build directory"; exit 1; }
+  pushd "$RIDBUILDING/$NAME-$VERS" > /dev/null || die "Failed to enter build directory"
 
   echo "Installing $NAME-$VERS..."
   eval "$IDIR"
 }
 
 function rem {
-  check_perms
-
   echo "Removing $NAME-$VERS..."
   eval "$RDIR"
-}
-
-function check_perms {
-  if [ "$EUID" -ne 0 ]; then
-    die "Insufficient permissions"
-  fi
 }
 
 pre
