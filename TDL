@@ -4,8 +4,6 @@ TODO
 
     Add a news system
 
-    Revert to '-' instead of '_'
-
     Add -a flag for ask
 
     Improve system for $RID* env vars (maybe a wrapper bash script?)
@@ -20,6 +18,8 @@ TODO
     add @all set
 
 WIP
+
+    Revert to '-' instead of '_'
 
     break up xorg-* into sets
 
