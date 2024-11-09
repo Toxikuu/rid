@@ -1,4 +1,4 @@
-iana_etc
+iana-etc
 glibc
 zlib
 bzip2
@@ -23,7 +23,7 @@ attr
 acl
 libcap
 libxcrypt
-shadow_lfs
+shadow-lfs
 gcc
 ncurses
 sed
@@ -38,7 +38,7 @@ expat
 inetutils
 less
 perl
-xml_parser
+xml-parser
 intltool
 autoconf
 automake
@@ -47,7 +47,7 @@ kmod
 libelf
 libffi
 python
-flit_core
+flit-core
 wheel
 setuptools
 ninja
@@ -67,10 +67,10 @@ patch
 tar
 texinfo
 udev
-procps_ng
-util_linux
+procps-ng
+util-linux
 e2fsprogs
 sysklogd
 sysvinit
-lfs_bootscripts
+lfs-bootscripts
 kernel

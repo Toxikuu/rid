@@ -1,8 +1,8 @@
 libtasn1
 nspr
 nss
-p11_kit
-make_ca
+p11-kit
+make-ca
 libunistring
 libidn2
 libpsl

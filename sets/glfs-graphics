@@ -7,7 +7,7 @@ mako
 libdrm
 libva
 libvdpau
-libvdpau_va_gl
+libvdpau-va-gl
 libyaml
 pyyaml
 mesa

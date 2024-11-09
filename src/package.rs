@@ -51,8 +51,9 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
         pkg_str == "LICENSE" 
     { return Err("refused".to_string()) }
 
-    let pkg_str = if pkg_str.contains("-") {
-        pkg_str.replace("-", "_")
+    // will soon be deprecated
+    let pkg_str = if pkg_str.contains("_") {
+        pkg_str.replace("_", "-")
     } else {
         pkg_str.to_string()
     };

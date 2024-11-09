@@ -1,5 +1,5 @@
 dbus1
-linux_pam
+linux-pam
 shadow
 elogind
 duktape
@@ -7,6 +7,6 @@ pcre2
 glib
 icu
 libxml2
-shared_mime_info
-desktop_file_utils
+shared-mime-info
+desktop-file-utils
 polkit

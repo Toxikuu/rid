@@ -1,8 +1,8 @@
-util_macros
+util-macros
 xorgproto
 libxau
 libxdmcp
-xcb_proto
+xcb-proto
 libxcb
 which
 libpng
@@ -19,5 +19,5 @@ nettle
 gnutls
 pixman
 wayland
-wayland_protocols
+wayland-protocols
 seatd
