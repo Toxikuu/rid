@@ -2,11 +2,13 @@
 
 TODO
 
+    Add a news system
+
+    Revert to '-' instead of '_'
+
     Add -a flag for ask
 
     Improve system for $RID* env vars (maybe a wrapper bash script?)
-
-    break up xorg-* into sets
 
     dependency resolution tweaks
         adjust flags such that -i and -r resolve and -I and -R do not resolve dependencies
@@ -19,12 +21,9 @@ TODO
 
 WIP
 
+    break up xorg-* into sets
+
     Improve documentation
-
-    avoid calling form_package() when unnecessary
-        for instance, rid -l @glfs calls form_package() a bunch of times
-
-    Migrate RIDPKGSVERS to rid-meta
 
     Work on meta files
 
@@ -32,9 +31,15 @@ WIP
 
 DONEISH
 
+    avoid calling form_package() when unnecessary
+        for instance, rid -l @glfs calls form_package() a bunch of times
+
     make rid auto-detect when it needs to cache and do so automatically and efficiently 
 
 DROPPED
 
     add * support
         bash expands it before rid can access it unless quoted
+
+    Migrate RIDPKGSVERS to rid-meta
+        RIDPKGSVERS has been deprecated
