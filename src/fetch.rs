@@ -4,26 +4,27 @@
 // keeping the tarball around after.
 
 use crate::flags::FORCE;
-use crate::misc::exec;
+use crate::misc::static_exec;
 use crate::package::{Package, PackageStatus};
 use crate::paths::BIN;
 use crate::{erm, vpr};
-use std::io;
+use std::error::Error;
 
 #[cfg(not(feature = "offline"))]
 mod online {
     pub use crate::flags::DOWNLOAD;
     pub use crate::paths::{BUILDING, SOURCES};
-    pub use std::error::Error;
+    pub use crate::die;
     pub use std::fs::File;
     pub use ureq::get;
+    pub use std::io;
 }
 
 #[cfg(not(feature = "offline"))]
 use online::*;
 
 #[cfg(not(feature = "offline"))]
-fn download(p: &Package) -> Result<(), Box<dyn Error>> {
+fn download(p: &Package, force: bool) -> Result<(), Box<dyn Error>> {
     let url = match &p.link {
         Some(url) if !url.is_empty() => {
             vpr!("Detected url: '{}' for package {}", url, p.name);
@@ -39,15 +40,11 @@ fn download(p: &Package) -> Result<(), Box<dyn Error>> {
     let file_path = SOURCES.join(&tb);
 
     if file_path.exists() {
-        if !*DOWNLOAD.lock().unwrap() {
+        if *DOWNLOAD.lock().unwrap() || force {
+            vpr!("Forcibly downloading existing tarball for {}-{}", p.name, p.version);
+        } else {
             vpr!("Skipping download for {}-{}", p.name, p.version);
             return Ok(());
-        } else {
-            vpr!(
-                "Forcibly downloading existing tarball for {}-{}",
-                p.name,
-                p.version
-            );
         }
     } else {
         vpr!("Downloading {}", url);
@@ -75,36 +72,33 @@ fn download(p: &Package) -> Result<(), Box<dyn Error>> {
 #[cfg(not(feature = "offline"))]
 fn retract(p: &Package) {
     let command = format!("mkdir -pv {}/{}-{}", BUILDING.display(), p.name, p.version);
-    let _ = exec(&command);
+    let _ = static_exec(&command);
 }
 
-fn extract(p: &Package) -> io::Result<()> {
+fn extract(p: &Package) -> Result<(), Box<dyn Error>> {
     if let PackageStatus::Installed = p.status {
         if !*FORCE.lock().unwrap() {
             vpr!("Not extracting tarball for installed package '{}'", p.name);
-            return Ok(());
+            return Ok(())
         } else {
-            vpr!(
-                "Forcibly extracting tarball for installed package '{}'",
-                p.name
-            );
+            vpr!("Forcibly extracting tarball for installed package '{}'", p.name);
         }
     }
 
     let command = format!("{}/xt {} {}", BIN.display(), p.name, p.version);
-
-    exec(&command).map_err(|e| {
-        erm!("Execution failed: {}", e);
-        io::Error::new(io::ErrorKind::Other, format!("Execution failed: {}", e))
-    })?;
-
-    Ok(())
+    match static_exec(&command) {
+        Ok(_) => Ok(()),
+        Err(_) => {
+            vpr!("Corrupt tarball detected!");
+            Err("corrupt tarball".into())
+        }
+    }
 }
 
 pub fn fetch(p: &Package) {
     #[cfg(feature = "offline")]
     {
-        match extract(&p) {
+        match extract(p) {
             Ok(()) => {
                 vpr!("Successfully extracted tarball");
             }
@@ -113,14 +107,11 @@ pub fn fetch(p: &Package) {
     }
 
     #[cfg(not(feature = "offline"))]
-    match download(p) {
-        Ok(()) => {
+    match download(p, false) {
+        Ok(_) => {
             vpr!("Successfully downloaded tarball");
-            match extract(p) {
-                Ok(()) => {
-                    vpr!("Extracted tarball for '{}'", p.name);
-                }
-                Err(e) => erm!("Failed to extract tarball for '{}': {}", p.name, e),
+            if extract(p).is_err() && { download(p, true).is_err() || extract(p).is_err() } {
+                die!("Failed to recover from corrupt tarball");
             }
         }
         Err(e) if e.to_string() == "no link" => retract(p),
