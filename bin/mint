@@ -67,6 +67,7 @@ case $1 in
     echo "NAME: $NAME"
     echo "VERS: $VERS"
     echo "LINK: $LINK"
+    echo "DOWN: $DOWN"
     echo "DEPS: $DEPS"
     echo "UPST: $UPST"
     echo "SELE: $SELE"
