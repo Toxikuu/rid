@@ -30,13 +30,10 @@ function cleanup {
 
 function ins {
   pushd "$RIDBUILDING/$NAME-$VERS" > /dev/null || die "Failed to enter build directory"
-
-  echo "Installing $NAME-$VERS..."
   eval "$IDIR"
 }
 
 function rem {
-  echo "Removing $NAME-$VERS..."
   eval "$RDIR"
 }
 
@@ -53,12 +50,12 @@ case $1 in
     ;;
   u)
     if [ -z "$UDIR" ]; then
-      echo "Updating $NAME (default)..."
+      echo "Using default instructions..."
       ins
     else
       pushd "$RIDBUILDING/$NAME-$VERS" > /dev/null || die "Failed to enter build directory"
 
-      echo "Updating $NAME (custom)..."
+      echo "Using custom instructions..."
       eval "$UDIR"
     fi
     cleanup
