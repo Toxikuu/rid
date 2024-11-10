@@ -3,7 +3,7 @@
 // responsible for bootsrapping rid
 
 use crate::paths::*;
-use crate::misc::create_json;
+use crate::tracking::create_json;
 use crate::{vpr, die};
 use std::fs;
 use std::path::Path;
