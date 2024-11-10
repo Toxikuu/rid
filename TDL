@@ -2,6 +2,10 @@
 
 TODO
 
+    Make downloads have progress bars
+
+    Make raw check whether a file exists by default
+
     Add a news system
 
     Add -a flag for ask
@@ -14,8 +18,6 @@ TODO
     add installed_version field to json and Package so that the user can run rid -u @lfs, for instance
 
     add a check for corrupt tarballs (tar: this does not look like an archive) and make it attempt to redownload the tarball
-
-    add @all set
 
 WIP
 
@@ -35,6 +37,8 @@ DONEISH
         for instance, rid -l @glfs calls form_package() a bunch of times
 
     make rid auto-detect when it needs to cache and do so automatically and efficiently 
+
+    add @all set
 
 DROPPED
 

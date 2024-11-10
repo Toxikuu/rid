@@ -2,9 +2,10 @@
 //
 // responsible for sets functionality
 
-use std::fs::File;
+use crate::package::{defp, Package};
+use std::fs::{read_dir, File};
 use std::io::{BufReader, BufRead};
-use crate::paths::SETS;
+use crate::paths::{SETS, META};
 use crate::{erm, die, vpr};
 
 pub fn is_set(pkg: &str) -> bool {
@@ -18,6 +19,9 @@ fn is_comment(pkg: &str) -> bool {
 }
 
 pub fn expand_set(set: &str) -> Vec<String> {
+
+    if set == "@all" { return at_all() }
+
     let file_path = format!("{}/{}", SETS.display(), set.replacen('@', "", 1));
     let file = match File::open(file_path) {
         Ok(f) => f,
@@ -63,4 +67,26 @@ pub fn handle_sets(pkgs: Vec<String>) -> Vec<String> {
         }
     }
     all
+}
+
+fn at_all() -> Vec<String> {
+    let mut pkgs = Vec::new();
+
+    if let Ok(entries) = read_dir(&*META) {
+        for entry in entries.flatten() {
+            let pkg = entry.file_name().into_string().unwrap();
+
+            if pkg == ".git" || pkg == "README.md" || pkg == "LICENSE" {
+                continue
+            }
+
+            if entry.path().is_file() {
+                pkgs.push(pkg);
+            }
+        }
+    } else {
+        erm!("Failed to compose @all")
+    }
+
+    pkgs
 }
