@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.14.4" # pretty download formatting with indicatif
+version = "0.14.5" # raw obsolescence
 edition = "2021"
 
 [features]
