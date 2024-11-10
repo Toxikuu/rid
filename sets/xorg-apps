@@ -3,7 +3,6 @@ mkfontscale
 sessreg
 setxkbmap
 smproxy
-x11perf
 xauth
 xcmsdb
 xcursorgen
