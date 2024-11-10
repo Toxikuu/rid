@@ -2,28 +2,25 @@
 
 TODO
 
-    Make downloads have progress bars
+    Allow -D <PKG>
 
-    Make raw check whether a file exists by default
+    Make raw check whether a file exists by default (and allow it to be overridden with -D from rid somehow lol)
+        easiest solution i foresee is using a tmpfile
 
     Add a news system
 
     Add -a flag for ask
-
-    Improve system for $RID* env vars (maybe a wrapper bash script?)
 
     dependency resolution tweaks
         adjust flags such that -i and -r resolve and -I and -R do not resolve dependencies
 
     add installed_version field to json and Package so that the user can run rid -u @lfs, for instance
 
-    add a check for corrupt tarballs (tar: this does not look like an archive) and make it attempt to redownload the tarball
-
 WIP
 
-    Revert to '-' instead of '_'
+    Improve system for $RID* env vars (maybe a wrapper bash script?)
 
-    break up xorg-* into sets
+    Make downloads have progress bars
 
     Improve documentation
 
@@ -31,7 +28,13 @@ WIP
 
     UX Improvements
 
+    add a check for corrupt tarballs (tar: this does not look like an archive) and make it attempt to redownload the tarball
+
 DONEISH
+
+    break up xorg-* into sets
+
+    Revert to '-' instead of '_'
 
     avoid calling form_package() when unnecessary
         for instance, rid -l @glfs calls form_package() a bunch of times
