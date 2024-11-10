@@ -26,6 +26,7 @@ pub struct Package {
     pub upstream: Option<String>,
     pub selector: Option<String>,
     pub deps: Vec<String>,
+    pub downloads: Vec<String>,
     pub status: PackageStatus,
 }
 
@@ -66,6 +67,7 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
     let mut upstream = None;
     let mut selector = None;
     let mut deps = Vec::new();
+    let mut downloads = Vec::new();
 
     let command = format!("{}/mint v {}", BIN.display(), pkg_str);
     match static_exec(&command) {
@@ -78,6 +80,7 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
                     _ if line.starts_with("UPST: ") => upstream = Some(line[6..].trim().to_string()),
                     _ if line.starts_with("SELE: ") => selector = Some(line[6..].trim().to_string()),
                     _ if line.starts_with("DEPS: ") => deps = line[6..].split_whitespace().map(|s| s.to_string()).collect(),
+                    _ if line.starts_with("DOWN: ") => downloads = line[6..].split_whitespace().map(|s| s.to_string()).collect(),
                     _ => (),
                 }
             }
@@ -101,6 +104,7 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
                 upstream,
                 selector,
                 deps,
+                downloads,
                 status,
             })
         }
