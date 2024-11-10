@@ -2,6 +2,7 @@
 //
 // responsible for storing argument functions
 
+use tracking::read_pkgs_json;
 use crate::flags::FORCE;
 use crate::{die, erm, msg};
 use crate::tracking;
@@ -86,7 +87,7 @@ fn display_list(p_list: Vec<Package>) {
 
 pub fn list(pkgs: Vec<String>) {
     if pkgs.is_empty() {
-        match misc::read_pkgs_json() {
+        match read_pkgs_json() {
             Ok(p_list) => {
                 display_list(p_list)
             }
@@ -96,7 +97,7 @@ pub fn list(pkgs: Vec<String>) {
         let mut p_list = Vec::new();
         let pkgs = handle_sets(pkgs);
 
-        let all_pkgs = match misc::read_pkgs_json() {
+        let all_pkgs = match read_pkgs_json() {
             Ok(j) => j,
             Err(e) => {
                 erm!("Error reading $RIDPKGSJSON: {}", e);
@@ -186,7 +187,7 @@ pub fn install_no_deps(pkgs: Vec<String>, pkg_list: &mut Vec<Package>) {
 fn display_deps(deps: &Vec<String>, p: Package) {
     msg!("Dependencies for {}:", p.name);
 
-    if let Ok(plist) = misc::read_pkgs_json() {
+    if let Ok(plist) = read_pkgs_json() {
         let mut matches: Vec<String> = Vec::new();
 
         for dep in deps {
