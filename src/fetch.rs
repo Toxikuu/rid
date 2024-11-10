@@ -16,12 +16,16 @@ mod online {
     pub use crate::paths::{BUILDING, SOURCES};
     pub use crate::die;
     pub use std::fs::File;
-    pub use ureq::get;
     pub use std::io;
+    pub use indicatif::{ProgressBar, ProgressStyle};
 }
 
 #[cfg(not(feature = "offline"))]
 use online::*;
+
+#[cfg(not(feature = "offline"))]
+const DOWNLOAD_TEMPLATE: &str =
+    "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {bytes}/{total_bytes} ({eta})";
 
 #[cfg(not(feature = "offline"))]
 fn download(p: &Package, force: bool) -> Result<(), Box<dyn Error>> {
@@ -54,16 +58,36 @@ fn download(p: &Package, force: bool) -> Result<(), Box<dyn Error>> {
         vpr!("Detected a sourceforge domain; I hope you have a direct url!");
     }
 
-    let r = get(url).call()?;
+    let r = ureq::get(url).call().unwrap();
 
     if r.status() != 200 {
         return Err(format!("Failed to download file: HTTP status {}", r.status()).into());
     }
 
-    let mut file = File::create(&file_path)?;
+    dbg!(&r);
 
-    let mut reader = r.into_reader();
-    io::copy(&mut reader, &mut file)?;
+    let length = r.header("Content-Length").and_then(|len| len.parse().ok());
+    let bar = match length {
+        Some(len) => ProgressBar::new(len),
+        None => ProgressBar::new_spinner(),
+    };
+
+    let message = format!("Downloading {}", tb);
+    bar.set_message(message);
+
+    bar.set_style(
+        ProgressStyle::with_template(DOWNLOAD_TEMPLATE)
+        .unwrap()
+        .progress_chars("#|-"),
+    );
+
+    if let Some(len) = length {
+        bar.set_length(len);
+    }
+
+    let mut file = File::create(&file_path)?;
+    io::copy(&mut bar.wrap_read(r.into_reader()), &mut file).map(|_| ())?;
+    bar.finish_with_message("Download complete");
 
     Ok(())
 }
