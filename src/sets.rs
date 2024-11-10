@@ -2,7 +2,6 @@
 //
 // responsible for sets functionality
 
-use crate::package::{defp, Package};
 use std::fs::{read_dir, File};
 use std::io::{BufReader, BufRead};
 use crate::paths::{SETS, META};
