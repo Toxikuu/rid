@@ -1,9 +1,10 @@
 // src/main.rs
 
-use misc::check_perms;
+use checks::check_perms;
 use defargs::init_args;
 use tracking::populate_json;
 
+mod checks;
 mod sets;
 mod args;
 mod defargs;
