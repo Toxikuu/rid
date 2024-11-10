@@ -4,9 +4,6 @@ TODO
 
     Allow -D <PKG>
 
-    Make raw check whether a file exists by default (and allow it to be overridden with -D from rid somehow lol)
-        easiest solution i foresee is using a tmpfile
-
     Add a news system
 
     Add -a flag for ask
@@ -17,6 +14,8 @@ TODO
     add installed_version field to json and Package so that the user can run rid -u @lfs, for instance
 
 WIP
+
+    Add a variable for extra downloads instead of using raw
 
     Improve system for $RID* env vars (maybe a wrapper bash script?)
 
@@ -50,3 +49,6 @@ DROPPED
 
     Migrate RIDPKGSVERS to rid-meta
         RIDPKGSVERS has been deprecated
+
+    Make raw check whether a file exists by default and work with -D
+        this is rendered obsolete by down()
