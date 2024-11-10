@@ -2,14 +2,32 @@
 //
 // responsible for keeping track of packages
 
+use crate::checks::is_file_empty;
 use crate::{die, vpr};
 use crate::package::{form_package, Package, PackageStatus};
 use crate::paths::{META, PKGSJSON, FAILED};
 use crate::misc::get_mod_time;
 use serde_json::{from_str, to_string_pretty};
-use std::fs::{self, File};
+use std::fs::{self, File, read_to_string};
 use std::io::{self, Read, Write};
 use std::path::Path;
+
+pub fn create_json() -> io::Result<()> {
+    if !is_file_empty(&PKGSJSON) {
+        return Ok(())
+    }
+
+    let mut file = File::create(&*PKGSJSON)?;
+    file.write_all(b"[]")?;
+    vpr!("Wrote [] to empty pkgs.json");
+
+    Ok(())
+}
+
+pub fn read_pkgs_json() -> Result<Vec<Package>, String> {
+    let contents = read_to_string(&*PKGSJSON).map_err(|e| e.to_string())?;
+    from_str(&contents).map_err(|e| e.to_string())
+}
 
 pub fn load_package_list() -> Vec<Package> {
     let mut file = File::open(&*PKGSJSON).unwrap();

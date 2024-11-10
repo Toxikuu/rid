@@ -2,48 +2,19 @@
 //
 // defines miscellaneous helper functions
 
-use crate::package::Package;
-use crate::paths::{TMPRID, PKGSJSON};
-use crate::{erm, vpr, pr};
-use serde_json::from_str;
-use std::fs::{self, File, read_to_string, OpenOptions as OO};
+use crate::paths::TMPRID;
+use crate::{erm, pr};
+use std::fs::{self, OpenOptions as OO};
 use std::time::SystemTime;
 use std::path::Path;
 use std::io::{self, BufRead, Write};
-use std::process::{self, Command, Stdio};
+use std::process::{Command, Stdio};
 use std::sync::{Arc, Mutex};
 use std::thread;
-use whoami::username;
-
-pub fn check_perms() {
-    if username() != "root" {
-        erm!("Insufficient privileges!");
-        process::exit(1);
-    }
-}
 
 pub fn get_mod_time(path: &Path) -> io::Result<SystemTime> {
     let metadata = fs::metadata(path)?;
     metadata.modified().map_err(|e| io::Error::new(io::ErrorKind::Other, e))
-}
-
-fn is_file_empty(path: &Path) -> bool {
-    match fs::metadata(path) {
-        Ok(m) => m.len() == 0,
-        Err(_) => true,
-    }
-}
-
-pub fn create_json() -> io::Result<()> {
-    if !is_file_empty(&PKGSJSON) {
-        return Ok(())
-    }
-
-    let mut file = File::create(&*PKGSJSON)?;
-    file.write_all(b"[]")?;
-    vpr!("Wrote [] to empty pkgs.json");
-
-    Ok(())
 }
 
 pub fn format_line(line: &str, max_length: usize) -> String {
@@ -145,9 +116,4 @@ pub fn exec(command: &str) -> io::Result<()> {
     stderr_thread.join().unwrap();
 
     Ok(())
-}
-
-pub fn read_pkgs_json() -> Result<Vec<Package>, String> {
-    let contents = read_to_string(&*PKGSJSON).map_err(|e| e.to_string())?;
-    from_str(&contents).map_err(|e| e.to_string())
 }
