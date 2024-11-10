@@ -15,11 +15,7 @@ TODO
 
 WIP
 
-    Add a variable for extra downloads instead of using raw
-
     Improve system for $RID* env vars (maybe a wrapper bash script?)
-
-    Make downloads have progress bars
 
     Improve documentation
 
@@ -27,9 +23,13 @@ WIP
 
     UX Improvements
 
-    add a check for corrupt tarballs (tar: this does not look like an archive) and make it attempt to redownload the tarball
-
 DONEISH
+
+    Add a variable for extra downloads instead of using raw
+
+    Make downloads have progress bars
+
+    add a check for corrupt tarballs (tar: this does not look like an archive) and make it attempt to redownload the tarball
 
     break up xorg-* into sets
 
