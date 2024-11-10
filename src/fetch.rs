@@ -28,6 +28,7 @@ use online::*;
 const DOWNLOAD_TEMPLATE: &str =
     "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {bytes}/{total_bytes} ({eta})";
 
+#[cfg(not(feature = "offline"))]
 fn handle_bar(r: ureq::Response, file_name: &str, file_path: &Path) -> Result<ProgressBar, Box<dyn Error>> {
     if r.status() != 200 {
         return Err(format!("Non-200 HTTP status: {}", r.status()).into());
@@ -62,6 +63,7 @@ fn handle_bar(r: ureq::Response, file_name: &str, file_path: &Path) -> Result<Pr
     Ok(bar)
 } 
 
+#[cfg(not(feature = "offline"))]
 fn down(url: &str) -> Result<(), Box<dyn Error>> {
     let file_name = url.split('/').last().ok_or("Invalid URL")?;
     let file_path = &SOURCES.join(file_name);
