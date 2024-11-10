@@ -6,7 +6,7 @@ xcb-util-wm
 xcb-util-cursor
 xcb-util-errors
 xbitmaps
-xorg-applications
+@xorg-apps
 luit
 xcursor-themes
 iosevka
