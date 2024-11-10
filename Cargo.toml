@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.14.1" # comments and _ deprecation
+version = "0.14.2" # @all
 edition = "2021"
 
 [features]
