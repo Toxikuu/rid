@@ -73,8 +73,8 @@ fn main() {
         args::sync();
     }
 
-    if args.sync_overwrite {
-        args::sync_overwrite();
+    if args.overwrite {
+        args::overwrite();
     }
 
     if let Some(pkgs) = args.list {
@@ -89,12 +89,12 @@ fn main() {
         args::prune(pkgs);
     }
 
-    if let Some(pkgs) = args.install_no_deps {
-        args::install_no_deps(pkgs, &mut pkg_list);
-    }
-
     if let Some(pkgs) = args.install {
         args::install(pkgs, &mut pkg_list);
+    }
+
+    if let Some(pkgs) = args.install_with_dependencies {
+        args::install_with_dependencies(pkgs, &mut pkg_list);
     }
 
     if let Some(pkgs) = args.update {

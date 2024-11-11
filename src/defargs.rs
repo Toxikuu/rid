@@ -14,11 +14,11 @@ use clap::Parser;
     after_help = "If you have any questions, you can DM me on Discord @toxikuu"
 )]
 pub struct Args {
+    #[arg(short = 'I', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
+    pub install_with_dependencies: Option<Vec<String>>,
+
     #[arg(short = 'i', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
     pub install: Option<Vec<String>>,
-
-    #[arg(short = 'n', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
-    pub install_no_deps: Option<Vec<String>>,
 
     #[arg(short = 'r', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
     pub remove: Option<Vec<String>>,
@@ -42,8 +42,8 @@ pub struct Args {
     #[arg(short = 's', long)]
     pub sync: bool,
 
-    #[arg(short = 'S', long)]
-    pub sync_overwrite: bool,
+    #[arg(short = 'o', long)]
+    pub overwrite: bool,
 
     // generic flags
     #[arg(short = 'v', long)]

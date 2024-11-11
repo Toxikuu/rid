@@ -65,7 +65,7 @@ pub fn sync() {
     }
 }
 
-pub fn sync_overwrite() {
+pub fn overwrite() {
     #[cfg(feature = "offline")]
     not_supported("Sync");
 
@@ -172,7 +172,7 @@ fn do_install(p: &Package, extra: &str) -> bool {
 }
 
 
-pub fn install_no_deps(pkgs: Vec<String>, pkg_list: &mut Vec<Package>) {
+pub fn install(pkgs: Vec<String>, pkg_list: &mut Vec<Package>) {
     let pkgs = handle_sets(pkgs);
 
     for pkg in pkgs {
@@ -211,7 +211,7 @@ fn display_deps(deps: &Vec<String>, p: Package) {
     }
 }
 
-pub fn install(pkgs: Vec<String>, pkg_list: &mut Vec<Package>) {
+pub fn install_with_dependencies(pkgs: Vec<String>, pkg_list: &mut Vec<Package>) {
     let pkgs = handle_sets(pkgs);
 
     for pkg in pkgs {
@@ -259,12 +259,14 @@ pub fn dependencies(pkgs: Vec<String>) {
     }
 }
 
-pub fn upstream() {
+pub fn check_upstream() {
     #[cfg(feature = "offline")]
     not_supported("Upstream checking");
 
     #[cfg(not(feature = "offline"))]
-    let _ = exec("stab");
+    if let Err(e) = exec("stab") {
+        die!("Failed to check upstream: {}", e)
+    }
 }
 
 pub fn validate_links() {
@@ -272,5 +274,7 @@ pub fn validate_links() {
     not_supported("Link validation");
 
     #[cfg(not(feature = "offline"))]
-    let _ = exec("linkval");
+    if let Err(e) = exec("linkval") {
+        die!("Failed to validate links: {}", e)
+    }
 }
