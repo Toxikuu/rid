@@ -61,8 +61,8 @@ fn main() {
         args::cache(&mut pkg_list);
     }
 
-    if args.upstream {
-        args::upstream();
+    if args.check_upstream {
+        args::check_upstream();
     }
 
     if args.validate_links {
