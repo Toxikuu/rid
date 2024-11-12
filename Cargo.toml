@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.14.5" # raw obsolescence
+version = "0.14.6" # installed version field
 edition = "2021"
 
 [features]
