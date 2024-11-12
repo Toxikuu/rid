@@ -18,10 +18,13 @@ pub enum PackageStatus {
     Removed,
 }
 
+// TODO: rewrite Option<String> as just String
+// afaik, the performance difference is negligible between "" and null
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Package {
     pub name: String,
     pub version: String,
+    pub installed_version: String,
     pub link: Option<String>,
     pub upstream: Option<String>,
     pub selector: Option<String>,
@@ -96,10 +99,16 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
                 .iter()
                 .find(|p| p.name == name)
                 .map_or(PackageStatus::Available, |p| p.status.clone());
+            let installed_version = package_list
+                .iter()
+                .find(|p| p.name == name)
+                .map_or("", |p| &p.installed_version)
+                .to_string();
 
             Ok(Package {
                 name,
                 version,
+                installed_version,
                 link,
                 upstream,
                 selector,

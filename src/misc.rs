@@ -26,10 +26,12 @@ pub fn format_line(line: &str, max_length: usize) -> String {
 
     let package_info = parts[0].trim();
     let status = parts[1].trim();
-    let formatted_status = match status {
-        "Available" => "\x1b[30mAvailable\x1b[0m".to_string(),
-        "Installed" => "\x1b[36;1mInstalled\x1b[0m".to_string(),
-        _ => status.to_string(),
+    let formatted_status = if status.contains("Available") {
+        format!("\x1b[30m{}\x1b[0m", status)
+    } else if status.contains("Installed") {
+        format!("\x1b[36;1m{}\x1b[0m", status)
+    } else { // should never occur
+        status.to_string()
     };
 
     let name_version_length = package_info.len() + 1;

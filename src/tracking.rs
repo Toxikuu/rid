@@ -48,6 +48,7 @@ fn build_failed() -> bool {
     Path::new(&*FAILED).exists()
 }
 
+// TODO: Review logic for add_package (specifically existing_pkg)
 pub fn add_package(pkg_list: &mut Vec<Package>, p: &Package) -> Result<(), String> {
     if build_failed() {
         return Err("Not tracking due to build failure".to_string());
@@ -55,9 +56,11 @@ pub fn add_package(pkg_list: &mut Vec<Package>, p: &Package) -> Result<(), Strin
 
     if let Some(existing_pkg) = pkg_list.iter_mut().find(|pkg| pkg.name == p.name) {
         existing_pkg.status = PackageStatus::Installed;
+        existing_pkg.installed_version = existing_pkg.version.clone();
     } else {
         let mut new_pkg = p.clone();
         new_pkg.status = PackageStatus::Installed;
+        new_pkg.installed_version = new_pkg.version.clone();
         pkg_list.push(new_pkg);
     }
 
@@ -68,6 +71,7 @@ pub fn add_package(pkg_list: &mut Vec<Package>, p: &Package) -> Result<(), Strin
 pub fn remove_package(pkg_list: &mut Vec<Package>, pkg_name: &str) -> Result<(), String> {
     if let Some(package) = pkg_list.iter_mut().find(|p| p.name == pkg_name) {
         package.status = PackageStatus::Available;
+        package.installed_version = "".to_string();
         save_package_list(pkg_list);
         Ok(())
     } else {

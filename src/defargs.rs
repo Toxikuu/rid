@@ -70,10 +70,11 @@ pub struct Args {
 }
 
 pub fn init_args() -> Args {
-    let mut args = Args::parse(); 
-
-    if args.update.is_some() {
-        args.force = true;
-    }
-    args
+    // let mut args = Args::parse(); 
+    //
+    // if args.update.is_some() {
+    //     args.force = true;
+    // }
+    // args
+    Args::parse()
 } 

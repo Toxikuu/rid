@@ -79,7 +79,12 @@ pub fn overwrite() {
 fn display_list(p_list: Vec<Package>) {
     msg!("PACKAGES");
     for p in p_list {
-        let line = format!("{}={} ~ {:?}", p.name, p.version, p.status,);
+        let mut iv = "";
+        if let PackageStatus::Installed = p.status {
+            iv = &p.installed_version;    
+        }
+
+        let line = format!("{}={} ~ {:?} {}", p.name, p.version, p.status, iv);
         let formatted_line = misc::format_line(&line, 32);
         println!("  {}", formatted_line);
     }
@@ -236,8 +241,14 @@ pub fn update(pkgs: Vec<String>, pkg_list: &mut Vec<Package>) {
     let pkgs = handle_sets(pkgs);
 
     for pkg in pkgs {
-        msg!("Updating {}", pkg);
         let p = defp(&pkg);
+
+        if p.installed_version == p.version && !*FORCE.lock().unwrap() {
+            msg!("Package '{}' up to date", p.name);
+            continue
+        }
+
+        msg!("Updating {}", p.name);
         fetch::fetch(&p);
         eval_action('u', &p.name);
 
