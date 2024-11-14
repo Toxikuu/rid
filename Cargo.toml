@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.14.6" # installed version field
+version = "0.14.7" # minor bugfix
 edition = "2021"
 
 [features]
