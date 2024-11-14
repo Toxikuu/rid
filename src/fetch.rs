@@ -3,7 +3,6 @@
 // responsible for fetching the tarball, extracting it, and entering the directory, as well as
 // keeping the tarball around after.
 
-use crate::flags::FORCE;
 use crate::misc::static_exec;
 use crate::package::{Package, PackageStatus};
 use crate::paths::BIN;
