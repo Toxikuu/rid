@@ -123,7 +123,7 @@ fn retract(p: &Package) {
 
 fn extract(p: &Package) -> Result<(), Box<dyn Error>> {
     if let PackageStatus::Installed = p.status {
-        if !*FORCE.lock().unwrap() || p.version != p.installed_version {
+        if p.version == p.installed_version {
             vpr!("Not extracting tarball for installed package '{}'", p.name);
             return Ok(())
         } else {
