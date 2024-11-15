@@ -2,9 +2,10 @@
 //
 // responsible for storing argument functions
 
+use indicatif::{ProgressBar, ProgressStyle};
 use tracking::read_pkgs_json;
 use crate::flags::FORCE;
-use crate::{die, erm, msg};
+use crate::{die, erm, msg, vpr};
 use crate::tracking;
 use crate::misc;
 use crate::clean;
@@ -78,7 +79,7 @@ pub fn overwrite() {
 
 fn display_list(p_list: Vec<Package>) {
     msg!("PACKAGES");
-    for p in p_list {
+    for p in &p_list {
         let mut iv = "";
         if let PackageStatus::Installed = p.status {
             iv = &p.installed_version;    
@@ -88,6 +89,7 @@ fn display_list(p_list: Vec<Package>) {
         let formatted_line = misc::format_line(&line, 32);
         println!("  {}", formatted_line);
     }
+    vpr!("Displayed {} packages", p_list.len())
 }
 
 pub fn list(pkgs: Vec<String>) {
@@ -138,19 +140,32 @@ pub fn remove(pkgs: Vec<String>, pkg_list: &mut Vec<Package>) {
     }
 }
 
+const TEMPLATE: &str =
+    "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {completed}/{total} ({eta})";
+
 pub fn prune(pkgs: Vec<String>) {
     let pkgs = handle_sets(pkgs);
+    let mut tarballs_removed = 0;
+
+    let length = pkgs.len() as u64;
+    let bar = ProgressBar::new(length);
+
+    bar.set_message("Pruning packages");
+    bar.set_style(ProgressStyle::with_template(TEMPLATE).unwrap().progress_chars("#|-"));
+    bar.set_length(length);
 
     for pkg in pkgs {
-        msg!("Pruning {}", pkg);
-        match form_package(&pkg) {
-            Ok(p) => {
-                let num_removed = clean::prune_sources(&p);
-                msg!("Pruned {} tarballs for {}", num_removed, pkg);
-            }
-            Err(e) => erm!("{}", e),
-        }
+        vpr!("Pruning {}", pkg);
+        
+        let p = defp(&pkg);
+        let num_removed = clean::prune_sources(&p);
+        vpr!("Pruned {} tarballs for {}", num_removed, pkg);
+        tarballs_removed += num_removed;
+        bar.inc(1);
     }
+
+    let message = format!("Pruned {} tarballs for {} packages", tarballs_removed, length);
+    bar.finish_with_message(message);
 }
 
 fn wrap_install(p: Package, pkg_list: &mut Vec<Package>) {
