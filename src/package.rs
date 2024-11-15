@@ -28,6 +28,7 @@ pub struct Package {
     pub link: String,
     pub upstream: String,
     pub selector: String,
+    pub news: String,
     pub deps: Vec<String>,
     pub downloads: Vec<String>,
     pub status: PackageStatus,
@@ -69,6 +70,7 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
     let mut link = String::new();
     let mut upstream = String::new();
     let mut selector = String::new();
+    let mut news = String::new();
     let mut deps = Vec::new();
     let mut downloads = Vec::new();
 
@@ -82,6 +84,7 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
                     _ if line.starts_with("LINK: ") => link = line[6..].trim().to_string(),
                     _ if line.starts_with("UPST: ") => upstream = line[6..].trim().to_string(),
                     _ if line.starts_with("SELE: ") => selector = line[6..].trim().to_string(),
+                    _ if line.starts_with("NEWS: ") => news = line[6..].trim().to_string(),
                     _ if line.starts_with("DEPS: ") => deps = line[6..].split_whitespace().map(|s| s.to_string()).collect(),
                     _ if line.starts_with("DOWN: ") => downloads = line[6..].split_whitespace().map(|s| s.to_string()).collect(),
                     _ => (),
@@ -112,6 +115,7 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
                 link,
                 upstream,
                 selector,
+                news,
                 deps,
                 downloads,
                 status,
