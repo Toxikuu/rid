@@ -5,7 +5,7 @@
 use indicatif::{ProgressBar, ProgressStyle};
 use tracking::read_pkgs_json;
 use crate::flags::FORCE;
-use crate::{die, erm, msg, vpr};
+use crate::{die, erm, msg, vpr, pr};
 use crate::tracking;
 use crate::misc;
 use crate::clean;
@@ -285,6 +285,21 @@ pub fn dependencies(pkgs: Vec<String>) {
     }
 }
 
+pub fn news(pkgs: Vec<String>) {
+    let pkgs = handle_sets(pkgs);
+
+    for pkg in pkgs {
+        let p = defp(&pkg);
+
+        vpr!("Checking for news for package '{}'", p.name);
+        vpr!("News: {}", p.news);
+        if !p.news.is_empty() {
+            msg!("News for {}:", p.name);
+            pr!("\x1b[31;3m{}\x1b[0m\n", p.news);
+        }
+    }
+}
+
 pub fn check_upstream() {
     #[cfg(feature = "offline")]
     not_supported("Upstream checking");
@@ -304,3 +319,4 @@ pub fn validate_links() {
         die!("Failed to validate links: {}", e)
     }
 }
+
