@@ -11,6 +11,7 @@ use serde_json::{from_str, to_string_pretty};
 use std::fs::{self, File, read_to_string};
 use std::io::{self, Read, Write};
 use std::path::Path;
+use indicatif::{ProgressBar, ProgressStyle};
 
 pub fn create_json() -> io::Result<()> {
     if !is_file_empty(&PKGSJSON) {
@@ -86,35 +87,51 @@ pub fn remove_package(pkg_list: &mut Vec<Package>, pkg_name: &str) -> Result<(),
     }
 }
 
+const TEMPLATE: &str =
+    "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {completed}/{total} ({eta})";
+
 pub fn populate_json() -> io::Result<usize> {
     // only intended to be used when $RIDPKGSJSON is empty
     let mut pkg_list = Vec::new();
+    let mut cache_list: Vec<String> = Vec::new();
     for entry in fs::read_dir(&*META)? {
         let entry = entry?;
         let path = entry.path();
 
         if let Some(pkg_str) = path.file_name().and_then(|n| n.to_str()) {
-            vpr!("Caching package '{}'...", pkg_str);
-
-            match form_package(pkg_str) {
-                Ok(p) => {
-                    pkg_list.push(p);
-                    save_package_list(&pkg_list);
-                },
-                Err(e) if e == "refused" => continue,
-                Err(e) => die!("Error processing '{}': {}", pkg_str, e),
-            }
+            cache_list.push(pkg_str.to_string());
         }
     }
 
+    let length = cache_list.len() as u64;
+    let bar = ProgressBar::new(length);
+
+    bar.set_message("Caching changes");
+    bar.set_style(ProgressStyle::with_template(TEMPLATE).unwrap().progress_chars("#|-"));
+    bar.set_length(length);
+    
+    for pkg_str in cache_list {
+        vpr!("Caching package '{}'...", pkg_str);
+
+        match form_package(&pkg_str) {
+            Ok(p) => {
+                pkg_list.push(p);
+                save_package_list(&pkg_list);
+                bar.inc(1);
+            },
+            Err(e) if e == "refused" => continue,
+            Err(e) => die!("Error processing '{}': {}", pkg_str, e),
+        }
+    }
+
+    bar.finish_with_message("Cached all meta files");
     Ok(pkg_list.len())
 }
-
 
 pub fn cache_changes(pkg_list: &mut Vec<Package>) -> io::Result<u16> {
     // caches changes made in $RIDMETA to $RIDPKGSJSON
     let json_mod_time = get_mod_time(&PKGSJSON)?;
-    let mut updated_count: u16 = 0;
+    let mut cache_list: Vec<String> = Vec::new();
     
     for entry in fs::read_dir(&*META)? {
         let entry = entry?;
@@ -125,27 +142,40 @@ pub fn cache_changes(pkg_list: &mut Vec<Package>) -> io::Result<u16> {
 
             if entry_mod_time >= json_mod_time {
                 vpr!("Caching package '{}'...", pkg_str);
-
-                match form_package(pkg_str) {
-                    Ok(pkg) => {
-                        if let Some(pos) = pkg_list.iter_mut().position(|p| p.name == pkg.name) {
-                            pkg_list[pos] = pkg;
-                            updated_count += 1;
-                        } else {
-                            pkg_list.push(pkg);
-                            updated_count += 1;
-                        }
-
-                        if updated_count > 0 {
-                            save_package_list(pkg_list);
-                        }
-                    },
-                    Err(e) if e == "refused" => continue,
-                    Err(e) => die!("Error processing '{}': {}", pkg_str, e)
-                }
+                cache_list.push(pkg_str.to_string());
             }
         }
     }
+    
+    if cache_list.is_empty() { return Ok(0) }
 
-    Ok(updated_count)
+    let length = cache_list.len() as u64;
+    let bar = ProgressBar::new(length);
+
+    bar.set_message("Caching changes");
+    bar.set_style(ProgressStyle::with_template(TEMPLATE).unwrap().progress_chars("#|-"));
+    bar.set_length(length);
+
+    for pkg_str in cache_list {
+        match form_package(&pkg_str) {
+            Ok(pkg) => {
+                if let Some(pos) = pkg_list.iter_mut().position(|p| p.name == pkg.name) {
+                    pkg_list[pos] = pkg;
+                    bar.inc(1);
+                } else {
+                    pkg_list.push(pkg);
+                    bar.inc(1);
+                }
+
+                if length > 0 {
+                    save_package_list(pkg_list);
+                }
+            },
+            Err(e) if e == "refused" => continue,
+            Err(e) => die!("Error processing '{}': {}", pkg_str, e)
+        }
+    }
+
+    bar.finish_with_message("Cached changes");
+    Ok(length as u16)
 }
