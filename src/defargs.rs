@@ -36,6 +36,9 @@ pub struct Args {
     #[arg(short = 'l', long, value_name = "PACKAGE", num_args = 0.., value_delimiter = ' ')]
     pub list: Option<Vec<String>>, // TODO: rewrite this without Option<>
 
+    #[arg(short = 'n', long, value_name = "PACKAGE", num_args = 0.., value_delimiter = ' ')]
+    pub news: Option<Vec<String>>,
+
     // function flags
     #[arg(short = 'b', long)]
     pub bootstrap: bool,
@@ -70,11 +73,5 @@ pub struct Args {
 }
 
 pub fn init_args() -> Args {
-    // let mut args = Args::parse(); 
-    //
-    // if args.update.is_some() {
-    //     args.force = true;
-    // }
-    // args
     Args::parse()
 } 
