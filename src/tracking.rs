@@ -60,18 +60,6 @@ pub fn add_package(pkg_list: &mut Vec<Package>, p: &Package) -> Result<(), Strin
         package.installed_version = package.version.clone();
     }
 
-    // if let Some(existing_pkg) = pkg_list.iter_mut().find(|pkg| pkg.name == p.name) {
-    //     vpr!("Tracking existing package: '{}'", existing_pkg.name);
-    //     existing_pkg.status = PackageStatus::Installed;
-    //     existing_pkg.installed_version = existing_pkg.version.clone();
-    // } else {
-    //     let mut new_pkg = p.clone();
-    //     vpr!("Tracking new package: '{}'", new_pkg.name);
-    //     new_pkg.status = PackageStatus::Installed;
-    //     new_pkg.installed_version = new_pkg.version.clone();
-    //     pkg_list.push(new_pkg);
-    // }
-
     save_package_list(pkg_list);
     Ok(())
 }
@@ -88,7 +76,7 @@ pub fn remove_package(pkg_list: &mut Vec<Package>, pkg_name: &str) -> Result<(),
 }
 
 const TEMPLATE: &str =
-    "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {completed}/{total} ({eta})";
+    "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {pos}/{len} ({eta})";
 
 pub fn cache_changes(pkg_list: &mut Vec<Package>, cache_all: bool) -> io::Result<u16> {
     // caches changes made in $RIDMETA to $RIDPKGSJSON
