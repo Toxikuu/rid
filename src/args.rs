@@ -43,12 +43,12 @@ pub fn bootstrap() {
 pub fn cache(pkg_list: &mut Vec<Package>) {
     msg!("Caching meta files to json...");
     if !*FORCE.lock().unwrap() {
-        match tracking::cache_changes(pkg_list) {
+        match tracking::cache_changes(pkg_list, false) {
             Ok(num) => msg!("Cached {} meta files!", num),
             Err(e) => erm!("Failed to cache: {}", e)
         }
     } else {
-        match tracking::populate_json() {
+        match tracking::cache_changes(pkg_list, true) {
             Ok(num) => msg!("Cached {} meta files!", num),
             Err(e) => erm!("Failed to cache: {}", e)
         }

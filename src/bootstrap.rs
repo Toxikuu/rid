@@ -12,7 +12,6 @@ use std::path::Path;
 mod online {
     pub use crate::misc::exec;
     pub use crate::{erm, msg};
-    pub use crate::tracking::populate_json;
     pub use std::error::Error;
     pub use std::fs::File;
     pub use std::io::{self, Write};
@@ -176,9 +175,5 @@ pub fn run() {
     let dirs = [&*RIDHOME, &*SOURCES, &*META];
 
     for dir in dirs.iter() { mkdir(dir) }
-    match populate_json() {
-        Ok(num) => msg!("Cached {} meta files!", num),
-        Err(e) => erm!("Failed to cache: {}", e)
-    }
     bootstrap();
 }

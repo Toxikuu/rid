@@ -90,45 +90,7 @@ pub fn remove_package(pkg_list: &mut Vec<Package>, pkg_name: &str) -> Result<(),
 const TEMPLATE: &str =
     "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {completed}/{total} ({eta})";
 
-pub fn populate_json() -> io::Result<usize> {
-    // only intended to be used when $RIDPKGSJSON is empty
-    let mut pkg_list = Vec::new();
-    let mut cache_list: Vec<String> = Vec::new();
-    for entry in fs::read_dir(&*META)? {
-        let entry = entry?;
-        let path = entry.path();
-
-        if let Some(pkg_str) = path.file_name().and_then(|n| n.to_str()) {
-            cache_list.push(pkg_str.to_string());
-        }
-    }
-
-    let length = cache_list.len() as u64;
-    let bar = ProgressBar::new(length);
-
-    bar.set_message("Caching changes");
-    bar.set_style(ProgressStyle::with_template(TEMPLATE).unwrap().progress_chars("#|-"));
-    bar.set_length(length);
-    
-    for pkg_str in cache_list {
-        vpr!("Caching package '{}'...", pkg_str);
-
-        match form_package(&pkg_str) {
-            Ok(p) => {
-                pkg_list.push(p);
-                save_package_list(&pkg_list);
-                bar.inc(1);
-            },
-            Err(e) if e == "refused" => continue,
-            Err(e) => die!("Error processing '{}': {}", pkg_str, e),
-        }
-    }
-
-    bar.finish_with_message("Cached all meta files");
-    Ok(pkg_list.len())
-}
-
-pub fn cache_changes(pkg_list: &mut Vec<Package>) -> io::Result<u16> {
+pub fn cache_changes(pkg_list: &mut Vec<Package>, cache_all: bool) -> io::Result<u16> {
     // caches changes made in $RIDMETA to $RIDPKGSJSON
     let json_mod_time = get_mod_time(&PKGSJSON)?;
     let mut cache_list: Vec<String> = Vec::new();
@@ -138,9 +100,14 @@ pub fn cache_changes(pkg_list: &mut Vec<Package>) -> io::Result<u16> {
         let path = entry.path();
 
         if let Some(pkg_str) = path.file_name().and_then(|n| n.to_str()) {
-            let entry_mod_time = get_mod_time(&path)?;
+            if !cache_all {
+                let entry_mod_time = get_mod_time(&path)?;
 
-            if entry_mod_time >= json_mod_time {
+                if entry_mod_time >= json_mod_time {
+                    vpr!("Caching package '{}'...", pkg_str);
+                    cache_list.push(pkg_str.to_string());
+                }
+            } else {
                 vpr!("Caching package '{}'...", pkg_str);
                 cache_list.push(pkg_str.to_string());
             }
@@ -152,7 +119,7 @@ pub fn cache_changes(pkg_list: &mut Vec<Package>) -> io::Result<u16> {
     let length = cache_list.len() as u64;
     let bar = ProgressBar::new(length);
 
-    bar.set_message("Caching changes");
+    bar.set_message("Caching packages...");
     bar.set_style(ProgressStyle::with_template(TEMPLATE).unwrap().progress_chars("#|-"));
     bar.set_length(length);
 
@@ -176,6 +143,6 @@ pub fn cache_changes(pkg_list: &mut Vec<Package>) -> io::Result<u16> {
         }
     }
 
-    bar.finish_with_message("Cached changes");
+    bar.finish_with_message("Cached!");
     Ok(length as u16)
 }

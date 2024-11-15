@@ -2,7 +2,6 @@
 
 use checks::check_perms;
 use defargs::init_args;
-use tracking::populate_json;
 
 mod checks;
 mod sets;
@@ -39,15 +38,19 @@ fn main() {
 
     vpr!("Loading package list...");
     let mut pkg_list = tracking::load_package_list();
-    vpr!("Loaded! (Length: {})", pkg_list.len());
+    vpr!("Loaded {} packages", pkg_list.len());
 
     if pkg_list.is_empty() {
-        populate_json().unwrap();
+        vpr!("Populating empty json!");
+        match tracking::cache_changes(&mut pkg_list, true) {
+            Ok(num) => vpr!("Populated empty json with {} packages", num),
+            Err(e) => die!("Error populating empty json: {}", e)
+        }
     }
 
     if !args.cache {
         vpr!("Autocaching...");
-        match tracking::cache_changes(&mut pkg_list) {
+        match tracking::cache_changes(&mut pkg_list, false) {
             Ok(num) => vpr!("Autocached {} meta files", num),
             Err(e) => die!("Error autocaching: {}", e)
         }
