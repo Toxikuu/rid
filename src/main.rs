@@ -51,7 +51,7 @@ fn main() {
     if !args.cache {
         vpr!("Autocaching...");
         match tracking::cache_changes(&mut pkg_list, false) {
-            Ok(num) => vpr!("Autocached {} meta files", num),
+            Ok(num) => vpr!("Autocached {} packages", num),
             Err(e) => die!("Error autocaching: {}", e)
         }
     }
