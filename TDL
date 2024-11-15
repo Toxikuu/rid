@@ -2,6 +2,8 @@
 
 TODO
 
+    Add package build flags (formatted as <package>#<feature>)
+
     Allow -D <PKG>
 
     Add a news system
@@ -24,6 +26,9 @@ WIP
     UX Improvements
 
 DONEISH
+
+    Caching progress bar
+        Needs more testing
 
     Add a variable for extra downloads instead of using raw
 
