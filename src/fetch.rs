@@ -85,6 +85,14 @@ fn down(url: &str) -> Result<(), Box<dyn Error>> {
 
 #[cfg(not(feature = "offline"))]
 fn download(p: &Package, force: bool) -> Result<(), Box<dyn Error>> {
+    let file_name = format!("{}-{}.tar", p.name, p.version);
+    let file_path = &SOURCES.join(&file_name);
+
+    if file_path.exists() && !force {
+        vpr!("Not downloading existing file: {}", file_name);
+        return Ok(());
+    }
+
     let url = match &p.link {
         Some(url) if !url.is_empty() => {
             vpr!("Detected url: '{}' for package {}", url, p.name);
@@ -95,14 +103,6 @@ fn download(p: &Package, force: bool) -> Result<(), Box<dyn Error>> {
             return Err("no link".into());
         }
     };
-
-    let file_name = format!("{}-{}.tar", p.name, p.version);
-    let file_path = &SOURCES.join(&file_name);
-
-    if file_path.exists() && !force {
-        vpr!("Not downloading existing file: {}", file_name);
-        return Ok(());
-    }
 
     vpr!("Forcibly downloading existing file: {}", file_name);
     let r = ureq::get(url).call()?;
