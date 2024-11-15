@@ -3,6 +3,7 @@
 // responsible for fetching the tarball, extracting it, and entering the directory, as well as
 // keeping the tarball around after.
 
+use crate::flags::FORCE;
 use crate::misc::static_exec;
 use crate::package::{Package, PackageStatus};
 use crate::paths::BIN;
@@ -122,7 +123,7 @@ fn retract(p: &Package) {
 
 fn extract(p: &Package) -> Result<(), Box<dyn Error>> {
     if let PackageStatus::Installed = p.status {
-        if p.version == p.installed_version {
+        if !*FORCE.lock().unwrap() && p.version == p.installed_version {
             vpr!("Not extracting tarball for installed package '{}'", p.name);
             return Ok(())
         } else {
