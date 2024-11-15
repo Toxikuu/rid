@@ -68,6 +68,7 @@ case $1 in
     echo "DEPS: $DEPS"
     echo "UPST: $UPST"
     echo "SELE: $SELE"
+    echo "NEWS: $NEWS"
     echo ""
     echo "IDIR: $IDIR"
     echo "RDIR: $RDIR"
