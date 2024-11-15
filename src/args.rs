@@ -42,16 +42,9 @@ pub fn bootstrap() {
 
 pub fn cache(pkg_list: &mut Vec<Package>) {
     msg!("Caching meta files to json...");
-    if !*FORCE.lock().unwrap() {
-        match tracking::cache_changes(pkg_list, false) {
-            Ok(num) => msg!("Cached {} meta files!", num),
-            Err(e) => erm!("Failed to cache: {}", e)
-        }
-    } else {
-        match tracking::cache_changes(pkg_list, true) {
-            Ok(num) => msg!("Cached {} meta files!", num),
-            Err(e) => erm!("Failed to cache: {}", e)
-        }
+    match tracking::cache_changes(pkg_list, true) {
+        Ok(num) => msg!("Cached {} packages!", num),
+        Err(e) => erm!("Failed to cache: {}", e)
     }
 }
 
@@ -141,7 +134,7 @@ pub fn remove(pkgs: Vec<String>, pkg_list: &mut Vec<Package>) {
 }
 
 const TEMPLATE: &str =
-    "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {completed}/{total} ({eta})";
+    "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {pos}/{len} ({eta})";
 
 pub fn prune(pkgs: Vec<String>) {
     let pkgs = handle_sets(pkgs);
