@@ -48,21 +48,28 @@ fn build_failed() -> bool {
     Path::new(&*FAILED).exists()
 }
 
-// TODO: Review logic for add_package (specifically existing_pkg)
 pub fn add_package(pkg_list: &mut Vec<Package>, p: &Package) -> Result<(), String> {
     if build_failed() {
         return Err("Not tracking due to build failure".to_string());
     }
 
-    if let Some(existing_pkg) = pkg_list.iter_mut().find(|pkg| pkg.name == p.name) {
-        existing_pkg.status = PackageStatus::Installed;
-        existing_pkg.installed_version = existing_pkg.version.clone();
-    } else {
-        let mut new_pkg = p.clone();
-        new_pkg.status = PackageStatus::Installed;
-        new_pkg.installed_version = new_pkg.version.clone();
-        pkg_list.push(new_pkg);
+    if let Some(package) = pkg_list.iter_mut().find(|pkg| pkg.name == p.name) {
+        vpr!("Adding package: '{}'", package.name);
+        package.status = PackageStatus::Installed;
+        package.installed_version = package.version.clone();
     }
+
+    // if let Some(existing_pkg) = pkg_list.iter_mut().find(|pkg| pkg.name == p.name) {
+    //     vpr!("Tracking existing package: '{}'", existing_pkg.name);
+    //     existing_pkg.status = PackageStatus::Installed;
+    //     existing_pkg.installed_version = existing_pkg.version.clone();
+    // } else {
+    //     let mut new_pkg = p.clone();
+    //     vpr!("Tracking new package: '{}'", new_pkg.name);
+    //     new_pkg.status = PackageStatus::Installed;
+    //     new_pkg.installed_version = new_pkg.version.clone();
+    //     pkg_list.push(new_pkg);
+    // }
 
     save_package_list(pkg_list);
     Ok(())
