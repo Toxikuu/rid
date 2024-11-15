@@ -19,7 +19,11 @@ macro_rules! vpr {
     ($($arg:tt)*) => {{
         use $crate::flags::VERBOSE;
         if *VERBOSE.lock().unwrap() {
-            println!("\x1b[34;1m{}\x1b[0m", format!($($arg)*))
+            let f = std::path::Path::new(file!())
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("Unknown");
+            println!("\x1b[34;1m[{}] {}\x1b[0m", f, format!($($arg)*))
         }
     }};
 }
