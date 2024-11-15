@@ -8,8 +8,6 @@ TODO
 
     Allow -D <PKG>
 
-    Add a news system
-
     Add -a flag for ask
 
     dependency resolution tweaks (for i, u, r)
@@ -26,6 +24,8 @@ WIP
     UX Improvements
 
 DONEISH
+
+    Add a news system
 
     add installed_version field to json and Package so that the user can run rid -u @lfs, for instance
 
