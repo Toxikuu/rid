@@ -93,16 +93,13 @@ fn download(p: &Package, force: bool) -> Result<(), Box<dyn Error>> {
         return Ok(());
     }
 
-    let url = match &p.link {
-        Some(url) if !url.is_empty() => {
-            vpr!("Detected url: '{}' for package {}", url, p.name);
-            url
-        }
-        _ => {
-            vpr!("No link for {}", p.name);
-            return Err("no link".into());
-        }
-    };
+    let url = &p.link;
+    if !url.is_empty() {
+        vpr!("Detected url: '{}' for package '{}'", url, p.name);
+    } else {
+        vpr!("No link for '{}'", p.name);
+        return Err("no link".into())
+    }
 
     vpr!("Forcibly downloading existing file: {}", file_name);
     let r = ureq::get(url).call()?;
