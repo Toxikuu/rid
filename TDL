@@ -2,6 +2,8 @@
 
 TODO
 
+    Rewrite mo in bash
+
     Add package build flags (formatted as <package>#<feature>)
 
     Allow -D <PKG>
@@ -10,10 +12,8 @@ TODO
 
     Add -a flag for ask
 
-    dependency resolution tweaks
-        adjust flags such that -i and -r resolve and -I and -R do not resolve dependencies
-
-    add installed_version field to json and Package so that the user can run rid -u @lfs, for instance
+    dependency resolution tweaks (for i, u, r)
+        adjust flags such that lowercase flags use default behavior and capital ones do the opposite
 
 WIP
 
@@ -26,6 +26,8 @@ WIP
     UX Improvements
 
 DONEISH
+
+    add installed_version field to json and Package so that the user can run rid -u @lfs, for instance
 
     Caching progress bar
         Needs more testing
