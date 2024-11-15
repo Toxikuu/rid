@@ -107,4 +107,8 @@ fn main() {
     if let Some(pkgs) = args.dependencies {
         args::dependencies(pkgs);
     }
+
+    if let Some(pkgs) = args.news {
+        args::news(pkgs);
+    }
 }
