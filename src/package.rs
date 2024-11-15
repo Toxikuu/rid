@@ -25,9 +25,9 @@ pub struct Package {
     pub name: String,
     pub version: String,
     pub installed_version: String,
-    pub link: Option<String>,
-    pub upstream: Option<String>,
-    pub selector: Option<String>,
+    pub link: String,
+    pub upstream: String,
+    pub selector: String,
     pub deps: Vec<String>,
     pub downloads: Vec<String>,
     pub status: PackageStatus,
@@ -66,9 +66,9 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
 
     let mut name = String::new();
     let mut version = String::new();
-    let mut link = None;
-    let mut upstream = None;
-    let mut selector = None;
+    let mut link = String::new();
+    let mut upstream = String::new();
+    let mut selector = String::new();
     let mut deps = Vec::new();
     let mut downloads = Vec::new();
 
@@ -79,9 +79,9 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
                 match line {
                     _ if line.starts_with("NAME: ") => name = line[6..].trim().to_string(),
                     _ if line.starts_with("VERS: ") => version = line[6..].trim().to_string(),
-                    _ if line.starts_with("LINK: ") => link = Some(line[6..].trim().to_string()),
-                    _ if line.starts_with("UPST: ") => upstream = Some(line[6..].trim().to_string()),
-                    _ if line.starts_with("SELE: ") => selector = Some(line[6..].trim().to_string()),
+                    _ if line.starts_with("LINK: ") => link = line[6..].trim().to_string(),
+                    _ if line.starts_with("UPST: ") => upstream = line[6..].trim().to_string(),
+                    _ if line.starts_with("SELE: ") => selector = line[6..].trim().to_string(),
                     _ if line.starts_with("DEPS: ") => deps = line[6..].split_whitespace().map(|s| s.to_string()).collect(),
                     _ if line.starts_with("DOWN: ") => downloads = line[6..].split_whitespace().map(|s| s.to_string()).collect(),
                     _ => (),
