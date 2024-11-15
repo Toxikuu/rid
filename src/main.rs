@@ -28,7 +28,7 @@ fn main() {
 
     flags::set_flags(args.verbose, args.quiet, args.download, args.force);
     vpr!(
-        "Flags:\nverbose={}\nquiet={}\ndownload={}\nforce={}",
+        "Flags: verbose={}, quiet={}, download={}, force={}",
         args.verbose,
         args.quiet,
         args.download,
@@ -37,7 +37,7 @@ fn main() {
 
     bootstrap::tmp();
 
-    vpr!("Loading pkg_list...");
+    vpr!("Loading package list...");
     let mut pkg_list = tracking::load_package_list();
     vpr!("Loaded! (Length: {})", pkg_list.len());
 
