@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.15.0" # code tweaks, vpr changes, and more progress bars!!
+version = "0.15.1" # removed populate_json() and removed unnecessary Option types from form_package()
 edition = "2021"
 
 [features]
