@@ -5,7 +5,7 @@
 use indicatif::{ProgressBar, ProgressStyle};
 use tracking::read_pkgs_json;
 use crate::flags::FORCE;
-use crate::{die, erm, msg, vpr, pr};
+use crate::{die, erm, msg, vpr, pr, yn};
 use crate::tracking;
 use crate::misc;
 use crate::clean;
@@ -70,9 +70,10 @@ pub fn overwrite() {
     }
 }
 
-fn display_list(p_list: Vec<Package>) {
-    msg!("PACKAGES");
-    for p in &p_list {
+fn display_list(mut plist: Vec<Package>) {
+    plist.sort_by(|a, b| a.name.cmp(&b.name));
+
+    for p in &plist {
         let mut iv = "";
         if let PackageStatus::Installed = p.status {
             iv = &p.installed_version;    
@@ -82,45 +83,67 @@ fn display_list(p_list: Vec<Package>) {
         let formatted_line = misc::format_line(&line, 32);
         println!("  {}", formatted_line);
     }
-    vpr!("Displayed {} packages", p_list.len())
+    vpr!("Displayed {} packages", plist.len())
 }
 
-pub fn list(pkgs: Vec<String>) {
+pub fn list(mut pkgs: Vec<String>) {
     if pkgs.is_empty() {
-        match read_pkgs_json() {
-            Ok(p_list) => {
-                display_list(p_list)
-            }
-            Err(e) => erm!("Errror reading pkgs.json: {}", e),
-        }
-    } else {
-        let mut p_list = Vec::new();
-        let pkgs = handle_sets(pkgs);
-
-        let all_pkgs = match read_pkgs_json() {
-            Ok(j) => j,
-            Err(e) => {
-                erm!("Error reading $RIDPKGSJSON: {}", e);
-                return;
-            }
-        };
-
-        for pkg in pkgs {
-            if let Some(pkg_data) = all_pkgs.iter().find(|p| p.name == pkg) {
-                p_list.push(pkg_data.clone())
-            } else {
-                erm!("Package '{}' not found in $RIDPKGSJSON", pkg);
-            }
-        }
-
-        display_list(p_list);
+        pkgs.push("@all".to_string());
     }
-}
 
-pub fn remove(pkgs: Vec<String>, pkg_list: &mut Vec<Package>) {
+    let mut displayed = Vec::new();
     let pkgs = handle_sets(pkgs);
 
+    // read_pkgs_json is far more performant than calling defp for pkg in pkgs
+    let all_pkgs = match read_pkgs_json() {
+        Ok(j) => j,
+        Err(e) => die!("Failed to read $RIDPKGSJSON: {}", e)
+    };
+
     for pkg in pkgs {
+        if let Some(pkg_data) = all_pkgs.iter().find(|p| p.name == pkg) {
+            displayed.push(pkg_data.clone())
+        } else {
+            die!("Package '{}' not found in $RIDPKGSJSON", pkg);
+        }
+    }
+
+    msg!("PACKAGES");
+    display_list(displayed);
+}
+
+fn find_dependants(pkg: &str, pkg_list: &[Package]) -> Vec<Package> {
+    let mut dependants: Vec<Package> = Vec::new();
+    for p in pkg_list.iter() {
+        if p.deps.contains(&pkg.to_string()) {
+            vpr!("Found dependant package: '{}'", p.name);
+            if !dependants.contains(p) {
+                dependants.push(p.clone());
+            }
+        }
+    }
+    
+    vpr!("Found {} dependants", dependants.len());
+    dependants
+}
+
+
+pub fn remove(pkgs: Vec<String>, pkg_list: &mut Vec<Package>, force: bool) {
+    for pkg in handle_sets(pkgs) {
+        if !force {
+            vpr!("Checking dependants for '{}'", pkg);
+
+            let dependants = find_dependants(&pkg, pkg_list);
+            vpr!("Found {} dependants", dependants.len());
+            if !dependants.is_empty() {
+                let message = format!("Remove '{}' ({} dependants)?", pkg, dependants.len());
+                if !yn!(&message, false) {
+                    vpr!("Aborting removal since 'n' was selected");
+                    return
+                }
+            }
+        }
+
         msg!("Removing {}", pkg);
         eval_action('r', &pkg);
         match tracking::remove_package(pkg_list, &pkg) {
@@ -130,6 +153,47 @@ pub fn remove(pkgs: Vec<String>, pkg_list: &mut Vec<Package>) {
             }
         }
         clean::remove_tarballs(&pkg);
+    }
+}
+
+pub fn remove_with_dependencies(pkgs: Vec<String>, pkg_list: &mut Vec<Package>) {
+    // recursively removes a package and all its dependencies
+    // this can be very dangerous if removal instructions are implemented for core packages
+    let force = *FORCE.lock().unwrap();
+    let pkgs = handle_sets(pkgs);
+
+    for pkg in pkgs.iter() {
+        if force { erm!("WARNING: Skipping all checks for dependants of '{}'", pkg) }
+        if !force { vpr!("Checking for dependants of '{}' and its dependencies", pkg) }
+
+        let pkg = defp(pkg);
+        let deps = resolve_deps(&pkg);
+        display_deps(&deps, pkg.clone());
+        
+        let mut dependants: Vec<Package> = Vec::new();
+        for dep in deps.iter() {
+            if force {
+                remove(deps, pkg_list, true);
+                return
+            }
+            dependants.extend(find_dependants(dep, pkg_list));
+            dependants.retain(|p| p.name != *dep);
+            vpr!("Removed redundant dependants")
+        }
+
+        if dependants.is_empty() {
+            vpr!("Proceeding with removal since no dependants were found");
+        } else {
+            erm!("Found {} dependant packages:", dependants.len());
+            display_list(dependants.clone());
+            let message = format!("Remove '{}' and its dependencies ({} total dependants)?", pkg.name, dependants.len());
+            if !yn!(&message, false) {
+                vpr!("Aborting removal since 'n' was selected");
+                return
+            }
+        }
+
+        remove(deps, pkg_list, true)
     }
 }
 
@@ -184,11 +248,8 @@ fn do_install(p: &Package, extra: &str) -> bool {
     }
 }
 
-
 pub fn install(pkgs: Vec<String>, pkg_list: &mut Vec<Package>) {
-    let pkgs = handle_sets(pkgs);
-
-    for pkg in pkgs {
+    for pkg in handle_sets(pkgs) {
         let p = defp(&pkg);
 
         if do_install(&p, "without dependencies") {
@@ -204,15 +265,15 @@ fn display_deps(deps: &Vec<String>, p: Package) {
         let mut matches: Vec<String> = Vec::new();
 
         for dep in deps {
-            if dep.is_empty() {
-                die!("Undefined dependency detected");
-            }
+            // if dep.is_empty() {
+            //     die!("Undefined dependency detected");
+            // }
 
             for pkg in &plist {
                 if pkg.name == *dep {
                     matches.push(format!(
-                        "{}={} ~ {:?}",
-                        pkg.name, pkg.version, pkg.status
+                        "{}={} ~ {:?} {}",
+                        pkg.name, pkg.version, pkg.status, pkg.installed_version
                     ))
                 }
             }
@@ -225,9 +286,7 @@ fn display_deps(deps: &Vec<String>, p: Package) {
 }
 
 pub fn install_with_dependencies(pkgs: Vec<String>, pkg_list: &mut Vec<Package>) {
-    let pkgs = handle_sets(pkgs);
-
-    for pkg in pkgs {
+    for pkg in handle_sets(pkgs) {
         let p = defp(&pkg);
         let deps = resolve_deps(&p);
         display_deps(&deps, p);
@@ -246,9 +305,7 @@ pub fn install_with_dependencies(pkgs: Vec<String>, pkg_list: &mut Vec<Package>)
 }
 
 pub fn update(pkgs: Vec<String>, pkg_list: &mut Vec<Package>) {
-    let pkgs = handle_sets(pkgs);
-
-    for pkg in pkgs {
+    for pkg in handle_sets(pkgs) {
         let p = defp(&pkg);
 
         if p.installed_version == p.version && !*FORCE.lock().unwrap() {
@@ -262,15 +319,43 @@ pub fn update(pkgs: Vec<String>, pkg_list: &mut Vec<Package>) {
 
         match tracking::add_package(pkg_list, &p) {
             Ok(_) => msg!("Updated to {}-{}", p.name, p.version),
-            Err(e) => erm!("Failed to track package '{}': {}", pkg, e),
+            Err(e) => erm!("Failed to track package '{}': {}", p.name, e),
+        }
+    }
+}
+
+pub fn update_with_dependencies(pkgs: Vec<String>, pkg_list: &mut Vec<Package>) {
+    for pkg in handle_sets(pkgs) {
+        let p = defp(&pkg);
+
+        let deps = resolve_deps(&p);
+        display_deps(&deps, p);
+
+        for dep in deps {
+            let d = match form_package(&dep) {
+                Ok(d) => d,
+                Err(e) => { erm!("{}", e); return },
+            };
+
+            if d.installed_version == d.version && !*FORCE.lock().unwrap() {
+                msg!("Package '{}' up to date", d.name);
+                continue
+            }
+
+            msg!("Updating {}", d.name);
+            fetch::fetch(&d);
+            eval_action('u', &d.name);
+
+            match tracking::add_package(pkg_list, &d) {
+                Ok(_) => msg!("Updated to {}-{}", d.name, d.version),
+                Err(e) => erm!("Failed to track package '{}': {}", d.name, e),
+            }
         }
     }
 }
 
 pub fn dependencies(pkgs: Vec<String>) {
-    let pkgs = handle_sets(pkgs);
-
-    for pkg in pkgs {
+    for pkg in handle_sets(pkgs) {
         let p = defp(&pkg);
 
         let deps = resolve_deps(&p);
@@ -278,10 +363,22 @@ pub fn dependencies(pkgs: Vec<String>) {
     }
 }
 
-pub fn news(pkgs: Vec<String>) {
-    let pkgs = handle_sets(pkgs);
+pub fn dependants(pkgs: Vec<String>, pkg_list: &[Package]) {
+    for pkg in handle_sets(pkgs) {
+        let mut dependants = find_dependants(&pkg, pkg_list);
+        dependants.retain(|p| p.name != *pkg);
+        vpr!("Removed redundant dependants");
+        if dependants.is_empty() {
+            msg!("No dependants for {}", pkg);
+            return;
+        }
+        msg!("Dependants for {}", pkg);
+        display_list(dependants);
+    }
+}
 
-    for pkg in pkgs {
+pub fn news(pkgs: Vec<String>) {
+    for pkg in handle_sets(pkgs) {
         let p = defp(&pkg);
 
         vpr!("Checking for news for package '{}'", p.name);
@@ -289,6 +386,15 @@ pub fn news(pkgs: Vec<String>) {
         if !p.news.is_empty() {
             msg!("News for {}:", p.name);
             pr!("\x1b[31;3m{}\x1b[0m\n", p.news);
+        }
+    }
+}
+
+pub fn get_tarball(pkgs: Vec<String>) {
+    for pkg in handle_sets(pkgs) {
+        let p = defp(&pkg);
+        if let Err(e) = fetch::download(&p, true) {
+            die!("Failed to fetch tarball for package '{}' with link '{}': {}", p.name, p.link, e);
         }
     }
 }
@@ -312,4 +418,3 @@ pub fn validate_links() {
         die!("Failed to validate links: {}", e)
     }
 }
-
