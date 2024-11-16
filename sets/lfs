@@ -66,6 +66,8 @@ make
 patch
 tar
 texinfo
+markupsafe
+jinja2
 udev
 procps-ng
 util-linux
