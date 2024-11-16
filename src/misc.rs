@@ -30,8 +30,8 @@ pub fn format_line(line: &str, max_length: usize) -> String {
         format!("\x1b[30m{}\x1b[0m", status)
     } else if status.contains("Installed") {
         format!("\x1b[36;1m{}\x1b[0m", status)
-    } else { // should never occur
-        status.to_string()
+    } else {
+        unreachable!("Invalid status for format_line()")
     };
 
     let name_version_length = package_info.len() + 1;
