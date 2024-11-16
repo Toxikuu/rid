@@ -92,6 +92,12 @@ pub fn list(mut pkgs: Vec<String>) {
     display_list(displayed);
 }
 
+fn dedup(mut vec: Vec<Package>) -> Vec<Package> {
+    vec.sort_by(|a, b| a.name.cmp(&b.name));
+    vec.dedup();
+    vec
+}
+
 fn find_dependants(pkg: &str, pkg_list: &[Package]) -> Vec<Package> {
     let mut dependants: Vec<Package> = Vec::new();
     for p in pkg_list.iter() {
@@ -107,13 +113,14 @@ fn find_dependants(pkg: &str, pkg_list: &[Package]) -> Vec<Package> {
     dependants
 }
 
-
 pub fn remove(pkgs: Vec<String>, pkg_list: &mut Vec<Package>, force: bool) {
     for pkg in handle_sets(pkgs) {
         if !force {
             vpr!("Checking dependants for '{}'", pkg);
 
-            let dependants = find_dependants(&pkg, pkg_list);
+            let mut dependants = find_dependants(&pkg, pkg_list);
+            dependants.retain(|p| p.name != *pkg);
+            dependants = dedup(dependants);
             vpr!("Found {} dependants", dependants.len());
             if !dependants.is_empty() {
                 let message = format!("Remove '{}' ({} dependants)?", pkg, dependants.len());
@@ -161,6 +168,8 @@ pub fn remove_with_dependencies(pkgs: Vec<String>, pkg_list: &mut Vec<Package>) 
             vpr!("Removed redundant dependants")
         }
 
+        dependants = dedup(dependants);
+        vpr!("Deduplicated dependants list");
         if dependants.is_empty() {
             vpr!("Proceeding with removal since no dependants were found");
         } else {
