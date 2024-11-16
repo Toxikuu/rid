@@ -48,3 +48,34 @@ macro_rules! die {
         panic!("\x1b[31;1m  {}\x1b[0m", format!($($arg)*))
     };
 }
+
+#[macro_export]
+macro_rules! yn {
+    ($question:expr, $default:expr) => {{
+        use std::io::{self, Write};
+
+        let mut answer = $default;
+
+        loop {
+            let default_text = match $default {
+                true => "Y/n",
+                false => "y/N",
+            };
+
+            print!("\x1b[35;1m  {} ({}): \x1b[0m", $question, default_text);
+            io::stdout().flush().unwrap();
+
+            let mut input = String::new();
+            io::stdin().read_line(&mut input).expect("Failed to read input");
+
+            match input.trim().to_lowercase().as_str() {
+                "y" | "yes" => { answer = true ; break },
+                "n" | "no" => { answer = false ; break },
+                "" => break,
+                _ => { erm!("Invalid input"); continue },
+            }
+        }
+
+        answer
+    }};
+}
