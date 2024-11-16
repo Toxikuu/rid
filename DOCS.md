@@ -1,5 +1,8 @@
 # Rid Documentation
 
+## NOTE
+This is currently out of date, and I'm too lazy to update it. I'll do the thing eventually.
+
 ## Binaries
 Rid comes in two executable binaries - an offline version, and an online version. The offline version exists for minimal systems that have yet to set up networking capabilities. The online one is more geared towards regular use.
 
