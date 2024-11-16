@@ -24,8 +24,14 @@ pub struct Args {
     #[arg(short = 'r', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
     pub remove: Option<Vec<String>>,
 
+    #[arg(short = 'R', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
+    pub remove_with_dependencies: Option<Vec<String>>,
+
     #[arg(short = 'u', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
     pub update: Option<Vec<String>>,
+
+    #[arg(short = 'U', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
+    pub update_with_dependencies: Option<Vec<String>>,
 
     #[arg(short = 'd', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
     pub dependencies: Option<Vec<String>>,
