@@ -5,6 +5,7 @@
 use indicatif::{ProgressBar, ProgressStyle};
 use tracking::read_pkgs_json;
 use crate::flags::FORCE;
+use crate::options::split_opts;
 use crate::{die, erm, msg, vpr, pr, yn};
 use crate::tracking;
 use crate::misc;
@@ -81,6 +82,7 @@ pub fn list(mut pkgs: Vec<String>) {
     };
 
     for pkg in pkgs {
+        let (pkg, _) = split_opts(&pkg);
         if let Some(pkg_data) = all_pkgs.iter().find(|p| p.name == pkg) {
             displayed.push(pkg_data.clone())
         } else {
@@ -131,8 +133,9 @@ pub fn remove(pkgs: Vec<String>, pkg_list: &mut Vec<Package>, force: bool) {
             }
         }
 
-        msg!("Removing {}", pkg);
-        eval_action('r', &pkg);
+        let p = defp(&pkg);
+        msg!("Removing {}-{}", p.name, p.version);
+        eval_action('r', &p);
         match tracking::remove_package(pkg_list, &pkg) {
             Ok(_) => msg!("Removed {}", pkg),
             Err(e) => {
@@ -216,7 +219,7 @@ pub fn prune(pkgs: Vec<String>) {
 
 fn wrap_install(p: Package, pkg_list: &mut Vec<Package>) {
     fetch::fetch(&p);
-    eval_action('i', &p.name);
+    eval_action('i', &p);
     match tracking::add_package(pkg_list, &p) {
         Ok(_) => msg!("Installed {}-{}", p.name, p.version),
         Err(e) => die!("Failed to track package '{}': {}", p.name, e),
@@ -304,7 +307,7 @@ pub fn update(pkgs: Vec<String>, pkg_list: &mut Vec<Package>) {
 
         msg!("Updating {}", p.name);
         fetch::fetch(&p);
-        eval_action('u', &p.name);
+        eval_action('u', &p);
 
         match tracking::add_package(pkg_list, &p) {
             Ok(_) => msg!("Updated to {}-{}", p.name, p.version),
@@ -333,7 +336,7 @@ pub fn update_with_dependencies(pkgs: Vec<String>, pkg_list: &mut Vec<Package>) 
 
             msg!("Updating {}", d.name);
             fetch::fetch(&d);
-            eval_action('u', &d.name);
+            eval_action('u', &d);
 
             match tracking::add_package(pkg_list, &d) {
                 Ok(_) => msg!("Updated to {}-{}", d.name, d.version),
