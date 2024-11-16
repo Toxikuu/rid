@@ -6,16 +6,15 @@
 use crate::flags::FORCE;
 use crate::misc::static_exec;
 use crate::package::{Package, PackageStatus};
-use crate::paths::BIN;
-use crate::{erm, vpr};
+use crate::paths::{BIN, SOURCES};
+use crate::{erm, vpr, die};
 use std::error::Error;
+use std::path::Path;
 
 #[cfg(not(feature = "offline"))]
 mod online {
-    pub use crate::paths::{BUILDING, SOURCES};
-    pub use crate::die;
+    pub use crate::paths::BUILDING;
     pub use std::fs::File;
-    pub use std::path::Path;
     pub use std::io::{self, Write};
     pub use indicatif::{ProgressBar, ProgressStyle};
 }
@@ -114,10 +113,19 @@ pub fn download(p: &Package, force: bool) -> Result<(), Box<dyn Error>> {
 #[cfg(not(feature = "offline"))]
 fn retract(p: &Package) {
     let command = format!("mkdir -pv {}/{}-{}", BUILDING.display(), p.name, p.version);
-    let _ = static_exec(&command); // TODO: Error handle all 'let _ =' better
+    static_exec(&command).unwrap(); // should:tm: never fail
 }
 
 fn extract(p: &Package) -> Result<(), Box<dyn Error>> {
+
+    if !p.link.is_empty() {
+        let tarball = format!("{}/{}-{}.tar", SOURCES.display(), p.name, p.version);
+        let tarball_path = Path::new(&tarball);
+        if !tarball_path.exists() {
+            die!("Nonexistent tarball for package '{}-{}'", p.name, p.version);
+        }
+    }
+
     if let PackageStatus::Installed = p.status {
         if !*FORCE.lock().unwrap() && p.version == p.installed_version {
             vpr!("Not extracting tarball for installed package '{}'", p.name);
