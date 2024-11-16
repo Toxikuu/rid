@@ -34,6 +34,12 @@ pub struct Package {
     pub status: PackageStatus,
 }
 
+impl PartialEq for Package {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
+}
+
 pub fn defp(pkg: &str) -> Package {
     vpr!("Defining {} from json", pkg);
     let file = File::open(&*PKGSJSON).expect("Failed to open $RIDPKGSJSON");
