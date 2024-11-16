@@ -21,18 +21,11 @@ mod tracking;
 
 fn main() {
     let args = init_args();
-    check_perms(); // for sake of simplicity
-    // TODO: Either use `shopt login_shell` to check for login shell or work around the
-    // inconsistencies otherwise
+    check_perms();
 
-    flags::set_flags(args.verbose, args.quiet, args.download, args.force);
-    vpr!(
-        "Flags: verbose={}, quiet={}, download={}, force={}",
-        args.verbose,
-        args.quiet,
-        args.download,
-        args.force
-    );
+    flags::set_flags(args.verbose, args.quiet, args.force);
+    vpr!("Flags: verbose={}, quiet={}, force={}",
+        args.verbose, args.quiet, args.force);
 
     bootstrap::tmp();
 
@@ -85,7 +78,11 @@ fn main() {
     }
 
     if let Some(pkgs) = args.remove {
-        args::remove(pkgs, &mut pkg_list);
+        args::remove(pkgs, &mut pkg_list, args.force);
+    }
+
+    if let Some(pkgs) = args.remove_with_dependencies {
+        args::remove_with_dependencies(pkgs, &mut pkg_list);
     }
 
     if let Some(pkgs) = args.prune {
@@ -103,12 +100,24 @@ fn main() {
     if let Some(pkgs) = args.update {
         args::update(pkgs, &mut pkg_list);
     }
+    
+    if let Some(pkgs) = args.update_with_dependencies {
+        args::update_with_dependencies(pkgs, &mut pkg_list);
+    }
 
     if let Some(pkgs) = args.dependencies {
         args::dependencies(pkgs);
     }
 
+    if let Some(pkgs) = args.dependants {
+        args::dependants(pkgs, &pkg_list);
+    }
+
     if let Some(pkgs) = args.news {
         args::news(pkgs);
+    }
+
+    if let Some(pkgs) = args.get_tarball {
+        args::get_tarball(pkgs);
     }
 }
