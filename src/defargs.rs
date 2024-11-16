@@ -15,11 +15,11 @@ use clap::Parser;
 )]
 pub struct Args {
     // core flags
-    #[arg(short = 'I', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
-    pub install_with_dependencies: Option<Vec<String>>,
-
     #[arg(short = 'i', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
     pub install: Option<Vec<String>>,
+
+    #[arg(short = 'I', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
+    pub install_with_dependencies: Option<Vec<String>>,
 
     #[arg(short = 'r', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
     pub remove: Option<Vec<String>>,
@@ -36,8 +36,14 @@ pub struct Args {
     #[arg(short = 'd', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
     pub dependencies: Option<Vec<String>>,
 
+    #[arg(short = 'D', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
+    pub dependants: Option<Vec<String>>,
+
     #[arg(short = 'p', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
     pub prune: Option<Vec<String>>,
+
+    #[arg(short = 'g', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
+    pub get_tarball: Option<Vec<String>>,
 
     #[arg(short = 'l', long, value_name = "PACKAGE", num_args = 0.., value_delimiter = ' ')]
     pub list: Option<Vec<String>>, // TODO: rewrite this without Option<>
@@ -55,9 +61,6 @@ pub struct Args {
     #[arg(short = 'o', long)]
     pub overwrite: bool,
 
-    #[arg(short = 'D', long)]
-    pub download: bool,
-
     #[arg(short = 'c', long)]
     pub cache: bool,
 
@@ -71,9 +74,6 @@ pub struct Args {
     #[arg(short = 'v', long)]
     pub verbose: bool,
 
-    #[arg(short = 'y', long)]
-    pub yes: bool,
- 
     #[arg(short = 'q', long)]
     pub quiet: bool,
  
