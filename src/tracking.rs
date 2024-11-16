@@ -11,6 +11,7 @@ use serde_json::{from_str, to_string_pretty};
 use std::fs::{self, File, read_to_string};
 use std::io::{self, Read, Write};
 use std::path::Path;
+use std::collections::HashSet;
 use indicatif::{ProgressBar, ProgressStyle};
 
 pub fn create_json() -> io::Result<()> {
@@ -81,6 +82,7 @@ const TEMPLATE: &str =
 pub fn cache_changes(pkg_list: &mut Vec<Package>, cache_all: bool) -> io::Result<u16> {
     // caches changes made in $RIDMETA to $RIDPKGSJSON
     let json_mod_time = get_mod_time(&PKGSJSON)?;
+    let ignored: HashSet<String> = ["README.md", "LICENSE", ".git"].iter().map(|&s| s.to_string()).collect();
     let mut cache_list: Vec<String> = Vec::new();
     
     for entry in fs::read_dir(&*META)? {
@@ -102,6 +104,7 @@ pub fn cache_changes(pkg_list: &mut Vec<Package>, cache_all: bool) -> io::Result
         }
     }
     
+    cache_list.retain(|item| !ignored.contains(item));
     if cache_list.is_empty() { return Ok(0) }
 
     let length = cache_list.len() as u64;
