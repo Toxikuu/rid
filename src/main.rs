@@ -49,6 +49,7 @@ fn main() {
         }
     }
 
+    #[cfg(not(feature = "offline"))]
     if args.bootstrap {
         args::bootstrap();
     }
@@ -57,18 +58,22 @@ fn main() {
         args::cache(&mut pkg_list);
     }
 
+    #[cfg(not(feature = "offline"))]
     if args.check_upstream {
         args::check_upstream();
     }
 
+    #[cfg(not(feature = "offline"))]
     if args.validate_links {
         args::validate_links();
     }
 
+    #[cfg(not(feature = "offline"))]
     if args.sync {
         args::sync();
     }
 
+    #[cfg(not(feature = "offline"))]
     if args.overwrite {
         args::overwrite();
     }
@@ -117,6 +122,7 @@ fn main() {
         args::news(pkgs);
     }
 
+    #[cfg(not(feature = "offline"))]
     if let Some(pkgs) = args.get_tarball {
         args::get_tarball(pkgs);
     }

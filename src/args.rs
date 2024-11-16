@@ -24,20 +24,10 @@ mod online {
 #[cfg(not(feature = "offline"))]
 use online::*;
 
-#[cfg(feature = "offline")]
-fn not_supported(feature: &str) {
-    die!("{} is not supported for rid-offline", feature);
-}
-
+#[cfg(not(feature = "offline"))]
 pub fn bootstrap() {
-    #[cfg(feature = "offline")]
-    not_supported("Bootstrapping");
-
-    #[cfg(not(feature = "offline"))]
-    {
-        msg!("Bootstrapping rid...");
-        bootstrap::run();
-    }
+    msg!("Bootstrapping rid...");
+    bootstrap::run();
 }
 
 pub fn cache(pkg_list: &mut Vec<Package>) {
@@ -48,26 +38,16 @@ pub fn cache(pkg_list: &mut Vec<Package>) {
     }
 }
 
+#[cfg(not(feature = "offline"))]
 pub fn sync() {
-    #[cfg(feature = "offline")]
-    not_supported("Sync");
-
-    #[cfg(not(feature = "offline"))]
-    {
-        msg!("Syncing rid-meta...");
-        bootstrap::get_rid_meta(false);
-    }
+    msg!("Syncing rid-meta...");
+    bootstrap::get_rid_meta(false);
 }
 
+#[cfg(not(feature = "offline"))]
 pub fn overwrite() {
-    #[cfg(feature = "offline")]
-    not_supported("Sync");
-
-    #[cfg(not(feature = "offline"))]
-    {
-        msg!("Overwrite-syncing rid-meta...");
-        bootstrap::get_rid_meta(true);
-    }
+    msg!("Overwrite-syncing rid-meta...");
+    bootstrap::get_rid_meta(true);
 }
 
 fn display_list(mut plist: Vec<Package>) {
@@ -390,6 +370,7 @@ pub fn news(pkgs: Vec<String>) {
     }
 }
 
+#[cfg(not(feature = "offline"))]
 pub fn get_tarball(pkgs: Vec<String>) {
     for pkg in handle_sets(pkgs) {
         let p = defp(&pkg);
@@ -399,21 +380,15 @@ pub fn get_tarball(pkgs: Vec<String>) {
     }
 }
 
+#[cfg(not(feature = "offline"))]
 pub fn check_upstream() {
-    #[cfg(feature = "offline")]
-    not_supported("Upstream checking");
-
-    #[cfg(not(feature = "offline"))]
     if let Err(e) = exec("stab") {
         die!("Failed to check upstream: {}", e)
     }
 }
 
+#[cfg(not(feature = "offline"))]
 pub fn validate_links() {
-    #[cfg(feature = "offline")]
-    not_supported("Link validation");
-
-    #[cfg(not(feature = "offline"))]
     if let Err(e) = exec("linkval") {
         die!("Failed to validate links: {}", e)
     }
