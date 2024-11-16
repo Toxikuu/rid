@@ -1,0 +1,14 @@
+#!/bin/bash
+# io = in opts
+# $1 = opt
+# checks if an option is in $OPTS
+
+opt="$1"
+
+[ -z "$OPTS" ] && exit 1
+
+if echo "$OPTS" | grep -wq "$opt"; then
+  exit 0
+else
+  exit 1
+fi

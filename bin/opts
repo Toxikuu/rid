@@ -1,0 +1,23 @@
+#!/bin/bash
+# opts = options
+# $1 = Default options; empty if not passed
+# $2 = Available options
+
+if [ -z "$2" ]; then
+  DEFAULT_OPTS=""
+  AVAILABLE_OPTS="$1"
+else
+  DEFAULT_OPTS="$1"
+  AVAILABLE_OPTS="$2"
+fi
+
+[ -z "$OPTS" ] && export OPTS="$DEFAULT_OPTS"
+
+for opt in $OPTS; do
+  if ! echo "$AVAILABLE_OPTS" | grep -wq "$opt"; then
+    echo "Error: Invalid option '$opt'. Available options are: $AVAILABLE_OPTS" >&2
+    exit 1
+  fi
+done
+
+echo "Using opts: $OPTS"

@@ -3,6 +3,9 @@
 set -e
 
 METAFILE="$2"
+ACT="$1"
+shift 2
+OPTS="$@"
 
 [ -z $RIDHOME ]       && { echo '$RIDHOME is unset'; exit 1; }
 [ -z $RIDMETA ]       && { echo '$RIDHOME is unset'; exit 1; }
@@ -38,7 +41,7 @@ function rem {
 }
 
 pre
-case $1 in
+case "$ACT" in
   i)
     ins || die "Install failure"
     popd > /dev/null
@@ -73,9 +76,10 @@ case $1 in
     echo "IDIR: $IDIR"
     echo "RDIR: $RDIR"
     echo "UDIR: $UDIR"
+    echo "OPTS: $OPTS"
     ;;
   *)
-    echo "Invalid action: $2"
+    echo "Invalid action: $ACT"
     echo "Valid actions:"
     echo "i - install"
     echo "r - remove"
