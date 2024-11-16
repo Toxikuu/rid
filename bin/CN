@@ -22,3 +22,5 @@ die "cmake failed"
 
 ninja ||
 die "ninja failed"
+DESTDIR= ninja install ||
+die "ninja install failed"
