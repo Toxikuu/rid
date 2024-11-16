@@ -11,9 +11,8 @@ pub fn is_set(pkg: &str) -> bool {
     pkg.contains("@")
 }
 
-fn is_comment(pkg: &str) -> bool {
-    pkg.contains("/")  ||
-    pkg.contains("#")  ||
+pub fn is_comment(pkg: &str) -> bool {
+    pkg.contains("//") ||
     pkg.trim().is_empty()
 }
 
