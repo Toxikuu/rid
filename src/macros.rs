@@ -53,9 +53,7 @@ macro_rules! die {
 macro_rules! yn {
     ($question:expr, $default:expr) => {{
         use std::io::{self, Write};
-
         let mut answer = $default;
-
         loop {
             let default_text = match $default {
                 true => "Y/n",
@@ -64,7 +62,6 @@ macro_rules! yn {
 
             print!("\x1b[35;1m  {} ({}): \x1b[0m", $question, default_text);
             io::stdout().flush().unwrap();
-
             let mut input = String::new();
             io::stdin().read_line(&mut input).expect("Failed to read input");
 
