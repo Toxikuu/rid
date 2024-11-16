@@ -70,6 +70,9 @@ pub struct Args {
     // generic flags
     #[arg(short = 'v', long)]
     pub verbose: bool,
+
+    #[arg(short = 'y', long)]
+    pub yes: bool,
  
     #[arg(short = 'q', long)]
     pub quiet: bool,
