@@ -2,16 +2,14 @@
 //
 // responsible for checks
 
-use std::process;
 use whoami::username;
-use crate::erm;
+use crate::die;
 use std::fs;
 use std::path::Path;
 
 pub fn check_perms() {
     if username() != "root" {
-        erm!("Insufficient privileges!");
-        process::exit(1);
+        die!("Rid must be run as root");
     }
 }
 
