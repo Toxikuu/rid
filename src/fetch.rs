@@ -12,7 +12,6 @@ use std::error::Error;
 
 #[cfg(not(feature = "offline"))]
 mod online {
-    pub use crate::flags::DOWNLOAD;
     pub use crate::paths::{BUILDING, SOURCES};
     pub use crate::die;
     pub use std::fs::File;
@@ -68,7 +67,7 @@ fn down(url: &str) -> Result<(), Box<dyn Error>> {
     let file_name = url.split('/').last().ok_or("Invalid URL")?;
     let file_path = &SOURCES.join(file_name);
 
-    if file_path.exists() && !*DOWNLOAD.lock().unwrap() {
+    if file_path.exists() {
         vpr!("Not downloading existing file: {}", file_name);
         return Ok(());
     }
@@ -84,7 +83,7 @@ fn down(url: &str) -> Result<(), Box<dyn Error>> {
 }
 
 #[cfg(not(feature = "offline"))]
-fn download(p: &Package, force: bool) -> Result<(), Box<dyn Error>> {
+pub fn download(p: &Package, force: bool) -> Result<(), Box<dyn Error>> {
     let file_name = format!("{}-{}.tar", p.name, p.version);
     let file_path = &SOURCES.join(&file_name);
 
@@ -101,7 +100,7 @@ fn download(p: &Package, force: bool) -> Result<(), Box<dyn Error>> {
         return Err("no link".into())
     }
 
-    vpr!("Forcibly downloading existing file: {}", file_name);
+    vpr!("Downloading tarball: {}", file_name);
     let r = ureq::get(url).call()?;
 
     if let Err(e) = handle_bar(r, &file_name, file_path) {
@@ -151,8 +150,7 @@ pub fn fetch(p: &Package) {
 
     #[cfg(not(feature = "offline"))]
     {
-        let force = *DOWNLOAD.lock().unwrap();
-        match download(p, force) {
+        match download(p, false) {
             Ok(_) => {
                 vpr!("Successfully downloaded tarball");
                 if extract(p).is_err() && { download(p, true).is_err() || extract(p).is_err() } {
