@@ -12,6 +12,7 @@ xcursor-themes
 iosevka
 xkeyboard-config
 libepoxy
+font-util
 xorg-server
 xwayland
 mtdev

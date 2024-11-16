@@ -1,3 +1,5 @@
+pkgconf-personalities
+meson-toolchain-files
 dbus1
 linux-pam
 shadow
