@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.16.0" # significant rewrites, new flags, functions, macros, etc
+version = "0.16.3" # added and removed options :(
 edition = "2021"
 
 [features]
