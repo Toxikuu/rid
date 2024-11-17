@@ -9,7 +9,6 @@ use crate::{vpr, die};
 use crate::paths::{PKGSJSON, BIN};
 use crate::tracking::load_package_list;
 use crate::sets::handle_sets;
-use crate::options::split_opts;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -28,7 +27,6 @@ pub struct Package {
     pub upstream: String,
     pub selector: String,
     pub news: String,
-    pub options: Vec<String>,
     pub deps: Vec<String>,
     pub downloads: Vec<String>,
     pub status: PackageStatus,
@@ -40,23 +38,20 @@ impl PartialEq for Package {
     }
 }
 
-pub fn defp(pkg: &str) -> Package {
-    vpr!("Defining {} from json...", pkg);
-    let (pkg, opts) = split_opts(pkg);
-
+pub fn defp(pkg_str: &str) -> Package {
+    vpr!("Defining {} from json...", pkg_str);
     let file = File::open(&*PKGSJSON).expect("Failed to open $RIDPKGSJSON");
     let reader = BufReader::new(file);
     let stream: Vec<Package> = serde_json::from_reader(reader).expect("Error parsing $RIDPKGSJSON");
 
-    for mut pkg_data in stream {
-        if pkg_data.name == pkg {
-            pkg_data.options = opts;
-            vpr!("Assigned package data to {}", pkg);
+    for pkg_data in stream {
+        if pkg_data.name == pkg_str {
+            vpr!("Assigned package data to {}", pkg_str);
             return pkg_data
         }
     }
 
-    die!("Package '{}' not found in $RIDPKGSJSON", pkg);
+    die!("Package '{}' not found in $RIDPKGSJSON", pkg_str);
 }
 
 pub fn form_package(pkg_str: &str) -> Result<Package, String> {
@@ -80,7 +75,6 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
     let mut upstream = String::new();
     let mut selector = String::new();
     let mut news = String::new();
-    let options = Vec::new();
     let mut deps = Vec::new();
     let mut downloads = Vec::new();
 
@@ -108,15 +102,10 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
             let deps = handle_sets(deps);
 
             let package_list = load_package_list();
-            let status = package_list
+            let (status, installed_version) = package_list
                 .iter()
                 .find(|p| p.name == name)
-                .map_or(PackageStatus::Available, |p| p.status.clone());
-            let installed_version = package_list
-                .iter()
-                .find(|p| p.name == name)
-                .map_or("", |p| &p.installed_version)
-                .to_string();
+                .map_or((PackageStatus::Available, String::new()), |p| (p.status.clone(), p.installed_version.clone()));
 
             Ok(Package {
                 name,
@@ -126,7 +115,6 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
                 upstream,
                 selector,
                 news,
-                options,
                 deps,
                 downloads,
                 status,

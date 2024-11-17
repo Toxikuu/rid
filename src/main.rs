@@ -5,7 +5,6 @@ use defargs::init_args;
 
 mod checks;
 mod sets;
-mod options;
 mod args;
 mod defargs;
 mod bootstrap;

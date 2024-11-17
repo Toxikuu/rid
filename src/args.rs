@@ -5,7 +5,6 @@
 use indicatif::{ProgressBar, ProgressStyle};
 use tracking::read_pkgs_json;
 use crate::flags::FORCE;
-use crate::options::split_opts;
 use crate::{die, erm, msg, vpr, pr, yn};
 use crate::tracking;
 use crate::misc;
@@ -82,7 +81,6 @@ pub fn list(mut pkgs: Vec<String>) {
     };
 
     for pkg in pkgs {
-        let (pkg, _) = split_opts(&pkg);
         if let Some(pkg_data) = all_pkgs.iter().find(|p| p.name == pkg) {
             displayed.push(pkg_data.clone())
         } else {
