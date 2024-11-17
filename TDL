@@ -2,16 +2,17 @@
 
 TODO
 
+    Maybe add -m and -M for maintenance (along with $MDIR)
+
+    Make -g only get the tarball if the latest version doesn't exist;
+        Make -G always get the tarball
+
+    Edit corrupt tarball to check for existence first
+
     Rewrite mo in bash
-
-    Add package build flags (formatted as <package>#<feature>)
-
-    Allow -D <PKG>
 
     Add -a flag for ask
 
-    dependency resolution tweaks (for i, u, r)
-        adjust flags such that lowercase flags use default behavior and capital ones do the opposite
 
 WIP
 
@@ -24,6 +25,9 @@ WIP
     UX Improvements
 
 DONEISH
+
+    dependency resolution tweaks (for i, u, r)
+        adjust flags such that lowercase flags use default behavior and capital ones do the opposite
 
     Add a news system
 
@@ -50,6 +54,9 @@ DONEISH
     add @all set
 
 DROPPED
+
+    Add package build flags (formatted as <package>#<feature>)
+        Massive pain in the ass
 
     add * support
         bash expands it before rid can access it unless quoted
