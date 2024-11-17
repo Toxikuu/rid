@@ -4,8 +4,6 @@ set -e
 
 METAFILE="$2"
 ACT="$1"
-shift 2
-OPTS="$@"
 
 [ -z $RIDHOME ]       && { echo '$RIDHOME is unset'; exit 1; }
 [ -z $RIDMETA ]       && { echo '$RIDHOME is unset'; exit 1; }
@@ -76,7 +74,6 @@ case "$ACT" in
     echo "IDIR: $IDIR"
     echo "RDIR: $RDIR"
     echo "UDIR: $UDIR"
-    echo "OPTS: $OPTS"
     ;;
   *)
     echo "Invalid action: $ACT"
