@@ -63,13 +63,24 @@ macro_rules! yn {
             print!("\x1b[35;1m  {} ({}): \x1b[0m", $question, default_text);
             io::stdout().flush().unwrap();
             let mut input = String::new();
-            io::stdin().read_line(&mut input).expect("Failed to read input");
+            io::stdin()
+                .read_line(&mut input)
+                .expect("Failed to read input");
 
             match input.trim().to_lowercase().as_str() {
-                "y" | "yes" => { answer = true ; break },
-                "n" | "no" => { answer = false ; break },
+                "y" | "yes" => {
+                    answer = true;
+                    break;
+                }
+                "n" | "no" => {
+                    answer = false;
+                    break;
+                }
                 "" => break,
-                _ => { erm!("Invalid input"); continue },
+                _ => {
+                    erm!("Invalid input");
+                    continue;
+                }
             }
         }
 

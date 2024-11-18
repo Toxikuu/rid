@@ -4,8 +4,8 @@
 
 use crate::die;
 use crate::misc::exec;
-use crate::paths::BIN;
 use crate::package::Package;
+use crate::paths::BIN;
 
 pub fn eval_action(a: char, p: &Package) {
     let command = format!("{}/mint {} {}", BIN.display(), a, p.name);

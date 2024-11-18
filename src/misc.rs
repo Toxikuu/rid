@@ -5,16 +5,18 @@
 use crate::paths::TMPRID;
 use crate::{erm, pr};
 use std::fs::{self, OpenOptions as OO};
-use std::time::SystemTime;
-use std::path::Path;
 use std::io::{self, BufRead, Write};
+use std::path::Path;
 use std::process::{Command, Stdio};
 use std::sync::{Arc, Mutex};
 use std::thread;
+use std::time::SystemTime;
 
 pub fn get_mod_time(path: &Path) -> io::Result<SystemTime> {
     let metadata = fs::metadata(path)?;
-    metadata.modified().map_err(|e| io::Error::new(io::ErrorKind::Other, e))
+    metadata
+        .modified()
+        .map_err(|e| io::Error::new(io::ErrorKind::Other, e))
 }
 
 pub fn format_line(line: &str, max_length: usize) -> String {

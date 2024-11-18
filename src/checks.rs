@@ -2,10 +2,10 @@
 //
 // responsible for checks
 
-use whoami::username;
 use crate::die;
 use std::fs;
 use std::path::Path;
+use whoami::username;
 
 pub fn check_perms() {
     if username() != "root" {

@@ -2,23 +2,23 @@
 //
 // responsible for sets functionality
 
+use crate::paths::{META, SETS};
+use crate::{die, erm, vpr};
 use std::fs::{read_dir, File};
-use std::io::{BufReader, BufRead};
-use crate::paths::{SETS, META};
-use crate::{erm, die, vpr};
+use std::io::{BufRead, BufReader};
 
 pub fn is_set(pkg: &str) -> bool {
     pkg.contains("@")
 }
 
 pub fn is_comment(pkg: &str) -> bool {
-    pkg.contains("//") ||
-    pkg.trim().is_empty()
+    pkg.contains("//") || pkg.trim().is_empty()
 }
 
 pub fn expand_set(set: &str) -> Vec<String> {
-
-    if set == "@all" { return at_all() }
+    if set == "@all" {
+        return at_all();
+    }
 
     let file_path = format!("{}/{}", SETS.display(), set.replacen('@', "", 1));
     let file = match File::open(file_path) {
@@ -35,7 +35,9 @@ pub fn expand_set(set: &str) -> Vec<String> {
         match line {
             Ok(pkg) => {
                 let pk = pkg.trim().to_string();
-                if is_comment(&pk) { continue }
+                if is_comment(&pk) {
+                    continue;
+                }
 
                 if is_set(&pk) {
                     all_packages.extend(expand_set(&pk));
@@ -48,7 +50,7 @@ pub fn expand_set(set: &str) -> Vec<String> {
             }
         }
     }
-    
+
     vpr!("unraveled set: {:?}", all_packages);
     all_packages
 }
@@ -75,7 +77,7 @@ fn at_all() -> Vec<String> {
             let pkg = entry.file_name().into_string().unwrap();
 
             if pkg == ".git" || pkg == "README.md" || pkg == "LICENSE" {
-                continue
+                continue;
             }
 
             if entry.path().is_file() {

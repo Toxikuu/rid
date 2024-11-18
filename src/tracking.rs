@@ -3,20 +3,20 @@
 // responsible for keeping track of packages
 
 use crate::checks::is_file_empty;
-use crate::{die, vpr};
-use crate::package::{form_package, Package, PackageStatus};
-use crate::paths::{META, PKGSJSON, FAILED};
 use crate::misc::get_mod_time;
+use crate::package::{form_package, Package, PackageStatus};
+use crate::paths::{FAILED, META, PKGSJSON};
+use crate::{die, vpr};
+use indicatif::{ProgressBar, ProgressStyle};
 use serde_json::{from_str, to_string_pretty};
-use std::fs::{self, File, read_to_string};
+use std::collections::HashSet;
+use std::fs::{self, read_to_string, File};
 use std::io::{self, Read, Write};
 use std::path::Path;
-use std::collections::HashSet;
-use indicatif::{ProgressBar, ProgressStyle};
 
 pub fn create_json() -> io::Result<()> {
     if !is_file_empty(&PKGSJSON) {
-        return Ok(())
+        return Ok(());
     }
 
     let mut file = File::create(&*PKGSJSON)?;
@@ -43,7 +43,8 @@ pub fn load_package_list() -> Vec<Package> {
 pub fn save_package_list(pkg_list: &Vec<Package>) {
     let jsdata = to_string_pretty(pkg_list).expect("Failed to serialize package data");
     let mut file = File::create(&*PKGSJSON).expect("Failed to create $RIDPKGSJSON");
-    file.write_all(jsdata.as_bytes()).expect("Failed to write to $RIDPKGSJSON");
+    file.write_all(jsdata.as_bytes())
+        .expect("Failed to write to $RIDPKGSJSON");
 }
 
 fn build_failed() -> bool {
@@ -76,15 +77,17 @@ pub fn remove_package(pkg_list: &mut Vec<Package>, pkg_name: &str) -> Result<(),
     }
 }
 
-const TEMPLATE: &str =
-    "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {pos}/{len} ({eta})";
+const TEMPLATE: &str = "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {pos}/{len} ({eta})";
 
 pub fn cache_changes(pkg_list: &mut Vec<Package>, cache_all: bool) -> io::Result<u16> {
     // caches changes made in $RIDMETA to $RIDPKGSJSON
     let json_mod_time = get_mod_time(&PKGSJSON)?;
-    let ignored: HashSet<String> = ["README.md", "LICENSE", ".git"].iter().map(|&s| s.to_string()).collect();
+    let ignored: HashSet<String> = ["README.md", "LICENSE", ".git"]
+        .iter()
+        .map(|&s| s.to_string())
+        .collect();
     let mut cache_list: Vec<String> = Vec::new();
-    
+
     for entry in fs::read_dir(&*META)? {
         let entry = entry?;
         let path = entry.path();
@@ -103,15 +106,21 @@ pub fn cache_changes(pkg_list: &mut Vec<Package>, cache_all: bool) -> io::Result
             }
         }
     }
-    
+
     cache_list.retain(|item| !ignored.contains(item));
-    if cache_list.is_empty() { return Ok(0) }
+    if cache_list.is_empty() {
+        return Ok(0);
+    }
 
     let length = cache_list.len() as u64;
     let bar = ProgressBar::new(length);
 
     bar.set_message("Caching packages...");
-    bar.set_style(ProgressStyle::with_template(TEMPLATE).unwrap().progress_chars("#|-"));
+    bar.set_style(
+        ProgressStyle::with_template(TEMPLATE)
+            .unwrap()
+            .progress_chars("#|-"),
+    );
     bar.set_length(length);
 
     for pkg_str in cache_list {
@@ -128,9 +137,9 @@ pub fn cache_changes(pkg_list: &mut Vec<Package>, cache_all: bool) -> io::Result
                 if length > 0 {
                     save_package_list(pkg_list);
                 }
-            },
+            }
             Err(e) if e == "refused" => continue,
-            Err(e) => die!("Error processing '{}': {}", pkg_str, e)
+            Err(e) => die!("Error processing '{}': {}", pkg_str, e),
         }
     }
 
