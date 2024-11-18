@@ -2,8 +2,6 @@
 //
 // defines macros for use elsewhere
 
-// write pr in a sec for messages suppressed by -q
-
 #[macro_export]
 macro_rules! pr {
     ($($arg:tt)*) => {{
