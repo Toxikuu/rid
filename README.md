@@ -6,36 +6,23 @@ Rid is a package manager for LFS systems written in rust. The binary 'rid' handl
 Rid stores necessary files in a few directories. These directories are specified by environment variables which must be set when rid is run. Below are some sane defaults:
 
 ```bash
-RIDTMP="/tmp/rid"
-RIDTRASH="$RIDTMP/trash"
-RIDBUILDING="$RIDTMP/building"
-RIDEXTRACTION="$RIDTMP/extraction"
-RIDDEST="$RIDTMP/dest"
-RIDFAILED="$RIDTMP/failed"
+RIDTMP="/tmp/rid"                   # rid's temp directory
+RIDTRASH="$RIDTMP/trash"            # the gulag to which unwanted files are sent
+RIDBUILDING="$RIDTMP/building"      # where packages are built
+RIDEXTRACTION="$RIDTMP/extraction"  # where tarballs are extracted
+RIDDEST="$RIDTMP/dest"              # where some destdir installs are performed (may become obsolete)
+RIDFAILED="$RIDTMP/failed"          # denotes a build failure
 
-RIDHOME="/opt/rid"
-RIDMETA="$RIDHOME/meta"
-RIDBIN="$RIDHOME/bin"
-RIDPKGSJSON="$RIDHOME/pkgs.json"
-RIDSOURCES="/sources"
-RIDSETS="$RIDHOME/sets"
+RIDHOME="/opt/rid"                  # rid's home directory
+RIDMETA="$RIDHOME/meta"             # where meta files (build scripts) are stored
+RIDBIN="$RIDHOME/bin"               # scripts used in the meta files are defined here
+RIDPKGSJSON="$RIDHOME/pkgs.json"    # stores package information
+RIDSOURCES="/sources"               # stores all tarballs
+RIDSETS="$RIDHOME/sets"             # stores sets
+
+# additionally, a log file exists at $RIDTMP/rid.log
+# and an environment file exists at $RIDHOME/env
 ```
-
-These directories may be adjusted to your liking. Their functions are as follows:
-- $RIDTMP is rid's temporary directory
-- $RIDTRASH is where certain unwanted files are installed to
-- $RIDBUILDING is where packages are built
-- $RIDEXTRACTION is where tarballs are extracted cleanly
-- $RIDDEST is where some DESTDIR installs are performed (may be phased out in the future)
-- $RIDFAILED is the path of a tempfile denoting a build failure
-- $RIDHOME is rid's home directory
-- $RIDMETA is where meta files (build scripts) are stored
-- $RIDBIN is where a few rid-specific binaries are stored
-- $RIDPKGSJSON is the path of a file that stores package information
-- $RIDSOURCES is where tarballs are stored
-- $RIDSETS is where sets are stored
-
-Additionally, a log file exists at $RIDTMP/rid.log, and an environment file exists at $RIDHOME/env.
 
 ## Usage
 For detailed usage examples and documentation, reference DOCS.md. Basic usage is as follows:
