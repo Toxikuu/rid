@@ -3,12 +3,11 @@
 use checks::check_perms;
 use defargs::init_args;
 
-mod checks;
-mod sets;
 mod args;
-mod defargs;
 mod bootstrap;
+mod checks;
 mod clean;
+mod defargs;
 mod directions;
 mod fetch;
 mod flags;
@@ -17,6 +16,7 @@ mod misc;
 mod package;
 mod paths;
 mod resolvedeps;
+mod sets;
 mod tracking;
 
 fn main() {
@@ -24,8 +24,12 @@ fn main() {
     check_perms();
 
     flags::set_flags(args.verbose, args.quiet, args.force);
-    vpr!("Flags: verbose={}, quiet={}, force={}",
-        args.verbose, args.quiet, args.force);
+    vpr!(
+        "Flags: verbose={}, quiet={}, force={}",
+        args.verbose,
+        args.quiet,
+        args.force
+    );
 
     bootstrap::tmp();
 
@@ -37,7 +41,7 @@ fn main() {
         vpr!("Populating empty json!");
         match tracking::cache_changes(&mut pkg_list, true) {
             Ok(num) => vpr!("Populated empty json with {} packages", num),
-            Err(e) => die!("Error populating empty json: {}", e)
+            Err(e) => die!("Error populating empty json: {}", e),
         }
     }
 
@@ -45,7 +49,7 @@ fn main() {
         vpr!("Autocaching...");
         match tracking::cache_changes(&mut pkg_list, false) {
             Ok(num) => vpr!("Autocached {} packages", num),
-            Err(e) => die!("Error autocaching: {}", e)
+            Err(e) => die!("Error autocaching: {}", e),
         }
     }
 
@@ -105,7 +109,7 @@ fn main() {
     if let Some(pkgs) = args.update {
         args::update(pkgs, &mut pkg_list);
     }
-    
+
     if let Some(pkgs) = args.update_with_dependencies {
         args::update_with_dependencies(pkgs, &mut pkg_list);
     }
@@ -123,7 +127,12 @@ fn main() {
     }
 
     #[cfg(not(feature = "offline"))]
-    if let Some(pkgs) = args.get_tarball {
-        args::get_tarball(pkgs);
+    if let Some(pkgs) = args.get_files {
+        args::get_files(pkgs, false);
+    }
+
+    #[cfg(not(feature = "offline"))]
+    if let Some(pkgs) = args.force_get_files {
+        args::get_files(pkgs, true);
     }
 }

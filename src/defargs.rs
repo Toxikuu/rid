@@ -43,10 +43,13 @@ pub struct Args {
     pub prune: Option<Vec<String>>,
 
     #[arg(short = 'g', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
-    pub get_tarball: Option<Vec<String>>,
+    pub get_files: Option<Vec<String>>,
+
+    #[arg(short = 'G', long, value_name = "PACKAGE", num_args = 1.., value_delimiter = ' ')]
+    pub force_get_files: Option<Vec<String>>,
 
     #[arg(short = 'l', long, value_name = "PACKAGE", num_args = 0.., value_delimiter = ' ')]
-    pub list: Option<Vec<String>>, // TODO: rewrite this without Option<>
+    pub list: Option<Vec<String>>,
 
     #[arg(short = 'n', long, value_name = "PACKAGE", num_args = 0.., value_delimiter = ' ')]
     pub news: Option<Vec<String>>,
@@ -76,11 +79,11 @@ pub struct Args {
 
     #[arg(short = 'q', long)]
     pub quiet: bool,
- 
+
     #[arg(short = 'f', long)]
     pub force: bool,
 }
 
 pub fn init_args() -> Args {
     Args::parse()
-} 
+}
