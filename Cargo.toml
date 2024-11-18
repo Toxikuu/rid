@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.16.4" # refactoring and removed offline mode
+version = "0.16.5" # restructured meta file syntax
 edition = "2021"
 
 # [features]
