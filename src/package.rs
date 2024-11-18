@@ -59,13 +59,6 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
         return Err("refused".to_string());
     }
 
-    // will soon be deprecated
-    let pkg_str = if pkg_str.contains("_") {
-        pkg_str.replace("_", "-")
-    } else {
-        pkg_str.to_string()
-    };
-
     vpr!("Forming {}", pkg_str);
 
     let mut name = String::new();
