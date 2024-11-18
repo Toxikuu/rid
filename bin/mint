@@ -11,7 +11,7 @@ ACT="$1"
 [ -z $RIDBUILDING ]   && { echo '$RIDHOME is unset'; exit 1; }
 [ -z $RIDEXTRACTION ] && { echo '$RIDHOME is unset'; exit 1; }
 
-function pre {
+pre() {
   bv=$(compgen -v)
   . "$RIDHOME/env" || { echo "Failed to source $RIDHOME/env"; exit 1; }
   . "$RIDMETA/$METAFILE" || die "Failed to source $RIDMETA/$METAFILE"
@@ -20,7 +20,11 @@ function pre {
   rm -f $RIDTMP/failed
 }
 
-function cleanup {
+cleanup() {
+  while [ ${#DIRSTACK[@]} -gt 1 ]; do
+    popd > /dev/null
+  done
+
   for var in $av; do
     if ! echo "$bv" | grep -q "^$var$"; then
       unset "$var"
@@ -29,36 +33,38 @@ function cleanup {
   rm -rf "$RIDBUILDING/$NAME-$VERS"
 }
 
-function ins {
+ins() {
   pushd "$RIDBUILDING/$NAME-$VERS" > /dev/null || die "Failed to enter build directory"
-  eval "$IDIR"
+  idir
 }
 
-function rem {
-  eval "$RDIR"
+rem() {
+  rdir
+}
+
+upd() {
+  pushd "$RIDBUILDING/$NAME-$VERS" > /dev/null || die "Failed to enter build directory"
+  if ! declare -f udir > /dev/null; then
+      echo "Using install instructions..."
+      idir
+  else
+      echo "Using update instructions..."
+      udir
+  fi
 }
 
 pre
 case "$ACT" in
   i)
     ins || die "Install failure"
-    popd > /dev/null
     cleanup
     ;;
   r)
-    rem
+    rem || die "Removal failure"
     cleanup
     ;;
   u)
-    if [ -z "$UDIR" ]; then
-      echo "Using default instructions..."
-      ins
-    else
-      pushd "$RIDBUILDING/$NAME-$VERS" > /dev/null || die "Failed to enter build directory"
-
-      echo "Using custom instructions..."
-      eval "$UDIR"
-    fi
+    upd || die "Update failure"
     cleanup
     ;;
   v)
@@ -70,10 +76,6 @@ case "$ACT" in
     echo "UPST: $UPST"
     echo "SELE: $SELE"
     echo "NEWS: $NEWS"
-    echo ""
-    echo "IDIR: $IDIR"
-    echo "RDIR: $RDIR"
-    echo "UDIR: $UDIR"
     ;;
   *)
     echo "Invalid action: $ACT"
