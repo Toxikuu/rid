@@ -6,27 +6,18 @@
 use crate::flags::FORCE;
 use crate::misc::static_exec;
 use crate::package::{Package, PackageStatus};
+use crate::paths::BUILDING;
 use crate::paths::{BIN, SOURCES};
 use crate::{die, erm, vpr};
+use indicatif::{ProgressBar, ProgressStyle};
 use std::error::Error;
+use std::fs::File;
+use std::io::{self, Write};
 use std::path::Path;
 
-#[cfg(not(feature = "offline"))]
-mod online {
-    pub use crate::paths::BUILDING;
-    pub use indicatif::{ProgressBar, ProgressStyle};
-    pub use std::fs::File;
-    pub use std::io::{self, Write};
-}
-
-#[cfg(not(feature = "offline"))]
-use online::*;
-
-#[cfg(not(feature = "offline"))]
 const DOWNLOAD_TEMPLATE: &str =
     "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {bytes}/{total_bytes} ({eta})";
 
-#[cfg(not(feature = "offline"))]
 fn handle_bar(
     r: ureq::Response,
     file_name: &str,
@@ -69,7 +60,6 @@ fn handle_bar(
     Ok(bar)
 }
 
-#[cfg(not(feature = "offline"))]
 pub fn down(url: &str, force: bool) -> Result<(), Box<dyn Error>> {
     let file_name = url.split('/').last().ok_or("Invalid URL")?;
     let file_path = &SOURCES.join(file_name);
@@ -89,7 +79,6 @@ pub fn down(url: &str, force: bool) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-#[cfg(not(feature = "offline"))]
 pub fn download(p: &Package, force: bool) -> Result<(), Box<dyn Error>> {
     let file_name = format!("{}-{}.tar", p.name, p.version);
     let file_path = &SOURCES.join(&file_name);
@@ -118,7 +107,6 @@ pub fn download(p: &Package, force: bool) -> Result<(), Box<dyn Error>> {
 }
 
 // it is assumed that all offline packages must have an associated tarball
-#[cfg(not(feature = "offline"))]
 fn retract(p: &Package) {
     let command = format!("mkdir -pv {}/{}-{}", BUILDING.display(), p.name, p.version);
     static_exec(&command).unwrap(); // should:tm: never fail
@@ -153,46 +141,32 @@ fn extract(p: &Package) -> Result<(), Box<dyn Error>> {
 }
 
 pub fn fetch(p: &Package) {
-    #[cfg(feature = "offline")]
-    {
-        match extract(p) {
-            Ok(()) => {
-                vpr!("Successfully extracted tarball");
+    match download(p, false) {
+        Ok(_) => {
+            vpr!("Successfully downloaded tarball");
+            if extract(p).is_err() && { download(p, true).is_err() || extract(p).is_err() } {
+                die!("Failed to recover from corrupt tarball");
             }
-            Err(e) => erm!("Failed to extract tarball: {}", e),
         }
-    }
-
-    #[cfg(not(feature = "offline"))]
-    {
-        match download(p, false) {
-            Ok(_) => {
-                vpr!("Successfully downloaded tarball");
+        Err(e) => match &*e.to_string() {
+            "extant" => {
+                vpr!("Tarball already exists");
                 if extract(p).is_err() && { download(p, true).is_err() || extract(p).is_err() } {
                     die!("Failed to recover from corrupt tarball");
                 }
             }
-            Err(e) => match &*e.to_string() {
-                "extant" => {
-                    vpr!("Tarball already exists");
-                    if extract(p).is_err() && { download(p, true).is_err() || extract(p).is_err() }
-                    {
-                        die!("Failed to recover from corrupt tarball");
-                    }
-                }
-                "no link" => retract(p),
-                _ => erm!("Failed to download package: {}", e),
-            },
-        }
+            "no link" => retract(p),
+            _ => erm!("Failed to download package: {}", e),
+        },
+    }
 
-        let dls = p.downloads.clone();
-        for dl in dls {
-            if let Err(e) = down(&dl, false) {
-                if e.to_string() == "extant" {
-                    continue;
-                }
-                die!("Failed to download extra url '{}': {}", dl, e)
+    let dls = p.downloads.clone();
+    for dl in dls {
+        if let Err(e) = down(&dl, false) {
+            if e.to_string() == "extant" {
+                continue;
             }
+            die!("Failed to download extra url '{}': {}", dl, e)
         }
     }
 }

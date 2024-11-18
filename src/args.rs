@@ -2,11 +2,13 @@
 //
 // responsible for storing argument functions
 
+use crate::bootstrap;
 use crate::clean;
 use crate::directions::eval_action;
 use crate::fetch;
 use crate::flags::FORCE;
 use crate::misc;
+use crate::misc::exec;
 use crate::package::*;
 use crate::resolvedeps::resolve_deps;
 use crate::sets::*;
@@ -15,16 +17,6 @@ use crate::{die, erm, msg, pr, vpr, yn};
 use indicatif::{ProgressBar, ProgressStyle};
 use tracking::read_pkgs_json;
 
-#[cfg(not(feature = "offline"))]
-mod online {
-    pub(crate) use crate::bootstrap;
-    pub use crate::misc::exec;
-}
-
-#[cfg(not(feature = "offline"))]
-use online::*;
-
-#[cfg(not(feature = "offline"))]
 pub fn bootstrap() {
     msg!("Bootstrapping rid...");
     bootstrap::run();
@@ -38,13 +30,11 @@ pub fn cache(pkg_list: &mut Vec<Package>) {
     }
 }
 
-#[cfg(not(feature = "offline"))]
 pub fn sync() {
     msg!("Syncing rid-meta...");
     bootstrap::get_rid_meta(false);
 }
 
-#[cfg(not(feature = "offline"))]
 pub fn overwrite() {
     msg!("Overwrite-syncing rid-meta...");
     bootstrap::get_rid_meta(true);
@@ -388,7 +378,6 @@ pub fn news(pkgs: Vec<String>) {
     })
 }
 
-#[cfg(not(feature = "offline"))]
 pub fn get_files(pkgs: Vec<String>, force: bool) {
     for pkg in handle_sets(pkgs) {
         let p = defp(&pkg);
@@ -437,14 +426,12 @@ pub fn get_files(pkgs: Vec<String>, force: bool) {
     }
 }
 
-#[cfg(not(feature = "offline"))]
 pub fn check_upstream() {
     if let Err(e) = exec("stab") {
         die!("Failed to check upstream: {}", e)
     }
 }
 
-#[cfg(not(feature = "offline"))]
 pub fn validate_links() {
     if let Err(e) = exec("linkval") {
         die!("Failed to validate links: {}", e)

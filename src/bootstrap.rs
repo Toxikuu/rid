@@ -2,27 +2,19 @@
 //
 // responsible for bootsrapping rid
 
+use crate::misc::exec;
 use crate::paths::*;
 use crate::tracking::create_json;
-use crate::{vpr, die};
+use crate::{die, vpr};
+use crate::{erm, msg};
+use std::error::Error;
 use std::fs;
+use std::fs::File;
+use std::io::{self, Write};
 use std::path::Path;
+use std::process::exit;
+use ureq::get;
 
-#[cfg(not(feature = "offline"))]
-mod online {
-    pub use crate::misc::exec;
-    pub use crate::{erm, msg};
-    pub use std::error::Error;
-    pub use std::fs::File;
-    pub use std::io::{self, Write};
-    pub use std::process::exit;
-    pub use ureq::get;
-}
-
-#[cfg(not(feature = "offline"))]
-use online::*;
-
-#[cfg(not(feature = "offline"))]
 fn dl(url: &str, outdir: &Path) -> Result<(), Box<dyn Error>> {
     let file_name = url.split('/').last().ok_or("Invalid URL")?;
     let file_path = outdir.join(file_name);
@@ -50,7 +42,6 @@ fn dl(url: &str, outdir: &Path) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-#[cfg(not(feature = "offline"))]
 fn get_rid() {
     let link = format!(
         "https://github.com/Toxikuu/rid/releases/download/v{}/rid-root.tar.xz",
@@ -80,7 +71,6 @@ fn get_rid() {
     }
 }
 
-#[cfg(not(feature = "offline"))]
 pub fn get_rid_meta(overwrite: bool) {
     // used for bootstrapping and syncing
     match dl(
@@ -115,7 +105,6 @@ pub fn get_rid_meta(overwrite: bool) {
     }
 }
 
-#[cfg(not(feature = "offline"))]
 fn bootstrap() {
     get_rid();
     get_rid_meta(false);
@@ -165,15 +154,18 @@ pub fn tmp() {
     vpr!("Creating temp dirs...");
     let dirs = [&*TMPRID, &*BUILDING, &*EXTRACTION, &*DEST, &*TRASH];
 
-    for dir in dirs.iter() { mkdir(dir) }
+    for dir in dirs.iter() {
+        mkdir(dir)
+    }
     vpr!("Creating pkgs.json if nonexistent...");
     create_json().expect("Failed to create $RIDPKGSJSON");
 }
 
-#[cfg(not(feature = "offline"))]
 pub fn run() {
     let dirs = [&*RIDHOME, &*SOURCES, &*META];
 
-    for dir in dirs.iter() { mkdir(dir) }
+    for dir in dirs.iter() {
+        mkdir(dir)
+    }
     bootstrap();
 }
