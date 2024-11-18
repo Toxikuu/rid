@@ -5,7 +5,8 @@ TODO
     Add a PM (PackageManager) struct
 
     Add a config file
-        Allow automatic tarball removal when a tarball is removed to be toggled
+        Ideas:
+        - Toggle tarball removal on package removal
 
     Support -k <PACKAGE>
 
