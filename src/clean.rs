@@ -5,38 +5,50 @@
 use crate::misc::static_exec;
 use crate::package::Package;
 use crate::paths::SOURCES;
-use crate::{erm, vpr};
+use crate::{die, erm, vpr};
 use std::fs;
 
-pub fn prune_sources(p: &Package) -> u8 {
+fn is_removable(entry: &fs::DirEntry, p: &Package) -> bool {
     let kept = format!("{}-{}.tar", p.name, p.version);
+    let file_name = entry.file_name();
+    let file_name_str = file_name.to_string_lossy();
+    entry.file_type().map_or(false, |t| t.is_file())
+        && file_name_str.starts_with(&p.name)
+        && file_name_str != kept
+}
+
+fn remove_file(entry: &fs::DirEntry) -> Result<(), std::io::Error> {
+    let file_name = entry.file_name();
+    if let Err(e) = fs::remove_file(entry.path()) {
+        erm!("Failed to remove file '{:?}': {}", file_name, e);
+        return Err(e);
+    }
+    Ok(())
+}
+
+pub fn prune_sources(p: &Package) -> u8 {
     let mut num_removed: u8 = 0;
 
-    if let Ok(entries) = fs::read_dir(&*SOURCES) {
-        for entry in entries.filter_map(Result::ok) {
-            let file_name = entry.file_name();
-            let file_name_str = file_name.to_string_lossy();
-
-            if entry.file_type().map_or(false, |t| t.is_file())
-                && (file_name_str.starts_with(&p.name) || file_name_str.starts_with(&p.name.replace("_", "-")))
-                && file_name_str != kept
-            {
-                match fs::remove_file(entry.path()) {
-                    Ok(_) => {
-                        num_removed += 1;
-                        vpr!("Removed '{}'", file_name_str);
-                    }
-                    Err(e) => erm!("Failed to remove file '{}': {}", file_name_str, e),
+    if let Err(e) = fs::read_dir(&*SOURCES).map(|entries| {
+        entries
+            .filter_map(Result::ok)
+            .filter(|entry| is_removable(entry, p))
+            .for_each(|entry| {
+                if remove_file(&entry).is_ok() {
+                    num_removed += 1;
+                    vpr!("Removed {:?}", entry);
                 }
-            }
-        }
-    } else {
-        erm!("Failed to read sources directory");
+            })
+    }) {
+        die!("Failed to read sources directory: {}", e);
     }
+
     num_removed
 }
 
 pub fn remove_tarballs(pkg_str: &str) {
     let command = format!("cd {} && rm -vf {}-[0-9]*.t*", SOURCES.display(), pkg_str);
-    let _ = static_exec(&command);
+    if let Err(e) = static_exec(&command) {
+        erm!("Failed to remove tarballs for '{}': {}", pkg_str, e)
+    }
 }

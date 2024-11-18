@@ -7,16 +7,16 @@ use crate::flags::FORCE;
 use crate::misc::static_exec;
 use crate::package::{Package, PackageStatus};
 use crate::paths::{BIN, SOURCES};
-use crate::{erm, vpr, die};
+use crate::{die, erm, vpr};
 use std::error::Error;
 use std::path::Path;
 
 #[cfg(not(feature = "offline"))]
 mod online {
     pub use crate::paths::BUILDING;
+    pub use indicatif::{ProgressBar, ProgressStyle};
     pub use std::fs::File;
     pub use std::io::{self, Write};
-    pub use indicatif::{ProgressBar, ProgressStyle};
 }
 
 #[cfg(not(feature = "offline"))]
@@ -27,7 +27,11 @@ const DOWNLOAD_TEMPLATE: &str =
     "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {bytes}/{total_bytes} ({eta})";
 
 #[cfg(not(feature = "offline"))]
-fn handle_bar(r: ureq::Response, file_name: &str, file_path: &Path) -> Result<ProgressBar, Box<dyn Error>> {
+fn handle_bar(
+    r: ureq::Response,
+    file_name: &str,
+    file_path: &Path,
+) -> Result<ProgressBar, Box<dyn Error>> {
     if r.status() != 200 {
         return Err(format!("Non-200 HTTP status: {}", r.status()).into());
     }
@@ -41,7 +45,11 @@ fn handle_bar(r: ureq::Response, file_name: &str, file_path: &Path) -> Result<Pr
     let message = format!("Downloading {}", file_name);
     bar.set_message(message);
 
-    bar.set_style(ProgressStyle::with_template(DOWNLOAD_TEMPLATE).unwrap().progress_chars("#|-"));
+    bar.set_style(
+        ProgressStyle::with_template(DOWNLOAD_TEMPLATE)
+            .unwrap()
+            .progress_chars("#|-"),
+    );
 
     if let Some(len) = length {
         bar.set_length(len);
@@ -59,19 +67,19 @@ fn handle_bar(r: ureq::Response, file_name: &str, file_path: &Path) -> Result<Pr
     }
     bar.finish_with_message("Download complete");
     Ok(bar)
-} 
+}
 
 #[cfg(not(feature = "offline"))]
-fn down(url: &str) -> Result<(), Box<dyn Error>> {
+pub fn down(url: &str, force: bool) -> Result<(), Box<dyn Error>> {
     let file_name = url.split('/').last().ok_or("Invalid URL")?;
     let file_path = &SOURCES.join(file_name);
 
-    if file_path.exists() {
+    if file_path.exists() && !force {
         vpr!("Not downloading existing file: {}", file_name);
-        return Ok(());
+        return Err("extant".into());
     }
 
-    vpr!("Forcibly downloading existing file: {}", file_name);
+    vpr!("Downloading '{}' from '{}'...", file_name, url);
     let r = ureq::get(url).call()?;
 
     if let Err(e) = handle_bar(r, file_name, file_path) {
@@ -88,7 +96,7 @@ pub fn download(p: &Package, force: bool) -> Result<(), Box<dyn Error>> {
 
     if file_path.exists() && !force {
         vpr!("Not downloading existing file: {}", file_name);
-        return Ok(());
+        return Err("extant".into());
     }
 
     let url = &p.link;
@@ -96,7 +104,7 @@ pub fn download(p: &Package, force: bool) -> Result<(), Box<dyn Error>> {
         vpr!("Detected url: '{}' for package '{}'", url, p.name);
     } else {
         vpr!("No link for '{}'", p.name);
-        return Err("no link".into())
+        return Err("no link".into());
     }
 
     vpr!("Downloading tarball: {}", file_name);
@@ -117,7 +125,6 @@ fn retract(p: &Package) {
 }
 
 fn extract(p: &Package) -> Result<(), Box<dyn Error>> {
-
     if !p.link.is_empty() {
         let tarball = format!("{}/{}-{}.tar", SOURCES.display(), p.name, p.version);
         let tarball_path = Path::new(&tarball);
@@ -129,7 +136,7 @@ fn extract(p: &Package) -> Result<(), Box<dyn Error>> {
     if let PackageStatus::Installed = p.status {
         if !*FORCE.lock().unwrap() && p.version == p.installed_version {
             vpr!("Not extracting tarball for installed package '{}'", p.name);
-            return Ok(())
+            return Ok(());
         } else {
             vpr!("Extracting tarball for installed package '{}'", p.name);
         }
@@ -165,16 +172,26 @@ pub fn fetch(p: &Package) {
                     die!("Failed to recover from corrupt tarball");
                 }
             }
-            Err(e) if e.to_string() == "no link" => retract(p),
-            Err(e) => erm!("Failed to download package: {}", e),
-        }
-       
-        let dls = p.downloads.clone();
-        if !dls.is_empty() {
-            for dl in dls {
-                if let Err(e) = down(&dl) {
-                    die!("Failed to download extra url '{}': {}", dl, e)
+            Err(e) => match &*e.to_string() {
+                "extant" => {
+                    vpr!("Tarball already exists");
+                    if extract(p).is_err() && { download(p, true).is_err() || extract(p).is_err() }
+                    {
+                        die!("Failed to recover from corrupt tarball");
+                    }
                 }
+                "no link" => retract(p),
+                _ => erm!("Failed to download package: {}", e),
+            },
+        }
+
+        let dls = p.downloads.clone();
+        for dl in dls {
+            if let Err(e) = down(&dl, false) {
+                if e.to_string() == "extant" {
+                    continue;
+                }
+                die!("Failed to download extra url '{}': {}", dl, e)
             }
         }
     }

@@ -3,13 +3,13 @@
 // defines core package-related functionality
 
 use crate::misc::static_exec;
-use std::io::BufReader;
-use std::fs::File;
-use crate::{vpr, die};
-use crate::paths::{PKGSJSON, BIN};
-use crate::tracking::load_package_list;
+use crate::paths::{BIN, PKGSJSON};
 use crate::sets::handle_sets;
+use crate::tracking::load_package_list;
+use crate::{die, vpr};
 use serde::{Deserialize, Serialize};
+use std::fs::File;
+use std::io::BufReader;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum PackageStatus {
@@ -47,7 +47,7 @@ pub fn defp(pkg_str: &str) -> Package {
     for pkg_data in stream {
         if pkg_data.name == pkg_str {
             vpr!("Assigned package data to {}", pkg_str);
-            return pkg_data
+            return pkg_data;
         }
     }
 
@@ -55,10 +55,9 @@ pub fn defp(pkg_str: &str) -> Package {
 }
 
 pub fn form_package(pkg_str: &str) -> Result<Package, String> {
-    if  pkg_str == ".git"      ||
-        pkg_str == "README.md" || 
-        pkg_str == "LICENSE" 
-    { return Err("refused".to_string()) }
+    if pkg_str == ".git" || pkg_str == "README.md" || pkg_str == "LICENSE" {
+        return Err("refused".to_string());
+    }
 
     // will soon be deprecated
     let pkg_str = if pkg_str.contains("_") {
@@ -89,8 +88,18 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
                     _ if line.starts_with("UPST: ") => upstream = line[6..].trim().to_string(),
                     _ if line.starts_with("SELE: ") => selector = line[6..].trim().to_string(),
                     _ if line.starts_with("NEWS: ") => news = line[6..].trim().to_string(),
-                    _ if line.starts_with("DEPS: ") => deps = line[6..].split_whitespace().map(|s| s.to_string()).collect(),
-                    _ if line.starts_with("DOWN: ") => downloads = line[6..].split_whitespace().map(|s| s.to_string()).collect(),
+                    _ if line.starts_with("DEPS: ") => {
+                        deps = line[6..]
+                            .split_whitespace()
+                            .map(|s| s.to_string())
+                            .collect()
+                    }
+                    _ if line.starts_with("DOWN: ") => {
+                        downloads = line[6..]
+                            .split_whitespace()
+                            .map(|s| s.to_string())
+                            .collect()
+                    }
                     _ => (),
                 }
             }
@@ -105,7 +114,9 @@ pub fn form_package(pkg_str: &str) -> Result<Package, String> {
             let (status, installed_version) = package_list
                 .iter()
                 .find(|p| p.name == name)
-                .map_or((PackageStatus::Available, String::new()), |p| (p.status.clone(), p.installed_version.clone()));
+                .map_or((PackageStatus::Available, String::new()), |p| {
+                    (p.status.clone(), p.installed_version.clone())
+                });
 
             Ok(Package {
                 name,
