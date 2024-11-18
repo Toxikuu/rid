@@ -1,18 +1,7 @@
 #!/bin/bash
 
-export RIDTMP=/tmp/rid
-export RIDTRASH="$RIDTMP/trash"
-export RIDBUILDING="$RIDTMP/building"
-export RIDEXTRACTION="$RIDTMP/extraction"
-export RIDDEST="$RIDTMP/dest"
-export RIDFAILED="$RIDTMP/failed"
-
-export RIDHOME="/etc/rid"
-export RIDMETA="$RIDHOME/meta"
-export RIDBIN="$RIDHOME/bin"
-export RIDPKGSJSON="$RIDHOME/pkgs.json"
-export RIDSOURCES="$RIDHOME/sources"
-export RIDSETS="$RIDHOME/sets"
+SCRIPT_DIR=$(dirname "$(realpath "$0")")
+. $SCRIPT_DIR/env
 
 if [[ $EUID -ne 0 || ! $(shopt -q login_shell; echo $?) -eq 0 ]]; then
   CMD=$(command -v sudo > /dev/null 2>&1 && echo "sudo su - root" || echo "su - root")
