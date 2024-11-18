@@ -1,11 +1,11 @@
 [package]
 name = "rid"
-version = "0.16.3" # added and removed options :(
+version = "0.16.4" # refactoring and removed offline mode
 edition = "2021"
 
-[features]
-offline = []
-default = []
+# [features]
+# offline = []
+# default = []
 
 [dependencies]
 clap = { version = "4.5.19", features = ["derive"] }
