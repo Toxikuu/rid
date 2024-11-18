@@ -5,6 +5,7 @@ Rid is a package manager for LFS systems written in rust. The binary 'rid' handl
 
 Rid stores necessary files in a few directories. These directories are specified by environment variables which must be set when rid is run. Below are some sane defaults:
 
+```bash
 RIDTMP="/tmp/rid"
 RIDTRASH="$RIDTMP/trash"
 RIDBUILDING="$RIDTMP/building"
@@ -18,6 +19,7 @@ RIDBIN="$RIDHOME/bin"
 RIDPKGSJSON="$RIDHOME/pkgs.json"
 RIDSOURCES="/sources"
 RIDSETS="$RIDHOME/sets"
+```
 
 These directories may be adjusted to your liking. Their functions are as follows:
 - $RIDTMP is rid's temporary directory
