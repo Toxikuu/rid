@@ -2,6 +2,10 @@
 
 TODO
 
+    Use git for syncing instead of the current system
+
+    Merge stabs and linkval into rid
+
     Add a PM (PackageManager) struct
 
     Add a config file
