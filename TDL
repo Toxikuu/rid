@@ -2,6 +2,11 @@
 
 TODO
 
+    Add a PM (PackageManager) struct
+
+    Add a config file
+        Allow automatic tarball removal when a tarball is removed to be toggled
+
     Support -k <PACKAGE>
 
     Maybe add -m and -M for maintenance (along with $MDIR)
