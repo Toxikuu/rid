@@ -12,7 +12,7 @@ fn is_removable(entry: &fs::DirEntry, p: &Package) -> bool {
     let kept = format!("{}-{}.tar", p.name, p.version);
     let file_name = entry.file_name();
     let file_name_str = file_name.to_string_lossy();
-    entry.file_type().map_or(false, |t| t.is_file())
+    entry.file_type().is_ok_and(|t| t.is_file())
         && file_name_str.starts_with(&p.name)
         && file_name_str != kept
 }

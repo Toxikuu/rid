@@ -37,12 +37,7 @@ pub fn format_line(line: &str, max_length: usize) -> String {
     };
 
     let name_version_length = package_info.len() + 1;
-
-    let padding = if max_length > name_version_length {
-        max_length - name_version_length
-    } else {
-        0
-    };
+    let padding = max_length.saturating_sub(name_version_length); // thank you rust-analyzer :))
     let spaces = " ".repeat(padding);
 
     format!("{}{} ~ {}", package_info, spaces, formatted_status)
