@@ -11,6 +11,20 @@ export LDFLAGS="-Wl,--as-needed"
 export CARGO_HOME="/opt/cargo"
 export RUSTUP_HOME="/opt/rustup"
 
+export RIDTMP=/tmp/rid
+export RIDTRASH="$RIDTMP/trash"
+export RIDBUILDING="$RIDTMP/building"
+export RIDEXTRACTION="$RIDTMP/extraction"
+export RIDDEST="$RIDTMP/dest"
+export RIDFAILED="$RIDTMP/failed"
+
+export RIDHOME="/etc/rid"
+export RIDMETA="$RIDHOME/meta"
+export RIDBIN="$RIDHOME/bin"
+export RIDPKGSJSON="$RIDHOME/pkgs.json"
+export RIDSOURCES="$RIDHOME/sources"
+export RIDSETS="$RIDHOME/sets"
+
 export VDPAU_DRIVER="va_gl"
 export XORG_CONFIG="--prefix=/usr                 \
                     --sysconfdir=/etc             \
