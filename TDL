@@ -2,21 +2,15 @@
 
 TODO
 
+    Support -k <PACKAGE>
+
     Maybe add -m and -M for maintenance (along with $MDIR)
-
-    Make -g only get the tarball if the latest version doesn't exist;
-        Make -G always get the tarball
-
-    Edit corrupt tarball to check for existence first
 
     Rewrite mo in bash
 
     Add -a flag for ask
 
-
 WIP
-
-    Improve system for $RID* env vars (maybe a wrapper bash script?)
 
     Improve documentation
 
@@ -25,6 +19,16 @@ WIP
     UX Improvements
 
 DONEISH
+
+    Deprecate rid-offline
+        No longer really necessary to have two binaries because rid uses rustls anyways
+
+    Edit corrupt tarball to check for existence first
+
+    Improve system for $RID* env vars (maybe a wrapper bash script?)
+
+    Make -g only get the tarball if the latest version doesn't exist;
+        Make -G always get the tarball
 
     dependency resolution tweaks (for i, u, r)
         adjust flags such that lowercase flags use default behavior and capital ones do the opposite
