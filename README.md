@@ -59,7 +59,7 @@ Options:
 ### Binary
 A compressed tarball containing just the binary can be downloaded from the releases page. The following commands should work to download and install it:
 ```bash
-wget https://github.com/Toxikuu/rid/releases/download/v0.14.5/rid.tar.xz
+wget https://github.com/Toxikuu/rid/releases/download/v0.16.6/rid.tar.xz
 tar xf rid.tar.xz
 sudo mv -vf rid /usr/bin
 ```
