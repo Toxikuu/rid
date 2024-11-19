@@ -54,7 +54,7 @@ fn main() {
     }
 
     if args.bootstrap {
-        args::bootstrap();
+        bootstrap::bootstrap();
     }
 
     if args.cache {
@@ -69,13 +69,13 @@ fn main() {
         args::validate_links();
     }
 
-    if args.sync {
-        args::sync();
-    }
-
-    if args.overwrite {
-        args::overwrite();
-    }
+    //if args.sync {
+    //    args::sync();
+    //}
+    //
+    //if args.overwrite {
+    //    args::overwrite();
+    //}
 
     if let Some(pkgs) = args.list {
         args::list(pkgs);

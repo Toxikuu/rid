@@ -2,7 +2,6 @@
 //
 // responsible for storing argument functions
 
-use crate::bootstrap;
 use crate::clean;
 use crate::directions::eval_action;
 use crate::fetch;
@@ -17,11 +16,6 @@ use crate::{die, erm, msg, pr, vpr, yn};
 use indicatif::{ProgressBar, ProgressStyle};
 use tracking::read_pkgs_json;
 
-pub fn bootstrap() {
-    msg!("Bootstrapping rid...");
-    bootstrap::run();
-}
-
 pub fn cache(pkg_list: &mut Vec<Package>) {
     msg!("Caching meta files to json...");
     match tracking::cache_changes(pkg_list, true) {
@@ -30,15 +24,15 @@ pub fn cache(pkg_list: &mut Vec<Package>) {
     }
 }
 
-pub fn sync() {
-    msg!("Syncing rid-meta...");
-    bootstrap::get_rid_meta(false);
-}
-
-pub fn overwrite() {
-    msg!("Overwrite-syncing rid-meta...");
-    bootstrap::get_rid_meta(true);
-}
+//pub fn sync() {
+//    msg!("Syncing rid-meta...");
+//    bootstrap::get_rid_meta(false);
+//}
+//
+//pub fn overwrite() {
+//    msg!("Overwrite-syncing rid-meta...");
+//    bootstrap::get_rid_meta(true);
+//}
 
 fn display_list(mut plist: Vec<Package>) {
     plist.sort_by(|a, b| a.name.cmp(&b.name));

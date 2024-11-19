@@ -10,7 +10,8 @@ use crate::{die, msg, vpr};
 use std::fs;
 use std::path::Path;
 
-fn bootstrap() {
+pub fn bootstrap() {
+    msg!("Bootstrapping rid...");
     let dirs = [&*RIDHOME, &*SOURCES, &*META];
 
     for dir in dirs.iter() {
