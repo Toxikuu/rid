@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -e
-. "$RIDENV"
+. "$RIDENV" || die 'Failed to source $RIDENV'
 
 "$RIDHOME"/target/release/rid "$@"
