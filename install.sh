@@ -11,20 +11,26 @@ pushd . >/dev/null
 [ -z "$RIDMETA"      ]  &&  { RIDMETA="$RIDHOME/meta"                           ;}
 [ -z "$RIDBIN"       ]  &&  { RIDBIN="$RIDBIN/bin"                              ;}
 [ -e "$RIDPKGSJSON"  ]  &&  { echo "Backing up pkgs.json"           ; BACKUP=1  ;}
-[ -e "$RIDHOME/.git" ]  &&  { echo "Pulling instead of cloning"     ; PULL=1    ;}
 [ -n "$BACKUP"       ]  &&  { mv -ivf "$RIDPKGSJSON" /tmp/ridpkgsjson.bak       ;}
 
-if  [ -z "$PULL" ]; then
-    echo "Cloning repositories..."
-    git clone https://github.com/Toxikuu/rid.git        "$RIDHOME"
-    git clone https://github.com/Toxikuu/rid-meta.git   "$RIDMETA"
-    chmod 755                                           "$RIDBIN"/*
+if [ -e "$RIDHOME" ]; then
+    cd "$RIDHOME"
+    git init
+    git remote set-url origin https://github.com/Toxikuu/rid.git
+    git pull
 else
-    echo "Pulling repositories"
-    cd   "$RIDHOME"     && git pull
-    cd   "$RIDMETA"     && git pull
+    git clone https://github.com/Toxikuu/rid.git "$RIDHOME"
 fi
 
+if [ -e "$RIDMETA"]; then
+    cd "$RIDMETA"
+    git init
+    git remote set-url origin https://github.com/Toxikuu/rid-meta.git
+    git pull
+else
+    git clone https://github.com/Toxikuu/rid-meta.git "$RIDMETA"
+fi
+    
 echo "Building rid..."
 cd   "$RIDHOME"
 cargo build --release
