@@ -2,6 +2,8 @@
 # meant to be run from rid with `rid -b`
 # will build the binary with cargo and rustc if nonexistent
 
+[ "$EUID" -ne 0      ]  &&  { echo "Insufficient permissions"       ; exit 1    ;}
+
 set -e
 pushd . >/dev/null
 [ -e "$RIDENV"       ]  &&  . "$RIDENV"
@@ -12,7 +14,7 @@ pushd . >/dev/null
 [ -z "$RIDBIN"       ]  &&  { RIDBIN="$RIDBIN/bin"                              ;}
 [ -z "$RIDSOURCES"   ]  &&  { RIDSOURCES="/sources"                             ;}
 [ -e "$RIDPKGSJSON"  ]  &&  { echo "Backing up pkgs.json"           ; BACKUP=1  ;}
-[ -n "$BACKUP"       ]  &&  { sudo mv -ivf "$RIDPKGSJSON" /tmp/ridpkgsjson.bak  ;}
+[ -n "$BACKUP"       ]  &&  { mv -ivf "$RIDPKGSJSON" /tmp/ridpkgsjson.bak  ;}
 
 echo "Pulling latest changes..."
 if [ ! -e "$RIDHOME" ]; then
@@ -29,18 +31,18 @@ fi
     
 echo "Building rid..."
 cd   "$RIDHOME"
-sudo cargo build --release
-sudo cargo strip             || true # in case the user doesn't have cargo strip
-sudo ln -sfv                 \
-     "$RIDHOME"/rid.sh       \
+cargo build --release
+cargo strip             || true # in case the user doesn't have cargo strip
+ln -sfv                 \
+     "$RIDHOME"/rid.sh  \
      /usr/bin/rid
 
 echo 'Setting $RIDENV...'
-echo "export RIDENV=$RIDHOME/env" | sudo tee -a /etc/profile > /dev/null
+echo "export RIDENV=$RIDHOME/env" | tee -a /etc/profile > /dev/null
 
-sudo mkdir -pv "$RIDSOURCES"
+mkdir -pv "$RIDSOURCES"
 
-[ -n "$BACKUP"      ]   &&  { sudo mv -vf /tmp/ridpkgsjson.bak "$RIDPKGSJSON"   ;}
+[ -n "$BACKUP"      ]   &&  { mv -vf /tmp/ridpkgsjson.bak "$RIDPKGSJSON"   ;}
 
 popd    >/dev/null
 echo "Done!"
