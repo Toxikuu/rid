@@ -4,13 +4,10 @@ TODO
 
     Migrate from using $TARGET_USER to $TU
 
-    Remove the option to adjust a few RID variables ($RIDBIN, $RIDSETS, etc.)
-
     Move $RIDSETS to rid-meta
 
     Add -w flag for writing a metafile
         Uses tmpl which I'll move into ridbin
-
 
     Merge stabs and linkval into rid
 
@@ -31,7 +28,7 @@ TODO
     Add -a flag for ask
 
 WIP
-    
+
     Improve bootstrapping process
         Improve syncing (rid -i rid currently works great, but maybe make rid -s an alias?)
 
@@ -43,6 +40,8 @@ WIP
         Install.sh and the new wrapper script are huge UX improvements
 
 DONEISH
+
+    Remove the option to adjust a few RID variables ($RIDBIN, $RIDSETS, etc.)
 
     Use git for syncing instead of the current system
         Covered by install.sh
