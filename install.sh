@@ -42,4 +42,4 @@ mkdir -pv "$RIDSOURCES"
 
 popd    >/dev/null
 sudo chown -R $SUDO_USER:$SUDO_USER $RIDHOME # convenient as fuck for me; adjust this to your liking
-echo "\x1b[36;1m  Done!\x1b[0m"
+echo -e "\x1b[36;1m  Done!\x1b[0m"
