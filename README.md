@@ -68,7 +68,7 @@ It is capable of detecting an existing install, in which case it updates.
 The script should be run with sudo, ie `sudo bash install.sh`.
 
 If you do not have sudo, or you're trying to install rid from a script,
-set $TARGET_USER equal to the user who you want to own $RIDHOME and $RIDMETA.
+set $TU equal to the user who you want to own $RIDHOME and $RIDMETA.
 
 Additional environment variables accepted by the script include:
 - $RIDHOME

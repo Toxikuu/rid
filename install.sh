@@ -3,8 +3,8 @@
 
 [ "$EUID" -ne 0   ]  &&  { echo -e "\x1b[31;1m  Run this script as root\x1b[0m" ; exit 1 ;}
 
-[ -z "$SUDO_USER" ]  &&  SUDO_USER="$TARGET_USER"
-[ -z "$SUDO_USER" ]  &&  { echo -e "\x1b[31;1m  Run this script with sudo :)\x1b[0m" >&2 ; exit 1 ;}
+[ -z "$SUDO_USER" ]  &&  SUDO_USER="$TU"
+[ -z "$SUDO_USER" ]  &&  { echo -e "\x1b[31;1m  Run this script with sudo or else set $TU=\"<user>\"\x1b[0m" >&2 ; exit 1 ;}
 
 TU="$SUDO_USER"
 [ -z "$TU" ] && { echo -e "\x1b[31;1m  Could not determine target user!\x1b[0m" >&2; exit 1; }
