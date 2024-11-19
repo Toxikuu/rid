@@ -1,5 +1,5 @@
 #!/bin/bash
 
-. "$RIDENV" || die 'Failed to source $RIDENV'
+. "$RIDHOME"/env || die "Failed to source rid's env"
 
 "$RIDHOME"/target/release/rid "$@"

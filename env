@@ -20,10 +20,8 @@ export RIDFAILED="$RIDTMP/failed"
 
 export RIDHOME="/rid"
 export RIDMETA="$RIDHOME/meta"
-export RIDBIN="$RIDHOME/bin"
 export RIDPKGSJSON="$RIDHOME/pkgs.json"
 export RIDSOURCES="/sources"
-export RIDSETS="$RIDHOME/sets"
 
 export VDPAU_DRIVER="va_gl"
 export XORG_CONFIG="--prefix=/usr                 \
@@ -90,7 +88,7 @@ die() {
 export -f pathremove pathprepend pathappend die
 
 paths=(
-    $RIDBIN
+    $RIDHOME/bin
     /usr/bin
     /usr/sbin
     /opt/pnpm

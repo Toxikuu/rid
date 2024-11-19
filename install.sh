@@ -5,13 +5,10 @@
 
 set -e
 pushd . >/dev/null
-[ -e "$RIDENV"       ]  &&  . "$RIDENV"
 PATH="/usr/bin:/usr/sbin:/opt/cargo/bin"
 
 [ -z "$RIDHOME"      ]  &&  { RIDHOME="/rid"            ;}
 [ -z "$RIDMETA"      ]  &&  { RIDMETA="$RIDHOME/meta"   ;}
-[ -z "$RIDSETS"      ]  &&  { RIDSETS="$RIDHOME/sets"   ;}
-[ -z "$RIDBIN"       ]  &&  { RIDBIN="$RIDBIN/bin"      ;}
 [ -z "$RIDSOURCES"   ]  &&  { RIDSOURCES="/sources"     ;}
 
 echo -e "\x1b[36;1m  Pulling latest changes...\x1b[0m"
@@ -35,11 +32,11 @@ ln -sfv                 \
      "$RIDHOME"/rid.sh  \
      /usr/bin/rid
 
-echo -e "\x1b[36;1m  Setting \$RIDENV...\x1b[0m"
-echo "export RIDENV=$RIDHOME/env" | tee -a /etc/profile > /dev/null
+echo -e "\x1b[36;1m  Writing to /etc/profile...\x1b[0m"
+echo "export RIDHOME=$RIDHOME" | tee -a /etc/profile > /dev/null
 
 mkdir -pv "$RIDSOURCES"
 
 popd    >/dev/null
-sudo chown -R $SUDO_USER:$SUDO_USER $RIDHOME # convenient as fuck for me; adjust this to your liking
+sudo chown -R $SUDO_USER:$SUDO_USER $RIDHOME # necessary if you want to git pull (this isn't very secure)
 echo -e "\x1b[36;1m  Done!\x1b[0m"
