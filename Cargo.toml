@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.16.6" # minor refactoring, cleanup
+version = "0.17.0" # removal of bootstrap-related flags and introduction of install.sh, removal of release.sh
 edition = "2021"
 
 [dependencies]
