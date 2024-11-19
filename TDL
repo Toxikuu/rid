@@ -2,6 +2,8 @@
 
 TODO
 
+    Migrate from using $TARGET_USER to $TU
+
     Remove the option to adjust a few RID variables ($RIDBIN, $RIDSETS, etc.)
 
     Move $RIDSETS to rid-meta
