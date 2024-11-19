@@ -19,6 +19,8 @@ TODO
     Add a config file
         Ideas:
         - Toggle tarball removal on package removal
+        - Custom repositories
+            - Could be done by switching the RIDMETA variable in the env file, but ideally, multiple repositories could be supported at once. maybe symlinks are the answer?
 
     Support -k <PACKAGE>
 
@@ -31,13 +33,14 @@ TODO
 WIP
     
     Improve bootstrapping process
-        Improve syncing
+        Improve syncing (rid -i rid currently works great, but maybe make rid -s an alias?)
 
     Improve documentation
 
     Work on meta files
 
     UX Improvements
+        Install.sh and the new wrapper script are huge UX improvements
 
 DONEISH
 
@@ -49,7 +52,8 @@ DONEISH
 
     Edit corrupt tarball to check for existence first
 
-    Improve system for $RID* env vars (maybe a wrapper bash script?)
+    Wrapper bash script
+        The alias and the script that calls the symlink work great :fire:
 
     Make -g only get the tarball if the latest version doesn't exist;
         Make -G always get the tarball
