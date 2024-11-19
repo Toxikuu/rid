@@ -15,8 +15,8 @@ lazy_static! {
     pub static ref RIDHOME: PathBuf = wrap("RIDHOME");
     pub static ref PKGSJSON: PathBuf = wrap("RIDPKGSJSON");
     pub static ref META: PathBuf = wrap("RIDMETA");
-    pub static ref SETS: PathBuf = wrap("RIDSETS");
-    pub static ref BIN: PathBuf = wrap("RIDBIN");
+    pub static ref SETS: PathBuf = RIDHOME.join("sets");
+    pub static ref BIN: PathBuf = RIDHOME.join("bin");
     pub static ref SOURCES: PathBuf = wrap("RIDSOURCES");
     pub static ref TMPRID: PathBuf = wrap("RIDTMP");
     pub static ref BUILDING: PathBuf = wrap("RIDBUILDING");
