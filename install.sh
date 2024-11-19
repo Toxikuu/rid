@@ -10,7 +10,7 @@ PATH="/usr/bin:/usr/sbin:/opt/cargo/bin"
 
 [ -z "$RIDHOME"      ]  &&  { RIDHOME="/rid"            ;}
 [ -z "$RIDMETA"      ]  &&  { RIDMETA="$RIDHOME/meta"   ;}
-[ -z "$RIDSETS"      ]  &&  { RIDMETA="$RIDHOME/sets"   ;}
+[ -z "$RIDSETS"      ]  &&  { RIDSETS="$RIDHOME/sets"   ;}
 [ -z "$RIDBIN"       ]  &&  { RIDBIN="$RIDBIN/bin"      ;}
 [ -z "$RIDSOURCES"   ]  &&  { RIDSOURCES="/sources"     ;}
 
