@@ -1,9 +1,13 @@
 # rid
 
 ## Information
-Rid is a package manager for LFS systems written in rust. The binary 'rid' handles dependency resolution, package tracking, and executing build scripts, among other functions. I highly encourage reviewing and customizing the build scripts for your packages, especially since the defaults are geared toward my system.
+Rid is a package manager for LFS systems written in rust.
+The binary 'rid' handles dependency resolution, package tracking, and executing build scripts, among other functions.
+I highly encourage reviewing and customizing the build scripts for your packages, especially since the defaults are geared toward my system.
 
-Rid stores necessary files in a few directories. These directories are specified by environment variables which must be set when rid is run. Below are some sane defaults:
+Rid stores necessary files in a few directories.
+These directories are specified by environment variables which must be set when rid is run.
+Below are some sane defaults:
 
 ```bash
 RIDTMP="/tmp/rid"                   # rid's temp directory
@@ -25,7 +29,9 @@ RIDSETS="$RIDHOME/sets"             # stores sets
 ```
 
 ## Usage
-For detailed usage examples and documentation, reference DOCS.md. Basic usage is as follows:
+For detailed usage examples and documentation, reference DOCS.md.
+Basic usage is as follows:
+
 ```bash
 Usage: rid [OPTIONS]
 
@@ -42,7 +48,6 @@ Options:
   -g, --get-tarball <PACKAGE>...                
   -l, --list [<PACKAGE>...]                     
   -n, --news [<PACKAGE>...]                     
-  -b, --bootstrap                               
   -s, --sync                                    
   -o, --overwrite                               
   -c, --cache                                   
@@ -56,39 +61,17 @@ Options:
 ```
 
 ## Installation
-### Binary
-A compressed tarball containing just the binary can be downloaded from the releases page. The following commands should work to download and install it:
-```bash
-wget https://github.com/Toxikuu/rid/releases/download/v0.16.6/rid.tar.xz
-tar xf rid.tar.xz
-sudo mv -vf rid /usr/bin
-```
-
-From there, rid can be bootstrapped from just the binary:
-```bash
-rid -b
-```
-Bootstrapping sets up all other files necessary for rid to function.
-
-### From source
-The easiest way to build rid from source assumes you have the binary installed:
-```bash
-rid -u rid
-# rid -b # (if you haven't already bootstrapped rid)
-```
+Install rid with the following command:
 
 ```bash
-# as root
-pushd /etc
-git clone https://github.com/Toxikuu/rid && cd rid
-git clone https://github.com/Toxikuu/rid-meta
-cargo build --release
-
-ln -sfv /etc/rid/target/release/rid /bin/rid
-# ln is done in case you want to git pull
-# if not, feel free to use /bin/install instead
-popd
+curl -fsSL https://raw.githubusercontent.com/Toxikuu/rid/refs/heads/master/install.sh | sudo bash
 ```
+
+Feel free to download the script first and inspect it, editing it if you like.
+It is capable of detecting an existing install, in which case it updates.
+The important thing is not to run the script in a login shell as root (git panics).
+
+The install script accepts some of the environment variables from earlier, though the extent to which they work is not clear.
 
 ### Dependencies
 Rid depends on the following:
@@ -106,3 +89,4 @@ Thanks to:
 - The *LFS authors and maintainers
 - The AUR (whose PKGBUILDs I referenced)
 - The crate authors whose work rid is built on
+- Repology for providing "upstream" versions when truly in doubt
