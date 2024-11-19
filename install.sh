@@ -1,17 +1,16 @@
 #!/bin/bash
 # this script should be run with sudo
 
-[ "$EUID" -ne 0      ]  &&  { echo "Insufficient permissions"       ; exit 1    ;}
-
 set -e
 pushd . >/dev/null
 [ -e "$RIDENV"       ]  &&  . "$RIDENV"
+PATH="/usr/bin:/usr/sbin:/opt/cargo/bin"
 
-[ -z "$RIDHOME"      ]  &&  { RIDHOME="/rid"                                    ;}
-[ -z "$RIDMETA"      ]  &&  { RIDMETA="$RIDHOME/meta"                           ;}
-[ -z "$RIDSETS"      ]  &&  { RIDMETA="$RIDHOME/sets"                           ;}
-[ -z "$RIDBIN"       ]  &&  { RIDBIN="$RIDBIN/bin"                              ;}
-[ -z "$RIDSOURCES"   ]  &&  { RIDSOURCES="/sources"                             ;}
+[ -z "$RIDHOME"      ]  &&  { RIDHOME="/rid"            ;}
+[ -z "$RIDMETA"      ]  &&  { RIDMETA="$RIDHOME/meta"   ;}
+[ -z "$RIDSETS"      ]  &&  { RIDMETA="$RIDHOME/sets"   ;}
+[ -z "$RIDBIN"       ]  &&  { RIDBIN="$RIDBIN/bin"      ;}
+[ -z "$RIDSOURCES"   ]  &&  { RIDSOURCES="/sources"     ;}
 
 echo "Pulling latest changes..."
 if [ ! -e "$RIDHOME"/.git ]; then
@@ -40,5 +39,5 @@ echo "export RIDENV=$RIDHOME/env" | tee -a /etc/profile > /dev/null
 mkdir -pv "$RIDSOURCES"
 
 popd    >/dev/null
-sudo chown -R $USER:$USER $RIDHOME # convenient as fuck for me; adjust this to your liking
+sudo chown -R $SUDO_USER:$SUDO_USER $RIDHOME # convenient as fuck for me; adjust this to your liking
 echo "Done!"
