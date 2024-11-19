@@ -4,16 +4,15 @@
 
 set -e
 pushd . >/dev/null
+[ -e "$RIDENV"       ]  &&  . "$RIDENV"
 
 [ "$EUID" -ne 0      ]  &&  { echo "Insufficient permissions" >&2   ; exit 1    ;}
-[ -z "$RIDSOURCES"   ]  &&  { echo '$RIDSOURCES not set'            ; exit 1    ;}
-[ -z "$RIDMETA"      ]  &&  { echo '$RIDMETA not set'               ; exit 1    ;}
-[ -z "$RIDBIN"       ]  &&  { echo '$RIDBIN not set'                ; exit 1    ;}
+[ -z "$RIDHOME"      ]  &&  { RIDHOME="/rid"                                    ;}
+[ -z "$RIDMETA"      ]  &&  { RIDMETA="$RIDHOME/meta"                           ;}
+[ -z "$RIDBIN"       ]  &&  { RIDBIN="$RIDBIN/bin"                              ;}
 [ -e "$RIDPKGSJSON"  ]  &&  { echo "Backing up pkgs.json"           ; BACKUP=1  ;}
 [ -e "$RIDHOME/.git" ]  &&  { echo "Pulling instead of cloning"     ; PULL=1    ;}
 [ -n "$BACKUP"       ]  &&  { mv -ivf "$RIDPKGSJSON" /tmp/ridpkgsjson.bak       ;}
-[ -e "$RIDHOME"      ]  &&  { rm -rf  "$RIDHOME"                                ;}
-[ -e "$RIDMETA"      ]  &&  { rm -rf  "$RIDMETA"                                ;}
 
 if  [ -z "$PULL" ]; then
     echo "Cloning repositories..."
@@ -33,6 +32,9 @@ cargo strip             || true # in case the user doesn't have cargo strip
 ln -sfv                 \
      "$RIDHOME"/rid.sh  \
      /usr/bin/rid
+
+echo 'Setting $RIDENV...'
+echo "\$RIDENV=$RIDHOME/env" >> /etc/profile
 
 [ -n "$BACKUP"      ]   &&  { mv -vf /tmp/ridpkgsjson.bak "$RIDPKGSJSON"        ;}
 
