@@ -10,84 +10,20 @@ use crate::{die, msg, vpr};
 use std::fs;
 use std::path::Path;
 
-fn get_rid() {
-    let link = format!(
-        "https://github.com/Toxikuu/rid/releases/download/v{}/rid-root.tar.xz",
-        env!("CARGO_PKG_VERSION")
-    );
-
-    let _ = down(&link, true);
-    vpr!("Downloaded rid-root tarball");
-
-    let command = format!(
-        "tar xf {}/rid-root.tar.xz -C {}",
-        BUILDING.display(),
-        RIDHOME.display()
-    );
-
-    match exec(&command) {
-        Ok(_) => vpr!("Extracted rid-root"),
-        Err(e) => die!("Failed to extract rid-root tarball: {}", e),
-    }
-}
-
-pub fn get_rid_meta(overwrite: bool) {
-    // used for bootstrapping and syncing
-    let link = "https://github.com/Toxikuu/rid-meta/archive/refs/heads/master.tar.gz";
-    let _ = down(link, true);
-    vpr!("Downloaded rid-meta tarball");
-
-    let c = if overwrite { ' ' } else { 'n' };
-    let command = format!(
-        "cd     {}                                    && \
-        tar xvf master.tar.gz                         && \
-        rm -vf  rid-meta-master/{{LICENSE,README.md}} && \
-        mv -v{} rid-meta-master/* {}                  && \
-        rm -rvf master.tar.gz rid-meta-master",
-        BUILDING.display(),
-        c,
-        META.display(),
-    );
-
-    match exec(&command) {
-        Ok(_) => msg!("Synced!"),
-        Err(e) => die!("Failed to sync rid-meta: {}", e),
-    }
-}
-
 fn bootstrap() {
-    get_rid();
-    get_rid_meta(false);
+    let dirs = [&*RIDHOME, &*SOURCES, &*META];
 
-    let command = format!(
-        "touch {}            &&
-                chmod 666 {} &&
-                chmod 755 {}/*",
-        PKGSJSON.display(),
-        PKGSJSON.display(),
-        BIN.display(),
-    );
-
-    match exec(&command) {
-        Ok(_) => vpr!("Made files in bin executable"),
-        Err(e) => {
-            die!("Failed to make files in bin executable: {}", e);
-        }
+    for dir in dirs.iter() {
+        mkdir(dir)
     }
 
-    // cleanup
-    let command = format!(
-        "cd {} && rm -rf .git* Cargo.* src TDL LICENSE README.md",
-        RIDHOME.display()
+    let _ = down(
+        "https://raw.githubusercontent.com/Toxikuu/rid/refs/heads/master/install.sh",
+        true,
     );
 
-    match exec(&command) {
-        Ok(_) => vpr!("Cleaned extras from {}", RIDHOME.display()),
-        Err(e) => {
-            die!("Failed to clean {}: {}", RIDHOME.display(), e);
-        }
-    }
-
+    let command = "bash \"$RIDSOURCES\"/install.sh";
+    let _ = exec(command);
     msg!("All done!")
 }
 
@@ -113,13 +49,4 @@ pub fn tmp() {
 
     vpr!("Creating pkgs.json if nonexistent...");
     create_json().expect("Failed to create $RIDPKGSJSON");
-}
-
-pub fn run() {
-    let dirs = [&*RIDHOME, &*SOURCES, &*META];
-
-    for dir in dirs.iter() {
-        mkdir(dir)
-    }
-    bootstrap();
 }
