@@ -1,6 +1,5 @@
 #!/bin/bash
-# meant to be run from rid with `rid -b`
-# will build the binary with cargo and rustc if nonexistent
+# this script should be run with sudo
 
 [ "$EUID" -ne 0      ]  &&  { echo "Insufficient permissions"       ; exit 1    ;}
 
@@ -13,17 +12,15 @@ pushd . >/dev/null
 [ -z "$RIDSETS"      ]  &&  { RIDMETA="$RIDHOME/sets"                           ;}
 [ -z "$RIDBIN"       ]  &&  { RIDBIN="$RIDBIN/bin"                              ;}
 [ -z "$RIDSOURCES"   ]  &&  { RIDSOURCES="/sources"                             ;}
-[ -e "$RIDPKGSJSON"  ]  &&  { echo "Backing up pkgs.json"           ; BACKUP=1  ;}
-[ -n "$BACKUP"       ]  &&  { mv -ivf "$RIDPKGSJSON" /tmp/ridpkgsjson.bak  ;}
 
 echo "Pulling latest changes..."
-if [ ! -e "$RIDHOME" ]; then
+if [ ! -e "$RIDHOME"/.git ]; then
     git clone "https://github.com/Toxikuu/rid.git" "$RIDHOME"
 else
     cd "$RIDHOME" && git pull
 fi
 
-if [ ! -e "$RIDMETA" ]; then
+if [ ! -e "$RIDMETA"/.git ]; then
     git clone "https://github.com/Toxikuu/rid-meta.git" "$RIDMETA"
 else
     cd "$RIDMETA" && git pull
@@ -41,8 +38,6 @@ echo 'Setting $RIDENV...'
 echo "export RIDENV=$RIDHOME/env" | tee -a /etc/profile > /dev/null
 
 mkdir -pv "$RIDSOURCES"
-
-[ -n "$BACKUP"      ]   &&  { mv -vf /tmp/ridpkgsjson.bak "$RIDPKGSJSON"   ;}
 
 popd    >/dev/null
 echo "Done!"
