@@ -4,23 +4,27 @@
 
 set -e
 
-[ -e /usr/bin/rid ] || BUILDRID=1
+[ "$EUID" -eq 0     ]   ||  { echo "Insufficient permissions" >&2   ; exit 1        ; }
+[ -z "$RIDSOURCES"  ]   &&  { echo '$RIDSOURCES not set'            ; exit 1        ; }
+[ -z "$RIDMETA"     ]   &&  { echo '$RIDMETA not set'               ; exit 1        ; }
+[ -z "$RIDBIN"      ]   &&  { echo '$RIDBIN not set'                ; exit 1        ; }
+[ -e /usr/bin/rid   ]   ||  { echo "Missing rid" >&2                ; BUILDRID=1    ; }
 
-echo "Extracting rid-root tarball..."
-tar xf "$RIDSOURCES"/rid-root.tar.xz -C "$RIDHOME"
+echo        "Extracting rid-root tarball..."
+tar xf      "$RIDSOURCES"/rid-root.tar.xz -C "$RIDHOME"
 
-if ! [ -z "$BUILDRID" ]; then
-    echo "Building rid..."
-    pushd "$RIDHOME" > /dev/null
-    ./release.sh
-    ln -sfv $PWD/target/release/rid /usr/bin/rid
-    popd
-fi
+[ -z "$BUILDRID" ]      ||  {
+echo        "Building rid..."
+pushd       "$RIDHOME" >/dev/null
+bash        "$RIDHOME"/release.sh
+ln -sfv     "$RIDHOME"/target/release/rid /usr/bin/rid
+popd        >/dev/null
+}
 
-echo "Extracting rid-meta tarball..."
-tar xf "$RIDSOURCES"/master.tar.gz -C "$RIDMETA"
+echo        "Extracting rid-meta tarball..."
+tar xf      "$RIDSOURCES"/master.tar.gz -C "$RIDMETA"
 
-echo "Adjusting permissions..."
-chmod 755 "$RIDBIN"/*
+echo        "Adjusting permissions..."
+chmod 755   "$RIDBIN"/*
 
-echo "Done!"
+echo       "Done!"
