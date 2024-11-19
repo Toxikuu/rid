@@ -48,8 +48,6 @@ Options:
   -g, --get-tarball <PACKAGE>...                
   -l, --list [<PACKAGE>...]                     
   -n, --news [<PACKAGE>...]                     
-  -s, --sync                                    
-  -o, --overwrite                               
   -c, --cache                                   
   -k, --check-upstream                          
   -L, --validate-links                          
