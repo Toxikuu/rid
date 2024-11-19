@@ -14,20 +14,18 @@ pushd . >/dev/null
 [ -e "$RIDPKGSJSON"  ]  &&  { echo "Backing up pkgs.json"           ; BACKUP=1  ;}
 [ -n "$BACKUP"       ]  &&  { sudo mv -ivf "$RIDPKGSJSON" /tmp/ridpkgsjson.bak  ;}
 
-sudo mkdir -pv "$RIDSOURCES" "$RIDHOME" "$RIDMETA"
-
 echo "Pulling latest changes..."
-cd "$RIDHOME"
-sudo git config init.defaultBranch master
-sudo git init
-sudo git remote set-url origin https://github.com/Toxikuu/rid.git
-sudo git pull
+if [ ! -e "$RIDHOME" ]; then
+    git clone "https://github.com/Toxikuu/rid.git" "$RIDHOME"
+else
+    cd "$RIDHOME" && git pull
+fi
 
-cd "$RIDMETA"
-sudo git config init.defaultBranch master
-sudo git init
-sudo git remote set-url origin https://github.com/Toxikuu/rid-meta.git
-sudo git pull
+if [ ! -e "$RIDMETA" ]; then
+    git clone "https://github.com/Toxikuu/rid-meta.git" "$RIDMETA"
+else
+    cd "$RIDMETA" && git pull
+fi
     
 echo "Building rid..."
 cd   "$RIDHOME"
@@ -39,6 +37,8 @@ sudo ln -sfv                 \
 
 echo 'Setting $RIDENV...'
 echo "export RIDENV=$RIDHOME/env" | sudo tee -a /etc/profile > /dev/null
+
+sudo mkdir -pv "$RIDSOURCES"
 
 [ -n "$BACKUP"      ]   &&  { sudo mv -vf /tmp/ridpkgsjson.bak "$RIDPKGSJSON"   ;}
 
