@@ -40,4 +40,5 @@ echo "export RIDENV=$RIDHOME/env" | tee -a /etc/profile > /dev/null
 mkdir -pv "$RIDSOURCES"
 
 popd    >/dev/null
+sudo chown -R t:t $RIDHOME # convenient as fuck for me; adjust this to your liking
 echo "Done!"
