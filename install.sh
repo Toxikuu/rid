@@ -9,9 +9,13 @@ pushd . >/dev/null
 [ "$EUID" -ne 0      ]  &&  { echo "Insufficient permissions" >&2   ; exit 1    ;}
 [ -z "$RIDHOME"      ]  &&  { RIDHOME="/rid"                                    ;}
 [ -z "$RIDMETA"      ]  &&  { RIDMETA="$RIDHOME/meta"                           ;}
+[ -z "$RIDSETS"      ]  &&  { RIDMETA="$RIDHOME/sets"                           ;}
 [ -z "$RIDBIN"       ]  &&  { RIDBIN="$RIDBIN/bin"                              ;}
+[ -z "$RIDSOURCES"   ]  &&  { RIDSOURCES="/sources"                             ;}
 [ -e "$RIDPKGSJSON"  ]  &&  { echo "Backing up pkgs.json"           ; BACKUP=1  ;}
 [ -n "$BACKUP"       ]  &&  { mv -ivf "$RIDPKGSJSON" /tmp/ridpkgsjson.bak       ;}
+
+mkdir -pv "$RIDSOURCES"
 
 if [ -e "$RIDHOME" ]; then
     cd "$RIDHOME"
