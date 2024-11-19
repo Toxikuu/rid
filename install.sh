@@ -22,7 +22,7 @@ else
     git clone https://github.com/Toxikuu/rid.git "$RIDHOME"
 fi
 
-if [ -e "$RIDMETA"]; then
+if [ -e "$RIDMETA" ]; then
     cd "$RIDMETA"
     git init
     git remote set-url origin https://github.com/Toxikuu/rid-meta.git
