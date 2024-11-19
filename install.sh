@@ -40,7 +40,7 @@ ln -sfv                 \
      /usr/bin/rid
 
 echo 'Setting $RIDENV...'
-echo "RIDENV=$RIDHOME/env" >> /etc/profile
+echo "export RIDENV=$RIDHOME/env" >> /etc/profile
 
 [ -n "$BACKUP"      ]   &&  { mv -vf /tmp/ridpkgsjson.bak "$RIDPKGSJSON"        ;}
 
