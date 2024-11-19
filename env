@@ -18,11 +18,11 @@ export RIDEXTRACTION="$RIDTMP/extraction"
 export RIDDEST="$RIDTMP/dest"
 export RIDFAILED="$RIDTMP/failed"
 
-export RIDHOME="/etc/rid"
+export RIDHOME="/rid"
 export RIDMETA="$RIDHOME/meta"
 export RIDBIN="$RIDHOME/bin"
 export RIDPKGSJSON="$RIDHOME/pkgs.json"
-export RIDSOURCES="$RIDHOME/sources"
+export RIDSOURCES="/sources"
 export RIDSETS="$RIDHOME/sets"
 
 export VDPAU_DRIVER="va_gl"
