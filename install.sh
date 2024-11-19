@@ -48,5 +48,8 @@ ln -sfv "$RIDHOME"/rid.sh /usr/bin/rid
 grep -qxF "export RIDHOME=$RIDHOME" /etc/profile ||
      echo "export RIDHOME=$RIDHOME" >> /etc/profile
 
+grep -qxF "alias rid='sudo -i rid'" /etc/profile ||
+     echo "alias rid='sudo -i rid'" >> /etc/profile
+
 popd    >/dev/null
 echo -e "\x1b[36;1m  Done!\x1b[0m"
