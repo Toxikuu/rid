@@ -19,13 +19,13 @@ mkdir -pv "$RIDSOURCES" "$RIDHOME" "$RIDMETA"
 
 echo "Pulling latest changes..."
 cd "$RIDHOME"
-git config init.defaultBranch main
+git config init.defaultBranch master
 git init
 git remote set-url origin https://github.com/Toxikuu/rid.git
 git pull
 
 cd "$RIDMETA"
-git config init.defaultBranch main
+git config init.defaultBranch master
 git init
 git remote set-url origin https://github.com/Toxikuu/rid-meta.git
 git pull
