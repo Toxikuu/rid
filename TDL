@@ -2,10 +2,13 @@
 
 TODO
 
+    Remove the option to adjust a few RID variables ($RIDBIN, $RIDSETS, etc.)
+
+    Move $RIDSETS to rid-meta
+
     Add -w flag for writing a metafile
         Uses tmpl which I'll move into ridbin
 
-    Use git for syncing instead of the current system
 
     Merge stabs and linkval into rid
 
@@ -26,6 +29,7 @@ TODO
 WIP
     
     Improve bootstrapping process
+        Improve syncing
 
     Improve documentation
 
@@ -34,6 +38,9 @@ WIP
     UX Improvements
 
 DONEISH
+
+    Use git for syncing instead of the current system
+        Covered by install.sh
 
     Deprecate rid-offline
         No longer really necessary to have two binaries because rid uses rustls anyways
