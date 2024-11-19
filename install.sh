@@ -3,28 +3,21 @@
 # will build the binary with cargo and rustc if nonexistent
 
 set -e
+pushd . >/dev/null
 
-[ "$EUID" -eq 0     ]   ||  { echo "Insufficient permissions" >&2   ; exit 1        ; }
-[ -z "$RIDSOURCES"  ]   &&  { echo '$RIDSOURCES not set'            ; exit 1        ; }
-[ -z "$RIDMETA"     ]   &&  { echo '$RIDMETA not set'               ; exit 1        ; }
-[ -z "$RIDBIN"      ]   &&  { echo '$RIDBIN not set'                ; exit 1        ; }
-[ -e /usr/bin/rid   ]   ||  { echo "Missing rid" >&2                ; BUILDRID=1    ; }
+[ "$EUID" -ne 0     ]   &&  { echo "Insufficient permissions" >&2   ; exit 1    ; }
+[ -z "$RIDSOURCES"  ]   &&  { echo '$RIDSOURCES not set'            ; exit 1    ; }
+[ -z "$RIDMETA"     ]   &&  { echo '$RIDMETA not set'               ; exit 1    ; }
+[ -z "$RIDBIN"      ]   &&  { echo '$RIDBIN not set'                ; exit 1    ; }
+[ -e "$RIDPKGSJSON" ]   &&  { echo "Backing up pkgs.json"           ; BACKUP=1  ; }
+[ -z "$BACKUP"      ]   &&  { mv -vf "$RIDPKGSJSON" /tmp/ridpkgsjson.bak        ; }
 
-echo        "Extracting rid-root tarball..."
-tar xf      "$RIDSOURCES"/rid-root.tar.xz -C "$RIDHOME"
+echo "Cloning repositories..."
+git clone https://github.com/Toxikuu/rid.git                        "$RIDHOME"
+git clone https://github.com/Toxikuu/rid-meta.git                   "$RIDMETA"
+chmod 755                                                           "$RIDBIN"/*
 
-[ -z "$BUILDRID" ]      ||  {
-echo        "Building rid..."
-pushd       "$RIDHOME" >/dev/null
-bash        "$RIDHOME"/release.sh
-ln -sfv     "$RIDHOME"/target/release/rid /usr/bin/rid
-popd        >/dev/null
-}
+[ -z "$BACKUP"      ]   &&  { mv -vf /tmp/ridpkgsjson.bak "$RIDPKGSJSON"        ; }
 
-echo        "Extracting rid-meta tarball..."
-tar xf      "$RIDSOURCES"/master.tar.gz -C "$RIDMETA"
-
-echo        "Adjusting permissions..."
-chmod 755   "$RIDBIN"/*
-
-echo       "Done!"
+popd    >/dev/null
+echo "Done!"
