@@ -15,25 +15,18 @@ pushd . >/dev/null
 [ -e "$RIDPKGSJSON"  ]  &&  { echo "Backing up pkgs.json"           ; BACKUP=1  ;}
 [ -n "$BACKUP"       ]  &&  { mv -ivf "$RIDPKGSJSON" /tmp/ridpkgsjson.bak       ;}
 
-mkdir -pv "$RIDSOURCES"
+mkdir -pv "$RIDSOURCES" "$RIDHOME" "$RIDMETA"
 
-if [ -e "$RIDHOME" ]; then
-    cd "$RIDHOME"
-    git init
-    git remote set-url origin https://github.com/Toxikuu/rid.git
-    git pull
-else
-    git clone https://github.com/Toxikuu/rid.git "$RIDHOME"
-fi
+echo "Pulling latest changes..."
+cd "$RIDHOME"
+git init
+git remote set-url origin https://github.com/Toxikuu/rid.git
+git pull
 
-if [ -e "$RIDMETA" ]; then
-    cd "$RIDMETA"
-    git init
-    git remote set-url origin https://github.com/Toxikuu/rid-meta.git
-    git pull
-else
-    git clone https://github.com/Toxikuu/rid-meta.git "$RIDMETA"
-fi
+cd "$RIDMETA"
+git init
+git remote set-url origin https://github.com/Toxikuu/rid-meta.git
+git pull
     
 echo "Building rid..."
 cd   "$RIDHOME"
