@@ -4,7 +4,7 @@
 
 use clap::Parser;
 
-// TODO: Add color to #[command()]
+//TODO: Add color to #[command()]
 #[derive(Parser, Debug)]
 #[command(
     version,
@@ -55,15 +55,6 @@ pub struct Args {
     pub news: Option<Vec<String>>,
 
     // function flags
-    #[arg(short = 'b', long)]
-    pub bootstrap: bool,
-
-    #[arg(short = 's', long)]
-    pub sync: bool,
-
-    #[arg(short = 'o', long)]
-    pub overwrite: bool,
-
     #[arg(short = 'c', long)]
     pub cache: bool,
 

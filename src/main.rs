@@ -53,10 +53,6 @@ fn main() {
         }
     }
 
-    //if args.bootstrap {
-    //    bootstrap::bootstrap();
-    //}
-
     if args.cache {
         args::cache(&mut pkg_list);
     }
@@ -68,14 +64,6 @@ fn main() {
     if args.validate_links {
         args::validate_links();
     }
-
-    //if args.sync {
-    //    args::sync();
-    //}
-    //
-    //if args.overwrite {
-    //    args::overwrite();
-    //}
 
     if let Some(pkgs) = args.list {
         args::list(pkgs);

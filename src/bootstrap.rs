@@ -2,11 +2,9 @@
 //
 // responsible for bootsrapping rid
 
-use crate::fetch::down;
-use crate::misc::exec;
 use crate::paths::*;
 use crate::tracking::create_json;
-use crate::{die, msg, vpr};
+use crate::{die, vpr};
 use std::fs;
 use std::path::Path;
 
