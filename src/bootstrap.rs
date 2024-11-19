@@ -10,24 +10,6 @@ use crate::{die, msg, vpr};
 use std::fs;
 use std::path::Path;
 
-pub fn bootstrap() {
-    msg!("Bootstrapping rid...");
-    let dirs = [&*RIDHOME, &*SOURCES, &*META];
-
-    for dir in dirs.iter() {
-        mkdir(dir)
-    }
-
-    let _ = down(
-        "https://raw.githubusercontent.com/Toxikuu/rid/refs/heads/master/install.sh",
-        true,
-    );
-
-    let command = "bash \"$RIDSOURCES\"/install.sh";
-    let _ = exec(command);
-    msg!("All done!")
-}
-
 fn mkdir(path: &Path) {
     if path.exists() {
         return;

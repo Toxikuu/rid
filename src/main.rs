@@ -53,9 +53,9 @@ fn main() {
         }
     }
 
-    if args.bootstrap {
-        bootstrap::bootstrap();
-    }
+    //if args.bootstrap {
+    //    bootstrap::bootstrap();
+    //}
 
     if args.cache {
         args::cache(&mut pkg_list);
