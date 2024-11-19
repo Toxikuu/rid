@@ -18,7 +18,7 @@ RIDDEST="$RIDTMP/dest"              # where some destdir installs are performed 
 RIDFAILED="$RIDTMP/failed"          # denotes a build failure
 
 RIDHOME="/rid"                      # rid's home directory
-RIDMETA="$RIDHOME/meta"             # where meta files (build scripts) are stored
+RIDMETA="/var/rid/meta"             # where meta files (build scripts) are stored
 RIDPKGSJSON="$RIDHOME/pkgs.json"    # stores package information
 RIDSOURCES="/sources"               # stores all tarballs
 
@@ -67,7 +67,13 @@ Feel free to download the script first and inspect it, editing it if you like.
 It is capable of detecting an existing install, in which case it updates.
 The script should be run with sudo, ie `sudo bash install.sh`.
 
-The install script accepts some of the environment variables from earlier, though the extent to which they work is not clear.
+If you do not have sudo, or you're trying to install rid from a script,
+set $TARGET_USER equal to the user who you want to own $RIDHOME and $RIDMETA.
+
+Additional environment variables accepted by the script include:
+- $RIDHOME
+- $RIDMETA
+- $RIDSOURCES
 
 ### Dependencies
 Rid depends on the following:
