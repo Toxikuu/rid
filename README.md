@@ -17,12 +17,10 @@ RIDEXTRACTION="$RIDTMP/extraction"  # where tarballs are extracted
 RIDDEST="$RIDTMP/dest"              # where some destdir installs are performed (may become obsolete)
 RIDFAILED="$RIDTMP/failed"          # denotes a build failure
 
-RIDHOME="/opt/rid"                  # rid's home directory
+RIDHOME="/rid"                      # rid's home directory
 RIDMETA="$RIDHOME/meta"             # where meta files (build scripts) are stored
-RIDBIN="$RIDHOME/bin"               # scripts used in the meta files are defined here
 RIDPKGSJSON="$RIDHOME/pkgs.json"    # stores package information
 RIDSOURCES="/sources"               # stores all tarballs
-RIDSETS="$RIDHOME/sets"             # stores sets
 
 # additionally, a log file exists at $RIDTMP/rid.log
 # and an environment file exists at $RIDHOME/env
@@ -67,7 +65,7 @@ curl -fsSL https://raw.githubusercontent.com/Toxikuu/rid/refs/heads/master/insta
 
 Feel free to download the script first and inspect it, editing it if you like.
 It is capable of detecting an existing install, in which case it updates.
-The important thing is not to run the script in a login shell as root (git panics).
+The script should be run with sudo, ie `sudo bash install.sh`.
 
 The install script accepts some of the environment variables from earlier, though the extent to which they work is not clear.
 
