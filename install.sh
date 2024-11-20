@@ -20,8 +20,15 @@ pushd . >/dev/null
 mkdir -pv "$RIDHOME" "$RIDMETA"
 chown -R  "$TU:$TU"  "$RIDHOME" "$RIDMETA"
 
-su -p "$TU" -c '
+export RIDHOME RIDMETA RIDSOURCES
+su "$TU" -c '
+env -i \
+       RIDHOME='"$RIDHOME"'   \
+       RIDMETA='"$RIDMETA"'   \
+       RIDSOURCES='"$RIDSOURCES"'
+
 PATH="/usr/bin:/usr/sbin:/opt/cargo/bin"
+echo "VARS: $RIDHOME $RIDMETA $RIDSOURCES $PATH"
 
 echo -e "\x1b[36;1m  Pulling latest changes...\x1b[0m"
 if [ ! -e "$RIDHOME"/.git ]; then
@@ -45,11 +52,16 @@ cargo strip             || true # in case the user doesnt have cargo strip
 '
 
 ln -sfv "$RIDHOME"/rid.sh /usr/bin/rid
-grep -qxF "export RIDHOME=$RIDHOME" /etc/profile ||
-     echo "export RIDHOME=$RIDHOME" >> /etc/profile
 
-grep -qxF "alias rid='sudo -i rid'" /etc/profile ||
-     echo "alias rid='sudo -i rid'" >> /etc/profile
+if ! grep -q "# rid end" /etc/env ; then
+    cat << EOF >> /etc/env
+
+    # rid
+    export RIDHOME="$RIDHOME"
+    alias rid="sudo -i rid"
+    # rid end
+EOF
+fi
 
 popd    >/dev/null
 echo -e "\x1b[36;1m  Done!\x1b[0m"
