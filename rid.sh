@@ -1,5 +1,5 @@
 #!/bin/bash
 
-. "$RIDHOME"/env || die "Failed to source rid's env"
+. /code/rid/env || die "Failed to source dev rid's env"
 
-"$RIDHOME"/target/release/rid "$@"
+/code/rid/target/release/rid "$@"
