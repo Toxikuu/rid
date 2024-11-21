@@ -16,6 +16,9 @@ die() {
     exit 1
 }
 
+[ -z $RIDBUILDING ] && die '$RIDBUILDING is unset'
+
+
 rm -rf   "$RIDBUILDING/"*     "$RIDEXTRACTION/"*
 tar xf   "$RIDSOURCES/$1-$2.t"* -C "$RIDEXTRACTION" || die "Failed to extract tarball"
 mkdir -p "$RIDBUILDING/$1-$2"
