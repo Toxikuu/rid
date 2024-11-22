@@ -21,11 +21,9 @@ mod pm;
 mod args;
 
 fn main() {
-    println!("Hi");
-
     let args = init_args();
 
-    flags::set_flags(true, args.quiet, args.force);
+    flags::set_flags(args.verbose, args.quiet, args.force);
 
     let pkglist = load_pkglist();
     let pkgs = args.packages;
@@ -44,5 +42,13 @@ fn main() {
 
     if args.dependencies {
         pm.dependencies()
+    }
+
+    if args.get {
+        pm.get()
+    }
+
+    if args.install {
+        pm.install()
     }
 }

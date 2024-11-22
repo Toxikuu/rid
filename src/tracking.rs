@@ -6,7 +6,7 @@ use crate::checks::is_file_empty;
 use crate::utils::get_mod_time;
 use crate::package::{Package, PackageStatus};
 use crate::paths::{FAILED, META, PKGSJSON};
-use crate::vpr;
+use crate::{die, vpr};
 use indicatif::{ProgressBar, ProgressStyle};
 use serde_json::{from_str, to_string_pretty};
 use std::collections::HashSet;
@@ -44,9 +44,9 @@ fn build_failed() -> bool {
 }
 
 // below is all out of date
-pub fn add(pkglist: &mut Vec<Package>, p: &Package) -> Result<(), String> {
+pub fn add(pkglist: &mut Vec<Package>, p: &Package) {
     if build_failed() {
-        return Err("Not tracking due to build failure".to_string());
+        die!("Build failed");
     }
 
     if let Some(package) = pkglist.iter_mut().find(|pkg| pkg.name == p.name) {
@@ -56,22 +56,22 @@ pub fn add(pkglist: &mut Vec<Package>, p: &Package) -> Result<(), String> {
     }
 
     save_pkglist(pkglist);
-    Ok(())
 }
 
-pub fn rem(pkg_list: &mut Vec<Package>, pkg_name: &str) -> Result<(), String> {
-    if let Some(package) = pkg_list.iter_mut().find(|p| p.name == pkg_name) {
+pub fn rem(pkglist: &mut Vec<Package>, p: &Package) {
+    if let Some(package) = pkglist.iter_mut().find(|pkg| pkg.name == p.name) {
         package.status = PackageStatus::Available;
         package.installed_version = "".to_string();
-        save_pkglist(pkg_list);
-        Ok(())
-    } else {
-        Err(format!("Package '{}' not found", pkg_name))
+        save_pkglist(pkglist);
+        return
     }
+
+    die!("Package '{}' not found", p)
 }
 
 const TEMPLATE: &str = "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {pos}/{len} ({eta})";
 
+// TODO: Add support for passing a custom cache_list
 pub fn cache_changes(pkglist: &mut Vec<Package>, cache_all: bool) -> io::Result<u16> {
     // caches changes made in $RIDMETA to $RIDPKGSJSON
     let json_mod_time = get_mod_time(&PKGSJSON)?;

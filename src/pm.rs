@@ -2,11 +2,13 @@
 //
 // package manager struct
 
+use crate::flags::FORCE;
 use crate::package::Package;
 use crate::resolvedeps::resolve_deps;
 use crate::{die, msg, erm};
-use crate::tracking::cache_changes;
-use crate::utils::display_list;
+use crate::tracking::{self, cache_changes};
+use crate::utils::{do_install, display_list};
+use crate::core::{mint, download, fetch};
 
 pub struct PM {
     pub pkgs: Vec<Package>,
@@ -55,6 +57,24 @@ impl PM {
             let d = resolve_deps(pkg, self.pkglist.clone());
             msg!("Dependencies for {}", pkg);
             display_list(d);
+        }
+    }
+
+    pub fn get(&self) {
+        for pkg in self.pkgs.clone() {
+            msg!("Getting files for {}", pkg);
+            download(pkg, true);
+        }
+    }
+
+    pub fn install(&mut self) {
+        for pkg in self.pkgs.clone() {
+            if do_install(&pkg) {
+                fetch(&pkg);
+                mint('i', &pkg);
+                tracking::add(&mut self.pkglist, &pkg);
+                msg!("Installed '{}'", pkg);
+            }
         }
     }
 }

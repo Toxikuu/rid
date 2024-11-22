@@ -69,6 +69,7 @@ pub fn handle_sets(pkgs: Vec<String>) -> Vec<String> {
     all
 }
 
+// TODO: Rewrite this using pkglist
 fn at_all() -> Vec<String> {
     let mut pkgs = Vec::new();
 

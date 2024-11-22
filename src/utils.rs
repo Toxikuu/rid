@@ -2,12 +2,25 @@
 //
 // responsible for defining utility functions
 
-use crate::package::Package;
-use crate::vpr;
+use crate::package::{Package, PackageStatus};
+use crate::{die, vpr, msg};
+use crate::flags::FORCE;
 use std::io;
 use std::fs;
 use std::time::SystemTime;
 use std::path::Path;
+
+pub fn mkdir(path: &Path) {
+    if path.exists() {
+        return;
+    }
+
+    if let Err(e) = fs::create_dir_all(path) {
+        die!("Failed to create '{}': {}", path.display(), e)
+    }
+
+    vpr!("Created directory '{}'", path.display());
+}
 
 pub fn get_mod_time(path: &Path) -> io::Result<SystemTime> {
     let metadata = fs::metadata(path)?;
@@ -59,4 +72,17 @@ pub fn dedup(mut vec: Vec<Package>) -> Vec<Package> {
     vec.sort_unstable_by(|a, b| a.name.cmp(&b.name));
     vec.dedup_by(|a, b| a.name == b.name);
     vec
+}
+
+pub fn do_install(p: &Package) -> bool {
+    match p.status {
+        PackageStatus::Installed => {
+            msg!("{} is already installed", p);
+            *FORCE.lock().unwrap()
+        }
+        _ => {
+            msg!("Installing {}", p);
+            true
+        }
+    }
 }
