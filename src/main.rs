@@ -10,7 +10,7 @@ mod utils;
 mod paths;
 mod core;
 mod misc;
-mod resolvedeps;
+mod resolve;
 mod flags;
 mod checks;
 mod package;
