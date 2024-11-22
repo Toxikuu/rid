@@ -4,12 +4,12 @@ use pm::PM;
 use sets::handle_sets;
 use tracking::load_pkglist;
 use package::Package;
-use args::init_args;
 
+mod init;
 mod utils;
 mod paths;
 mod core;
-mod misc;
+mod cmd;
 mod resolve;
 mod flags;
 mod checks;
@@ -21,12 +21,12 @@ mod pm;
 mod args;
 
 fn main() {
-    let args = init_args();
-
+    let args = args::init_args();
+    init::init();
     flags::set_flags(args.verbose, args.quiet, args.force);
 
-    let pkglist = load_pkglist();
     let pkgs = args.packages;
+    let pkglist = load_pkglist();
     let pkgs = handle_sets(pkgs, &pkglist);
     let pkgs = pkgs.iter().map(|pkg| Package::new(pkg, pkglist.clone())).collect::<Vec<Package>>();
 
