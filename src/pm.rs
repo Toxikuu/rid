@@ -116,7 +116,7 @@ impl PM {
         }
     }
 
-    pub fn prune(&mut self) {
+    pub fn prune(&self) {
         const BAR: &str = "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {pos}/{len} ({eta})";
         let mut tarballs_removed = 0;
         let length = self.pkgs.len() as u64;
