@@ -2,17 +2,22 @@
 # wr = write
 # $1 = package name
 
-[ -z "$1" ] && exit 1
-[ -z "$RIDMETA" ] && exit 1
+set +x
+set -e
+
+. "$RIDHOME"/env || { echo '$RIDHOME not set' >&2 ; exit 1 ;}
+
+[ -z "$1" ] && die 'Missing $1'
+[ -z "$RIDMETA" ] && die '$RIDMETA not set'
 
 METAFILE="$RIDMETA/$1"
 
 if [ -e "$METAFILE" ]; then
-  nvim "$METAFILE"
+  /usr/bin/nvim "$METAFILE"
   exit 0
 fi
 
-cat << ~fin. > "$METAFILE"
+/usr/bin/cat << ~fin. > "$METAFILE"
 #!/bin/bash
 NAME="$1"
 VERS=""
@@ -32,4 +37,4 @@ echo "not implemented"
 }
 ~fin.
 
-nvim "$METAFILE"
+/usr/bin/nvim "$METAFILE"
