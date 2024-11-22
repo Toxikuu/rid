@@ -1,17 +1,14 @@
 // src/misc.rs
 //
-// defines miscellaneous helper functions
+// defines functions related to command execution
 
 use crate::paths::TMPRID;
 use crate::{erm, pr};
-use std::fs::{self, OpenOptions as OO};
+use std::fs::OpenOptions as OO;
 use std::io::{self, BufRead, Write};
-use std::path::Path;
 use std::process::{Command, Stdio};
 use std::sync::{Arc, Mutex};
 use std::thread;
-use std::time::SystemTime;
-
 
 pub fn static_exec(command: &str) -> io::Result<String> {
     let output = Command::new("bash").arg("-c").arg(command).output()?;
@@ -27,6 +24,14 @@ pub fn static_exec(command: &str) -> io::Result<String> {
             ),
         ))
     }
+}
+
+pub fn interactive(command: &str) {
+    Command::new(command)
+        .spawn()
+        .expect("Failed to start neovim")
+        .wait()
+        .expect("Neovim process failed");
 }
 
 pub fn exec(command: &str) -> io::Result<()> {
