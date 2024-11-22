@@ -2,9 +2,9 @@
 //
 // defines core package-related functionality
 
-use crate::misc::static_exec;
+use crate::cmd::static_exec;
 use crate::paths::BIN;
-// use crate::sets::handle_sets;
+use crate::sets::handle_sets;
 use crate::{die, vpr};
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -102,7 +102,7 @@ impl Package {
             die!("Missing name for package: {}", pkg_name)
         }
 
-        // let deps = handle_sets(deps);
+        let deps = handle_sets(deps, &pkglist);
 
         let (status, installed_version) = pkglist
             .iter()
