@@ -26,14 +26,6 @@ pub fn static_exec(command: &str) -> io::Result<String> {
     }
 }
 
-pub fn interactive(command: &str) {
-    Command::new(command)
-        .spawn()
-        .expect("Failed to start neovim")
-        .wait()
-        .expect("Neovim process failed");
-}
-
 pub fn exec(command: &str) -> io::Result<()> {
     let mut child = Command::new("bash")
         .arg("-c")
@@ -75,7 +67,7 @@ pub fn exec(command: &str) -> io::Result<()> {
         for line in reader.lines() {
             match line {
                 Ok(line) => {
-                    pr!("\x1b[31;1;3m{}", line); // override default formatting for pr!
+                    pr!("\x1b[31;1;3m{}", line);
                     let log_line = format!("[ERR] {}\n", line);
                     let mut log_file = log_file_stderr.lock().unwrap();
                     let _ = write!(log_file, "{}", log_line);
