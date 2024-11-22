@@ -114,7 +114,7 @@ pub fn extract(p: &Package) -> Result<(), Box<dyn Error>> {
 }
 
 pub fn fetch(p: &Package) {
-    download(p.clone(), *FORCE.lock().unwrap());
+    download(p.clone(), false);
     if extract(p).is_err() {
         download(p.clone(), true);
         if extract(p).is_err() {
