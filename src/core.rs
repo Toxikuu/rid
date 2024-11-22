@@ -10,10 +10,10 @@ use std::path::Path;
 use ureq::{Response, get};
 use crate::paths::{BUILDING, BIN, SOURCES};
 use crate::package::Package;
-use crate::{vpr, die};
+use crate::resolve::find_dependants;
+use crate::{erm, yn, vpr, die};
 use crate::misc::{static_exec, exec};
-use crate::utils::mkdir;
-use crate::flags::FORCE;
+use crate::utils::{display_list, mkdir};
 
 pub fn mint(a: char, p: &Package) {
     let command = format!("{}/mint {} {}", BIN.display(), a, p.name);
@@ -121,4 +121,19 @@ pub fn fetch(p: &Package) {
             die!("Failed to recover from corrupt tarball")
         }
     }
+}
+
+pub fn confirm_removal(pkg: &Package, pkglist: &[Package]) -> bool {
+    vpr!("Checking dependants for '{}'", pkg);
+    let dependants = find_dependants(pkg.clone(), pkglist.to_vec());
+    let len = dependants.len();
+
+    vpr!("Found {} dependants", len);
+    if dependants.is_empty() { return true }
+
+    erm!("Found {} dependant packages:", len);
+    display_list(dependants);
+
+    let message = format!("Remove '{}' ({} dependants)?", pkg, len);
+    yn!(&message, false)
 }

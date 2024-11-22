@@ -2,13 +2,12 @@
 //
 // package manager struct
 
-use crate::flags::FORCE;
 use crate::package::Package;
-use crate::resolvedeps::resolve_deps;
+use crate::resolve::{resolve_deps, find_dependants, deep_dependants};
 use crate::{die, msg, erm};
 use crate::tracking::{self, cache_changes};
 use crate::utils::{do_install, display_list};
-use crate::core::{mint, download, fetch};
+use crate::core::{confirm_removal, mint, download, fetch};
 
 pub struct PM {
     pub pkgs: Vec<Package>,
@@ -75,6 +74,18 @@ impl PM {
                 tracking::add(&mut self.pkglist, &pkg);
                 msg!("Installed '{}'", pkg);
             }
+        }
+    }
+
+    pub fn remove(&mut self) {
+        for pkg in self.pkgs.clone() {
+            if !confirm_removal(&pkg, &self.pkglist) {
+                return
+            }
+
+            mint('r', &pkg);
+            tracking::rem(&mut self.pkglist, &pkg);
+            msg!("Removed '{}'", pkg);
         }
     }
 }
