@@ -12,7 +12,7 @@ use crate::paths::{BUILDING, BIN, SOURCES};
 use crate::package::Package;
 use crate::resolve::find_dependants;
 use crate::{erm, yn, vpr, die};
-use crate::misc::{static_exec, exec};
+use crate::cmd::{static_exec, exec};
 use crate::utils::{display_list, mkdir};
 
 pub fn mint(a: char, p: &Package) {
@@ -144,6 +144,7 @@ fn is_removable(entry: &DirEntry, p: &Package) -> bool {
     let file_name_str = file_name.to_string_lossy();
     entry.file_type().is_ok_and(|t| t.is_file())
         && file_name_str.starts_with(&p.to_string())
+        && file_name_str.ends_with(".tar")
         && file_name_str != kept
 }
 
