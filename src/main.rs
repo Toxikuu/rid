@@ -63,4 +63,8 @@ fn main() {
     if args.news {
         pm.news()
     }
+
+    if args.prune {
+        pm.prune()
+    }
 }

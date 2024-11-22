@@ -4,11 +4,12 @@
 
 use crate::package::Package;
 use crate::resolve::{resolve_deps, find_dependants, deep_dependants};
-use crate::{die, pr, msg, erm};
+use crate::{die, vpr, pr, msg, erm};
 use crate::tracking::{self, cache_changes};
 use crate::utils::{do_install, display_list};
-use crate::core::{confirm_removal, mint, download, fetch};
+use crate::core::{confirm_removal, mint, download, fetch, prune_sources};
 use crate::flags::FORCE;
+use indicatif::{ProgressStyle, ProgressBar};
 
 pub struct PM {
     pub pkgs: Vec<Package>,
@@ -113,5 +114,31 @@ impl PM {
                 pr!("\x1b[31;3m{}\x1b[0m\n", pkg.news);
             }
         }
+    }
+
+    pub fn prune(&mut self) {
+        const BAR: &str = "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {pos}/{len} ({eta})";
+        let mut tarballs_removed = 0;
+        let length = self.pkgs.len() as u64;
+        let bar = ProgressBar::new(length);
+
+        bar.set_message("Pruning packages");
+        bar.set_style(
+            ProgressStyle::with_template(BAR)
+                .unwrap()
+                .progress_chars("#|-"),
+        );
+        bar.set_length(length);
+
+        for pkg in self.pkgs.iter() {
+            vpr!("Pruning {}", pkg);
+            let num_removed = prune_sources(pkg);
+            vpr!("Pruned {} tarballs for '{}'", num_removed, pkg);
+            tarballs_removed += num_removed;
+            bar.inc(1);
+        }
+
+        bar.finish_with_message("Pruned");
+        msg!("Pruned {} tarballs for {} packages", tarballs_removed, length);
     }
 }

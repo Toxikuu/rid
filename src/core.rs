@@ -3,7 +3,7 @@
 // defines core functionality
 
 use std::io::{self, Write};
-use std::fs::File;
+use std::fs::{self, File, read_dir, DirEntry};
 use indicatif::{ProgressBar, ProgressStyle};
 use std::error::Error;
 use std::path::Path;
@@ -136,4 +136,49 @@ pub fn confirm_removal(pkg: &Package, pkglist: &[Package]) -> bool {
 
     let message = format!("Remove '{}' ({} dependants)?", pkg, len);
     yn!(&message, false)
+}
+
+fn is_removable(entry: &DirEntry, p: &Package) -> bool {
+    let kept = format!("{}.tar", p);
+    let file_name = entry.file_name();
+    let file_name_str = file_name.to_string_lossy();
+    entry.file_type().is_ok_and(|t| t.is_file())
+        && file_name_str.starts_with(&p.to_string())
+        && file_name_str != kept
+}
+
+fn remove_file(entry: &fs::DirEntry) -> Result<(), std::io::Error> {
+    let file_name = entry.file_name();
+    if let Err(e) = fs::remove_file(entry.path()) {
+        erm!("Failed to remove file '{:?}': {}", file_name, e);
+        return Err(e);
+    }
+    Ok(())
+}
+
+pub fn prune_sources(p: &Package) -> u8 {
+    let mut num_removed: u8 = 0;
+
+    if let Err(e) = read_dir(&*SOURCES).map(|entries| {
+        entries
+            .filter_map(Result::ok)
+            .filter(|entry| is_removable(entry, p))
+            .for_each(|entry| {
+                if remove_file(&entry).is_ok() {
+                    num_removed += 1;
+                    vpr!("Removed {:?}", entry);
+                }
+            })
+    }) {
+        die!("Failed to read sources directory: {}", e);
+    }
+
+    num_removed
+}
+
+pub fn remove_tarballs(pkg_str: &str) {
+    let command = format!("cd {} && rm -vf {}-[0-9]*.t*", SOURCES.display(), pkg_str);
+    if let Err(e) = static_exec(&command) {
+        erm!("Failed to remove tarballs for '{}': {}", pkg_str, e)
+    }
 }
