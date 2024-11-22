@@ -27,7 +27,7 @@ fn main() {
 
     let pkglist = load_pkglist();
     let pkgs = args.packages;
-    let pkgs = handle_sets(pkgs);
+    let pkgs = handle_sets(pkgs, &pkglist);
     let pkgs = pkgs.iter().map(|pkg| Package::new(pkg, pkglist.clone())).collect::<Vec<Package>>();
 
     let mut pm = PM::new(pkgs, pkglist);
