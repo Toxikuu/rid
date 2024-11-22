@@ -51,4 +51,8 @@ fn main() {
     if args.install {
         pm.install()
     }
+
+    if args.remove {
+        pm.remove()
+    }
 }
