@@ -48,11 +48,19 @@ fn main() {
         pm.get()
     }
 
+    if args.remove {
+        pm.remove()
+    }
+
     if args.install {
         pm.install()
     }
 
-    if args.remove {
-        pm.remove()
+    if args.update {
+        pm.update()
+    }
+
+    if args.news {
+        pm.news()
     }
 }

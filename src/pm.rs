@@ -4,10 +4,11 @@
 
 use crate::package::Package;
 use crate::resolve::{resolve_deps, find_dependants, deep_dependants};
-use crate::{die, msg, erm};
+use crate::{die, pr, msg, erm};
 use crate::tracking::{self, cache_changes};
 use crate::utils::{do_install, display_list};
 use crate::core::{confirm_removal, mint, download, fetch};
+use crate::flags::FORCE;
 
 pub struct PM {
     pub pkgs: Vec<Package>,
@@ -67,25 +68,50 @@ impl PM {
     }
 
     pub fn install(&mut self) {
-        for pkg in self.pkgs.clone() {
-            if do_install(&pkg) {
-                fetch(&pkg);
-                mint('i', &pkg);
-                tracking::add(&mut self.pkglist, &pkg);
+        for pkg in self.pkgs.iter() {
+            if do_install(pkg) {
+                fetch(pkg);
+                mint('i', pkg);
+                tracking::add(&mut self.pkglist, pkg);
                 msg!("Installed '{}'", pkg);
             }
         }
     }
 
+    pub fn update(&mut self) {
+        for pkg in self.pkgs.iter() {
+            if pkg.installed_version == pkg.version && !*FORCE.lock().unwrap() {
+                msg!("Package '{}' up to date", pkg);
+                return;
+            }
+
+            msg!("Updating '{}'...", pkg);
+            fetch(pkg);
+            mint('u', pkg);
+
+            tracking::add(&mut self.pkglist, pkg);
+            msg!("Updated '{}'", pkg);
+        }
+    }
+
     pub fn remove(&mut self) {
-        for pkg in self.pkgs.clone() {
-            if !confirm_removal(&pkg, &self.pkglist) {
+        for pkg in self.pkgs.iter() {
+            if !confirm_removal(pkg, &self.pkglist) {
                 return
             }
 
-            mint('r', &pkg);
-            tracking::rem(&mut self.pkglist, &pkg);
+            mint('r', pkg);
+            tracking::rem(&mut self.pkglist, pkg);
             msg!("Removed '{}'", pkg);
+        }
+    }
+
+    pub fn news(&mut self) {
+        for pkg in self.pkgs.iter() {
+            if !pkg.news.is_empty() {
+                msg!("News for '{}':", pkg);
+                pr!("\x1b[31;3m{}\x1b[0m\n", pkg.news);
+            }
         }
     }
 }
