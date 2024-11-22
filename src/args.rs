@@ -53,6 +53,9 @@ pub struct Args {
     #[arg(short = 'n', long, action = ArgAction::SetTrue)]
     pub news: bool,
 
+    #[arg(short = 'w', long, action = ArgAction::SetTrue)]
+    pub write: bool,
+
     // Function flags
     #[arg(short = 'c', long, action = ArgAction::SetTrue)]
     pub cache: bool,
