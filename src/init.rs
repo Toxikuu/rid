@@ -2,6 +2,7 @@
 //
 // initializes rid
 
+use crate::checks::check_perms;
 use crate::tracking;
 use crate::die;
 use crate::utils::mkdir;
@@ -19,5 +20,6 @@ fn tmp() {
 }
 
 pub fn init() {
+    check_perms();
     tmp()
 }
