@@ -79,6 +79,22 @@ impl PM {
         }
     }
 
+    pub fn install_with_dependencies(&mut self) {
+        for pkg in self.pkgs.iter() {
+            let deps = resolve_deps(pkg, self.pkglist.clone());
+            msg!("Dependencies for '{}'", pkg);
+            display_list(deps.clone());
+            for dep in deps.iter() {
+                if do_install(dep) {
+                    fetch(dep);
+                    mint('i', dep);
+                    tracking::add(&mut self.pkglist, pkg);
+                    msg!("Installed '{}'", pkg);
+                }
+            }
+        }
+    }
+
     pub fn update(&mut self) {
         for pkg in self.pkgs.iter() {
             if pkg.installed_version == pkg.version && !*FORCE.lock().unwrap() {
@@ -92,6 +108,27 @@ impl PM {
 
             tracking::add(&mut self.pkglist, pkg);
             msg!("Updated '{}'", pkg);
+        }
+    }
+
+    pub fn update_with_dependencies(&mut self) {
+        for pkg in self.pkgs.iter() {
+            let deps = resolve_deps(pkg, self.pkglist.clone());
+            msg!("Dependencies for '{}'", pkg);
+            display_list(deps.clone());
+            for dep in deps.iter() {
+                if dep.installed_version == dep.version && !*FORCE.lock().unwrap() {
+                    msg!("Package '{}' up to date", dep);
+                    return;
+                }
+
+                msg!("Updating '{}'...", dep);
+                fetch(dep);
+                mint('u', dep);
+
+                tracking::add(&mut self.pkglist, dep);
+                msg!("Updated '{}'", dep);
+            }
         }
     }
 
