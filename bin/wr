@@ -13,11 +13,11 @@ set -e
 METAFILE="$RIDMETA/$1"
 
 if [ -e "$METAFILE" ]; then
-  /usr/bin/nvim "$METAFILE"
+  nvim "$METAFILE"
   exit 0
 fi
 
-/usr/bin/cat << ~fin. > "$METAFILE"
+cat << ~fin. > "$METAFILE"
 #!/bin/bash
 NAME="$1"
 VERS=""
@@ -37,4 +37,5 @@ echo "not implemented"
 }
 ~fin.
 
-/usr/bin/nvim "$METAFILE"
+nvim "$METAFILE"
+chmod +x "$METAFILE"
