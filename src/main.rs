@@ -25,9 +25,19 @@ fn main() {
     init::init();
     flags::set_flags(args.verbose, args.quiet, args.force);
 
+
     let pkgs = args.packages;
-    let pkglist = load_pkglist();
+    let mut pkglist = load_pkglist();
     let pkgs = handle_sets(pkgs, &pkglist);
+
+    if !args.cache {
+        vpr!("Autocaching...");
+        match tracking::cache_changes(&mut pkglist, false) {
+            Ok(num) => vpr!("Autocached {} packages", num),
+            Err(e) => die!("Error autocaching: {}", e),
+        }
+    }
+
     let pkgs = pkgs.iter().map(|pkg| Package::new(pkg, pkglist.clone())).collect::<Vec<Package>>();
 
     let mut pm = PM::new(pkgs, pkglist);
@@ -56,8 +66,16 @@ fn main() {
         pm.install()
     }
 
+    if args.install_with_dependencies {
+        pm.install_with_dependencies()
+    }
+
     if args.update {
         pm.update()
+    }
+
+    if args.update_with_dependencies {
+        pm.update_with_dependencies()
     }
 
     if args.news {
