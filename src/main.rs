@@ -30,6 +30,7 @@ fn main() {
     let mut pkglist = load_pkglist();
     let pkgs = handle_sets(pkgs, &pkglist);
 
+    // could probably be a pm method(?)
     if !args.cache {
         vpr!("Autocaching...");
         match tracking::cache_changes(&mut pkglist, false) {
