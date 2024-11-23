@@ -67,14 +67,14 @@ fn dl_bar(
 }
 
 pub fn download(p: Package, force: bool) {
+    let tarball_link = &p.link;
     let tarball = format!("{}.tar", p);
-    let tarball_link = p.link;
     let tarball_path = &SOURCES.join(&tarball);
     let extra_links = p.downloads;
 
-    if !tarball_path.exists() || force {
+    if !tarball_link.is_empty() && (!tarball_path.exists() || force) {
         vpr!("Downloading '{}' from '{}'...", tarball, tarball_link);
-        let r = get(&tarball_link).call().expect("Failed to get tarball");
+        let r = get(tarball_link).call().expect("Failed to get tarball");
 
         if let Err(e) = dl_bar(r, &tarball, tarball_path) {
             die!("Failed to download url '{}': {}", tarball_link, e)
