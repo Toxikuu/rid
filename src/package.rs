@@ -98,10 +98,7 @@ impl Package {
             }
         }
 
-        if name.is_empty() {
-            die!("Missing name for package: {}", pkg_name)
-        }
-
+        if name.is_empty() { die!("Missing name for package: {}", pkg_name) }
         let deps = handle_sets(deps, &pkglist);
 
         let (status, installed_version) = pkglist
@@ -125,4 +122,3 @@ impl Package {
         }
     }
 }
-
