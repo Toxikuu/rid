@@ -6,7 +6,7 @@ use crate::package::Package;
 use crate::resolve::{resolve_deps, find_dependants, deep_dependants};
 use crate::{die, vpr, pr, msg, erm};
 use crate::tracking::{self, cache_changes};
-use crate::utils::{do_install, display_list};
+use crate::utils::{dedup, display_list, do_install};
 use crate::core::{confirm_removal, mint, download, fetch, prune_sources};
 use crate::flags::FORCE;
 use indicatif::{ProgressStyle, ProgressBar};
@@ -58,6 +58,31 @@ impl PM {
             let d = resolve_deps(pkg, self.pkglist.clone());
             msg!("Dependencies for {}", pkg);
             display_list(d);
+        }
+    }
+
+    // I don't like how this uses the force flag, but it's the best solution I
+    // can think of for adding deep_dependants() functionality
+    pub fn dependants(&self) {
+        for pkg in self.pkgs.iter() {
+
+            if *FORCE.lock().unwrap() {
+                let mut all_dependants: Vec<Package> = Vec::new();
+                let deps = resolve_deps(pkg, self.pkglist.clone());
+                for dep in deps.iter() {
+                    let d = find_dependants(dep, self.pkglist.clone());
+                    all_dependants.extend(d);
+                }
+                let all_dependants = dedup(all_dependants);
+                msg!("Deep dependants for {}", pkg);
+                display_list(all_dependants);
+                return
+            }
+
+            let d = find_dependants(pkg, self.pkglist.clone());
+            msg!("Direct dependants for {}", pkg);
+            display_list(d);
+            vpr!("Tip: Use -fD for deep dependants")
         }
     }
 
