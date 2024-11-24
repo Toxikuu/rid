@@ -2,10 +2,16 @@
 
 TODO
 
+    Implement proper removal for packages no longer in $RIDMETA from json
+        Would be done with -fc
+
     Move $RIDSETS to rid-meta
 
     Merge stabs and linkval into rid
 
+    Repo syncing
+        I'm thinking I write a script in $RIDBIN to sync all repositories in $RIDMETA
+        I'm avoiding git submodules for simplicity and extensibility
 
     Add a config file
         Ideas:
@@ -13,22 +19,18 @@ TODO
         - Custom repositories
             - Could be done by switching the RIDMETA variable in the env file, but ideally, multiple repositories could be supported at once. maybe symlinks are the answer?
 
-    Support -k <PACKAGE>
+    Add support for parallel downloads
+        I'm thinking 16 threads?
 
     Maybe add -m and -M for maintenance (along with $MDIR)
 
     Rewrite mo in bash
-
-    Add -a flag for ask
 
 WIP
 
     Add a PM (PackageManager) struct
         implement missing flags
         implement autocaching
-
-    Improve bootstrapping process
-        Improve syncing (rid -i rid currently works great, but maybe make rid -s an alias?)
 
     Improve documentation
 
@@ -38,6 +40,10 @@ WIP
         Install.sh and the new wrapper script are huge UX improvements
 
 DONEISH
+
+    Support -c <PACKAGE>
+
+    Support -k <PACKAGE>
 
     Migrate from using $TARGET_USER to $TU
 
@@ -85,6 +91,9 @@ DONEISH
     add @all set
 
 DROPPED
+
+    Add -a flag for ask
+        I don't feel like doing it lol
 
     Add package build flags (formatted as <package>#<feature>)
         Massive pain in the ass
