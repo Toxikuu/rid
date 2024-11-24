@@ -29,7 +29,7 @@ pub fn resolve_deps(pkg: &Package, pkglist: Vec<Package>) -> Vec<Package> {
     deps
 }
 
-pub fn find_dependants(pkg: Package, pkglist: Vec<Package>) -> Vec<Package> {
+pub fn find_dependants(pkg: &Package, pkglist: Vec<Package>) -> Vec<Package> {
     let mut dependants = pkglist
         .iter()
         .filter(|p| p.deps.contains(&pkg.name))
@@ -44,7 +44,7 @@ pub fn find_dependants(pkg: Package, pkglist: Vec<Package>) -> Vec<Package> {
 pub fn deep_dependants(deps: Vec<Package>, pkglist: &[Package]) -> Vec<Package> {
     let mut dependants = Vec::new();
     for dep in deps {
-        let dep_dependants = find_dependants(dep, pkglist.to_vec());
+        let dep_dependants = find_dependants(&dep, pkglist.to_vec());
         dependants.extend(dep_dependants);
     }
     dedup(dependants)
