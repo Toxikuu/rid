@@ -205,9 +205,14 @@ impl PM {
         msg!("Pruned {} tarballs for {} packages", tarballs_removed, length);
     }
 
-    // TODO: Allow individual packages to be passed
     pub fn check_upstream(&self) {
-        msg!("Checking upstream versions for all packages");
-        check_upstream(&self.pkglist)
+        let pkgs = if !self.pkgs.is_empty() {
+            self.pkgs.clone()
+        } else {
+            self.pkglist.clone()
+        };
+
+        msg!("Checking upstream versions");
+        check_upstream(&pkgs)
     }
 }
