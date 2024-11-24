@@ -5,7 +5,7 @@
 use crate::package::Package;
 use crate::resolve::{resolve_deps, find_dependants, deep_dependants};
 use crate::{die, vpr, pr, yn, msg, erm};
-use crate::tracking::{self, cache_changes};
+use crate::tracking;
 use crate::utils::{dedup, display_list, do_install};
 use crate::core::{confirm_removal, mint, download, fetch, prune_sources};
 use crate::flags::FORCE;
@@ -44,14 +44,6 @@ impl PM {
 
         msg!("PACKAGES");
         display_list(&displayed);
-    }
-
-    pub fn cache(&mut self) {
-        msg!("Caching packages to json...");
-        match cache_changes(&mut self.pkglist, true) {
-            Ok(n) => msg!("Cached {} packages", n),
-            Err(e) => erm!("Failed to cache: {}", e)
-        }
     }
 
     pub fn dependencies(&self) {
