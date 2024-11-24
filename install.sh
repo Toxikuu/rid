@@ -4,7 +4,7 @@
 [ "$EUID" -ne 0   ]  &&  { echo -e "\x1b[31;1m  Run this script as root\x1b[0m" ; exit 1 ;}
 
 [ -z "$SUDO_USER" ]  &&  SUDO_USER="$TU"
-[ -z "$SUDO_USER" ]  &&  { echo -e "\x1b[31;1m  Run this script with sudo or else set $TU=\"<user>\"\x1b[0m" >&2 ; exit 1 ;}
+[ -z "$SUDO_USER" ]  &&  { echo -e "\x1b[31;1m  Run this script with sudo or else set \$TU=\"<user>\"\x1b[0m" >&2 ; exit 1 ;}
 
 TU="$SUDO_USER"
 [ -z "$TU" ] && { echo -e "\x1b[31;1m  Could not determine target user!\x1b[0m" >&2; exit 1; }
@@ -48,7 +48,7 @@ echo "Pulled for RIDMETA ($RIDMETA)"
 echo -e "\x1b[36;1m  Building rid...\x1b[0m"
 cd   "$RIDHOME"
 cargo build --release
-cargo strip             || : # in case the user doesnt have cargo strip
+cargo strip >/dev/null 2>&1 || : # in case the user doesnt have cargo strip
 '
 
 ln -sfv "$RIDHOME"/rid.sh /usr/bin/rid
