@@ -125,7 +125,7 @@ pub fn fetch(p: &Package) {
 
 pub fn confirm_removal(pkg: &Package, pkglist: &[Package]) -> bool {
     vpr!("Checking dependants for '{}'", pkg);
-    let dependants = find_dependants(pkg.clone(), pkglist.to_vec());
+    let dependants = find_dependants(&pkg.clone(), pkglist.to_vec());
     let len = dependants.len();
 
     vpr!("Found {} dependants", len);
