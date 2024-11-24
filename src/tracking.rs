@@ -3,15 +3,15 @@
 // responsible for keeping track of packages
 
 use crate::checks::is_file_empty;
-use crate::misc::get_mod_time;
-use crate::package::{form_package, Package, PackageStatus};
+use crate::utils::get_mod_time;
+use crate::package::{Package, PackageStatus};
 use crate::paths::{FAILED, META, PKGSJSON};
 use crate::{die, vpr};
 use indicatif::{ProgressBar, ProgressStyle};
 use serde_json::{from_str, to_string_pretty};
 use std::collections::HashSet;
 use std::fs::{self, read_to_string, File};
-use std::io::{self, Read, Write};
+use std::io::{self, Write};
 use std::path::Path;
 
 pub fn create_json() -> io::Result<()> {
@@ -26,21 +26,13 @@ pub fn create_json() -> io::Result<()> {
     Ok(())
 }
 
-pub fn read_pkgs_json() -> Result<Vec<Package>, String> {
-    let contents = read_to_string(&*PKGSJSON).map_err(|e| e.to_string())?;
-    from_str(&contents).map_err(|e| e.to_string())
+pub fn load_pkglist() -> Vec<Package> {
+    let contents = read_to_string(&*PKGSJSON).unwrap();
+    let pkglist: Vec<Package> = from_str(&contents).unwrap();
+    pkglist
 }
 
-pub fn load_package_list() -> Vec<Package> {
-    let mut file = File::open(&*PKGSJSON).unwrap();
-    let mut content = String::new();
-
-    file.read_to_string(&mut content).unwrap();
-    let pkg_list: Vec<Package> = from_str(&content).unwrap();
-    pkg_list
-}
-
-pub fn save_package_list(pkg_list: &Vec<Package>) {
+pub fn save_pkglist(pkg_list: &Vec<Package>) {
     let jsdata = to_string_pretty(pkg_list).expect("Failed to serialize package data");
     let mut file = File::create(&*PKGSJSON).expect("Failed to create $RIDPKGSJSON");
     file.write_all(jsdata.as_bytes())
@@ -51,35 +43,36 @@ fn build_failed() -> bool {
     Path::new(&*FAILED).exists()
 }
 
-pub fn add_package(pkg_list: &mut Vec<Package>, p: &Package) -> Result<(), String> {
+// below is all out of date
+pub fn add(pkglist: &mut Vec<Package>, p: &Package) {
     if build_failed() {
-        return Err("Not tracking due to build failure".to_string());
+        die!("Build failed");
     }
 
-    if let Some(package) = pkg_list.iter_mut().find(|pkg| pkg.name == p.name) {
-        vpr!("Adding package: '{}'", package.name);
+    if let Some(package) = pkglist.iter_mut().find(|pkg| pkg.name == p.name) {
+        vpr!("Adding package: '{}'", package);
         package.status = PackageStatus::Installed;
         package.installed_version = package.version.clone();
     }
 
-    save_package_list(pkg_list);
-    Ok(())
+    save_pkglist(pkglist);
 }
 
-pub fn remove_package(pkg_list: &mut Vec<Package>, pkg_name: &str) -> Result<(), String> {
-    if let Some(package) = pkg_list.iter_mut().find(|p| p.name == pkg_name) {
+pub fn rem(pkglist: &mut Vec<Package>, p: &Package) {
+    if let Some(package) = pkglist.iter_mut().find(|pkg| pkg.name == p.name) {
         package.status = PackageStatus::Available;
         package.installed_version = "".to_string();
-        save_package_list(pkg_list);
-        Ok(())
-    } else {
-        Err(format!("Package '{}' not found", pkg_name))
+        save_pkglist(pkglist);
+        return
     }
+
+    die!("Package '{}' not found", p)
 }
 
 const TEMPLATE: &str = "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {pos}/{len} ({eta})";
 
-pub fn cache_changes(pkg_list: &mut Vec<Package>, cache_all: bool) -> io::Result<u16> {
+// TODO: Add support for passing a custom cache_list
+pub fn cache_changes(pkglist: &mut Vec<Package>, cache_all: bool) -> io::Result<u16> {
     // caches changes made in $RIDMETA to $RIDPKGSJSON
     let json_mod_time = get_mod_time(&PKGSJSON)?;
     let ignored: HashSet<String> = ["README.md", "LICENSE", ".git"]
@@ -124,23 +117,16 @@ pub fn cache_changes(pkg_list: &mut Vec<Package>, cache_all: bool) -> io::Result
     bar.set_length(length);
 
     for pkg_str in cache_list {
-        match form_package(&pkg_str) {
-            Ok(pkg) => {
-                if let Some(pos) = pkg_list.iter_mut().position(|p| p.name == pkg.name) {
-                    pkg_list[pos] = pkg;
-                    bar.inc(1);
-                } else {
-                    pkg_list.push(pkg);
-                    bar.inc(1);
-                }
-
-                if length > 0 {
-                    save_package_list(pkg_list);
-                }
-            }
-            Err(e) if e == "refused" => continue,
-            Err(e) => die!("Error processing '{}': {}", pkg_str, e),
+        let pkg = Package::def(&pkg_str, pkglist.to_vec());
+        if let Some(pos) = pkglist.iter_mut().position(|p| p.name == pkg.name) {
+            pkglist[pos] = pkg;
+            bar.inc(1);
+        } else {
+            pkglist.push(pkg);
+            bar.inc(1);
         }
+
+        save_pkglist(pkglist);
     }
 
     bar.finish_with_message("Cached!");

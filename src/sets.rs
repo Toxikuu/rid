@@ -2,9 +2,10 @@
 //
 // responsible for sets functionality
 
-use crate::paths::{META, SETS};
+use crate::paths::SETS;
 use crate::{die, erm, vpr};
-use std::fs::{read_dir, File};
+use crate::package::Package;
+use std::fs::File;
 use std::io::{BufRead, BufReader};
 
 pub fn is_set(pkg: &str) -> bool {
@@ -15,9 +16,9 @@ pub fn is_comment(pkg: &str) -> bool {
     pkg.contains("//") || pkg.trim().is_empty()
 }
 
-pub fn expand_set(set: &str) -> Vec<String> {
+pub fn expand_set(set: &str, pkglist: &Vec<Package>) -> Vec<String> {
     if set == "@all" {
-        return at_all();
+        return pkglist.into_iter().map(|p| p.name.clone()).collect()
     }
 
     let file_path = format!("{}/{}", SETS.display(), set.replacen('@', "", 1));
@@ -40,7 +41,7 @@ pub fn expand_set(set: &str) -> Vec<String> {
                 }
 
                 if is_set(&pk) {
-                    all_packages.extend(expand_set(&pk));
+                    all_packages.extend(expand_set(&pk, pkglist));
                 } else {
                     all_packages.push(pk);
                 }
@@ -55,38 +56,16 @@ pub fn expand_set(set: &str) -> Vec<String> {
     all_packages
 }
 
-pub fn handle_sets(pkgs: Vec<String>) -> Vec<String> {
+pub fn handle_sets(pkgs: Vec<String>, pkglist: &Vec<Package>) -> Vec<String> {
     // unravels any sets in the pkgs vector, returning a vector without sets
     let mut all = Vec::new();
     for pkg in pkgs {
         if is_set(&pkg) {
-            let set = expand_set(&pkg);
+            let set = expand_set(&pkg, &pkglist);
             all.extend(set);
         } else {
             all.push(pkg)
         }
     }
     all
-}
-
-fn at_all() -> Vec<String> {
-    let mut pkgs = Vec::new();
-
-    if let Ok(entries) = read_dir(&*META) {
-        for entry in entries.flatten() {
-            let pkg = entry.file_name().into_string().unwrap();
-
-            if pkg == ".git" || pkg == "README.md" || pkg == "LICENSE" {
-                continue;
-            }
-
-            if entry.path().is_file() {
-                pkgs.push(pkg);
-            }
-        }
-    } else {
-        erm!("Failed to compose @all")
-    }
-
-    pkgs
 }

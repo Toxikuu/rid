@@ -18,7 +18,7 @@ export RIDEXTRACTION="$RIDTMP/extraction"
 export RIDDEST="$RIDTMP/dest"
 export RIDFAILED="$RIDTMP/failed"
 
-export RIDHOME="/rid"
+export RIDHOME="/code/rid"
 export RIDMETA="/var/rid/meta"
 export RIDPKGSJSON="$RIDHOME/pkgs.json"
 export RIDSOURCES="/sources"

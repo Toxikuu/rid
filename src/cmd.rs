@@ -1,47 +1,14 @@
 // src/misc.rs
 //
-// defines miscellaneous helper functions
+// defines functions related to command execution
 
 use crate::paths::TMPRID;
 use crate::{erm, pr};
-use std::fs::{self, OpenOptions as OO};
+use std::fs::OpenOptions as OO;
 use std::io::{self, BufRead, Write};
-use std::path::Path;
 use std::process::{Command, Stdio};
 use std::sync::{Arc, Mutex};
 use std::thread;
-use std::time::SystemTime;
-
-pub fn get_mod_time(path: &Path) -> io::Result<SystemTime> {
-    let metadata = fs::metadata(path)?;
-    metadata
-        .modified()
-        .map_err(|e| io::Error::new(io::ErrorKind::Other, e))
-}
-
-pub fn format_line(line: &str, max_length: usize) -> String {
-    let parts: Vec<&str> = line.split('~').collect();
-
-    if parts.len() < 2 {
-        return line.to_string();
-    }
-
-    let package_info = parts[0].trim();
-    let status = parts[1].trim();
-    let formatted_status = if status.contains("Available") {
-        format!("\x1b[30m{}\x1b[0m", status)
-    } else if status.contains("Installed") {
-        format!("\x1b[36;1m{}\x1b[0m", status)
-    } else {
-        unreachable!("Invalid status for format_line()")
-    };
-
-    let name_version_length = package_info.len() + 1;
-    let padding = max_length.saturating_sub(name_version_length); // thank you rust-analyzer :))
-    let spaces = " ".repeat(padding);
-
-    format!("{}{} ~ {}", package_info, spaces, formatted_status)
-}
 
 pub fn static_exec(command: &str) -> io::Result<String> {
     let output = Command::new("bash").arg("-c").arg(command).output()?;
@@ -100,7 +67,7 @@ pub fn exec(command: &str) -> io::Result<()> {
         for line in reader.lines() {
             match line {
                 Ok(line) => {
-                    pr!("\x1b[31;1;3m{}", line); // override default formatting for pr!
+                    pr!("\x1b[31;1;3m{}", line);
                     let log_line = format!("[ERR] {}\n", line);
                     let mut log_file = log_file_stderr.lock().unwrap();
                     let _ = write!(log_file, "{}", log_line);

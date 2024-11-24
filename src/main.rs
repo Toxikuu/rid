@@ -1,119 +1,102 @@
-// src/main.rs
+// main.rs
 
-use checks::check_perms;
-use defargs::init_args;
+use pm::PM;
+use sets::handle_sets;
+use tracking::load_pkglist;
+use package::Package;
 
-mod args;
-mod bootstrap;
-mod checks;
-mod clean;
-mod defargs;
-mod directions;
-mod fetch;
-mod flags;
-mod macros;
-mod misc;
-mod package;
+mod upstream;
+mod init;
+mod utils;
 mod paths;
-mod resolvedeps;
-mod sets;
+mod core;
+mod cmd;
+mod resolve;
+mod flags;
+mod checks;
+mod package;
+mod macros;
 mod tracking;
+mod sets;
+mod pm;
+mod args;
 
 fn main() {
-    let args = init_args();
-    check_perms();
-
+    let args = args::init_args();
+    init::init();
     flags::set_flags(args.verbose, args.quiet, args.force);
-    vpr!(
-        "Flags: verbose={}, quiet={}, force={}",
-        args.verbose,
-        args.quiet,
-        args.force
-    );
 
-    bootstrap::tmp();
 
-    vpr!("Loading package list...");
-    let mut pkg_list = tracking::load_package_list();
-    vpr!("Loaded {} packages", pkg_list.len());
+    let pkgs = args.packages;
+    let mut pkglist = load_pkglist();
+    let pkgs = handle_sets(pkgs, &pkglist);
 
-    if pkg_list.is_empty() {
-        vpr!("Populating empty json!");
-        match tracking::cache_changes(&mut pkg_list, true) {
-            Ok(num) => vpr!("Populated empty json with {} packages", num),
-            Err(e) => die!("Error populating empty json: {}", e),
-        }
-    }
-
+    // could probably be a pm method(?)
     if !args.cache {
         vpr!("Autocaching...");
-        match tracking::cache_changes(&mut pkg_list, false) {
+        match tracking::cache_changes(&mut pkglist, false) {
             Ok(num) => vpr!("Autocached {} packages", num),
             Err(e) => die!("Error autocaching: {}", e),
         }
     }
 
+    let pkgs = pkgs.iter().map(|pkg| Package::new(pkg, pkglist.clone())).collect::<Vec<Package>>();
+
+    let mut pm = PM::new(pkgs, pkglist);
+
+    if args.list {
+        pm.list()
+    }
+
     if args.cache {
-        args::cache(&mut pkg_list);
+        pm.cache()
+    }
+
+    if args.dependencies {
+        pm.dependencies()
+    }
+
+    if args.dependants {
+        pm.dependants()
+    }
+
+    if args.get {
+        pm.get()
+    }
+
+    if args.remove {
+        pm.remove()
+    }
+
+    if args.remove_with_dependencies {
+        pm.remove_with_dependencies()
+    }
+
+    if args.install {
+        pm.install()
+    }
+
+    if args.install_with_dependencies {
+        pm.install_with_dependencies()
+    }
+
+    if args.update {
+        pm.update()
+    }
+
+    if args.update_with_dependencies {
+        pm.update_with_dependencies()
+    }
+
+    if args.news {
+        pm.news()
+    }
+
+    if args.prune {
+        pm.prune()
     }
 
     if args.check_upstream {
-        args::check_upstream();
-    }
-
-    if args.validate_links {
-        args::validate_links();
-    }
-
-    if let Some(pkgs) = args.list {
-        args::list(pkgs);
-    }
-
-    if let Some(pkgs) = args.remove {
-        args::remove(pkgs, &mut pkg_list, args.force);
-    }
-
-    if let Some(pkgs) = args.remove_with_dependencies {
-        args::remove_with_dependencies(pkgs, &mut pkg_list);
-    }
-
-    if let Some(pkgs) = args.prune {
-        args::prune(pkgs);
-    }
-
-    if let Some(pkgs) = args.install {
-        args::install(pkgs, &mut pkg_list);
-    }
-
-    if let Some(pkgs) = args.install_with_dependencies {
-        args::install_with_dependencies(pkgs, &mut pkg_list);
-    }
-
-    if let Some(pkgs) = args.update {
-        args::update(pkgs, &mut pkg_list);
-    }
-
-    if let Some(pkgs) = args.update_with_dependencies {
-        args::update_with_dependencies(pkgs, &mut pkg_list);
-    }
-
-    if let Some(pkgs) = args.dependencies {
-        args::dependencies(pkgs);
-    }
-
-    if let Some(pkgs) = args.dependants {
-        args::dependants(pkgs, &pkg_list);
-    }
-
-    if let Some(pkgs) = args.news {
-        args::news(pkgs);
-    }
-
-    if let Some(pkgs) = args.get_files {
-        args::get_files(pkgs, false);
-    }
-
-    if let Some(pkgs) = args.force_get_files {
-        args::get_files(pkgs, true);
+        pm.check_upstream()
     }
 }

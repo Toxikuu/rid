@@ -2,16 +2,10 @@
 
 TODO
 
-    Migrate from using $TARGET_USER to $TU
-
     Move $RIDSETS to rid-meta
-
-    Add -w flag for writing a metafile
-        Uses tmpl which I'll move into ridbin
 
     Merge stabs and linkval into rid
 
-    Add a PM (PackageManager) struct
 
     Add a config file
         Ideas:
@@ -29,6 +23,10 @@ TODO
 
 WIP
 
+    Add a PM (PackageManager) struct
+        implement missing flags
+        implement autocaching
+
     Improve bootstrapping process
         Improve syncing (rid -i rid currently works great, but maybe make rid -s an alias?)
 
@@ -40,6 +38,8 @@ WIP
         Install.sh and the new wrapper script are huge UX improvements
 
 DONEISH
+
+    Migrate from using $TARGET_USER to $TU
 
     Remove the option to adjust a few RID variables ($RIDBIN, $RIDSETS, etc.)
 
@@ -97,3 +97,6 @@ DROPPED
 
     Make raw check whether a file exists by default and work with -D
         this is rendered obsolete by down()
+
+    Add -w flag for writing a metafile
+        Not feasible

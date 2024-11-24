@@ -1,12 +1,15 @@
 [package]
 name = "rid"
-version = "0.17.0" # removed bootstrapping, syncing, release.sh, and some RID variables in favor of a simpler install.sh
+version = "0.20.2" # remove_with_dependencies and minor refactoring 
 edition = "2021"
 
 [dependencies]
 clap = { version = "4.5.19", features = ["derive"] }
 indicatif = "0.17.8"
 lazy_static = "1.5.0"
+rayon = "1.10.0"
+regex = "1.11.1"
+scraper = "0.21.0"
 serde = { version = "1.0.210", features = ["derive"] }
 serde_json = "1.0.132"
 ureq = "2.10.1"
