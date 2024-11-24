@@ -47,7 +47,7 @@ echo "Pulled for RIDMETA ($RIDMETA)"
 
 echo -e "\x1b[36;1m  Building rid...\x1b[0m"
 cd   "$RIDHOME"
-cargo build --release
+cargo +nightly build --release
 cargo strip >/dev/null 2>&1 || : # in case the user doesnt have cargo strip
 '
 
