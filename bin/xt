@@ -16,9 +16,13 @@ die() {
 }
 
 [ -z $RIDBUILDING ] && die '$RIDBUILDING is unset'
-
+[ -z $RIDEXTRACTION ] && die '$RIDEXTRACTION is unset'
 
 rm -rf   "$RIDBUILDING/"*     "$RIDEXTRACTION/"*
-tar xf   "$RIDSOURCES/$1.t"* -C "$RIDEXTRACTION" || die "Failed to extract tarball"
+echo "Extracting tarball..."
+tar xf "$RIDSOURCES/$1.t"* \
+  --checkpoint=4096 --checkpoint-action='echo="#%u: %T"' \
+  -C "$RIDEXTRACTION" || die "Failed to extract tarball"
+
 mkdir -p "$RIDBUILDING/$1"
 mv -Tf   "$RIDEXTRACTION/"*   "$RIDBUILDING/$1"
