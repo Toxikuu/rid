@@ -46,9 +46,13 @@ fi
 echo "Pulled for RIDMETA ($RIDMETA)"
 
 echo -e "\x1b[36;1m  Building rid...\x1b[0m"
-cd   "$RIDHOME"
+cd "$RIDHOME"
 cargo +nightly build --release
 cargo strip >/dev/null 2>&1 || : # in case the user doesnt have cargo strip
+
+echo -e "\x1b[36;1m  Fixing permissions...\x1b[0m"
+cd "$RIDHOME"
+chown -vR 0:0 bin
 '
 
 ln -sfv "$RIDHOME"/rid.sh /usr/bin/rid
