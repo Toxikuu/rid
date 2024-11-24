@@ -2,6 +2,7 @@
 //
 // responsible for checking upstream versions of packages
 
+use rayon::ThreadPoolBuilder;
 use rayon::prelude::*;
 use ureq::get;
 use scraper::{Html, Selector};
@@ -63,7 +64,7 @@ fn determine_default_selector(url: &str) -> Option<&str> {
 
 fn latest(pkg: &Package) -> Result<String, Box<dyn Error>> {
     if pkg.upstream.is_empty() {
-        return Err(format!("Empty upstream for {}", pkg.name).into());
+        return Err("Empty upstream".into());
     }
 
     let mut attempt = 0;
@@ -104,9 +105,7 @@ fn latest(pkg: &Package) -> Result<String, Box<dyn Error>> {
                 }
                 erm!("({}/{}) Retrying '{}'", attempt, MAX_ATTEMPTS, pkg.name);
             }
-            Err(e) => {
-                erm!("({}/{}) HTTP error for '{}': {}", attempt, MAX_ATTEMPTS, pkg.name, e);
-            }
+            Err(e) => erm!("({}/{}) HTTP error for '{}': {}", attempt, MAX_ATTEMPTS, pkg.name, e),
         }
 
         sleep(Duration::from_millis(1337));
@@ -116,21 +115,33 @@ fn latest(pkg: &Package) -> Result<String, Box<dyn Error>> {
 }
 
 pub fn check_upstream(pkglist: &Vec<Package>) {
-    pkglist.par_iter().for_each(|pkg| {
-        match latest(pkg) {
-            Ok(version) => {
-                if version != *pkg.version {
-                    let displayed_version = format!("\x1b[31;1m{}\x1b[0m", version);
-                    pr!("{}: {} <-> {}", pkg.name, pkg.version, displayed_version);
-                } else {
-                    pr!("{}: {} <-> {}", pkg.name, pkg.version, version);
+    // checks upstream versions (with aggressive parallelization)
+    let mut num_threads: usize = 512;
+    if pkglist.len() < 512 {
+        num_threads = pkglist.len();
+    }
+
+    let pool = ThreadPoolBuilder::new()
+        .num_threads(num_threads)
+        .stack_size(512 * 1024)
+        .build()
+        .unwrap();
+
+    pool.install(|| {
+        pkglist.par_iter().for_each(|pkg| {
+            match latest(pkg) {
+                Ok(version) => {
+                    if version != *pkg.version {
+                        let displayed_version = format!("\x1b[31;1m{}\x1b[0m", version);
+                        pr!("{}: {} <-> {}", pkg.name, pkg.version, displayed_version);
+                    } else {
+                        pr!("{}: {} <-> {}", pkg.name, pkg.version, version);
+                    }
                 }
-            }
-            Err(e) => {
-                if !e.to_string().contains("upstream") {
+                Err(e) => if e.to_string() != "Empty upstream" {
                     erm!("\x1b[31;1;3mError for '{}': {}\x1b[0m", pkg.name, e);
                 }
             }
-        }
+        });
     });
 }
