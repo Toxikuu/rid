@@ -6,6 +6,7 @@ use crate::package::{Package, PackageStatus};
 use crate::{die, vpr, msg};
 use crate::flags::FORCE;
 use std::io;
+use std::collections::HashSet;
 use std::fs;
 use std::time::SystemTime;
 use std::path::Path;
@@ -85,4 +86,27 @@ pub fn do_install(p: &Package) -> bool {
             true
         }
     }
+}
+
+pub fn read_dir_recursive(path: &Path, json_mod_time: SystemTime, cache_list: &mut Vec<String>, ignored: &HashSet<String>) -> io::Result<()> {
+    for entry in fs::read_dir(path)? {
+        let entry = entry?;
+        let path = entry.path();
+
+        if ignored.contains(path.file_name().unwrap_or_default().to_str().unwrap_or_default()) {
+            continue;
+        }
+
+        if path.is_dir() {
+            read_dir_recursive(&path, json_mod_time, cache_list, ignored)?;
+        } else if let Some(pkg_str) = path.file_name().and_then(|n| n.to_str()) {
+            let entry_mod_time = get_mod_time(&path)?;
+
+            if entry_mod_time >= json_mod_time {
+                vpr!("Caching package '{}'...", pkg_str);
+                cache_list.push(pkg_str.to_string());
+            }
+        }
+    }
+    Ok(())
 }
