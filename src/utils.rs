@@ -53,8 +53,8 @@ pub fn format_line(line: &str, max_length: usize) -> String {
     format!("{}{} ~ {}", package_info, spaces, formatted_status)
 }
 
-pub fn display_list(mut list: Vec<Package>) {
-    list.sort_by(|a, b| a.name.cmp(&b.name));
+pub fn display_list(list: &[Package] ) {
+    list.to_owned().sort_by(|a, b| a.name.cmp(&b.name)); // i love you rust analyzer
 
     for p in list.iter() {
         let line = format!(

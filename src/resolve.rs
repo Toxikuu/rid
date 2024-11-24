@@ -19,10 +19,10 @@ fn deep_deps(pkg: &Package, pkglist: &Vec<Package>, resolved: &mut HashSet<Strin
     order.push(pkg.name.clone());
 }
 
-pub fn resolve_deps(pkg: &Package, pkglist: Vec<Package>) -> Vec<Package> {
+pub fn resolve_deps(pkg: &Package, pkglist: &Vec<Package>) -> Vec<Package> {
     let mut resolved = HashSet::new();
     let mut order = Vec::new();
-    deep_deps(pkg, &pkglist, &mut resolved, &mut order);
+    deep_deps(pkg, pkglist, &mut resolved, &mut order);
 
     vpr!("Resolved dependencies: {:?}", order);
     let deps = order.iter().map(|d| Package::new(d, pkglist.clone())).collect::<Vec<Package>>();
@@ -41,10 +41,10 @@ pub fn find_dependants(pkg: &Package, pkglist: Vec<Package>) -> Vec<Package> {
     dedup(dependants)
 }
 
-pub fn deep_dependants(deps: Vec<Package>, pkglist: &[Package]) -> Vec<Package> {
+pub fn deep_dependants(deps: &Vec<Package>, pkglist: &[Package]) -> Vec<Package> {
     let mut dependants = Vec::new();
     for dep in deps {
-        let dep_dependants = find_dependants(&dep, pkglist.to_vec());
+        let dep_dependants = find_dependants(dep, pkglist.to_vec());
         dependants.extend(dep_dependants);
     }
     dedup(dependants)

@@ -96,7 +96,7 @@ pub fn download(p: Package, force: bool) {
     }
 }
 
-// NOTE: whether a package should be extracted will now be handled under pm.install()
+// NOTE: whether a package should be extracted is now handled under pm.install()
 pub fn extract(p: &Package) -> Result<(), Box<dyn Error>> {
     if p.link.is_empty() {
         let path = &BUILDING.join(p.to_string());
@@ -132,7 +132,7 @@ pub fn confirm_removal(pkg: &Package, pkglist: &[Package]) -> bool {
     if dependants.is_empty() { return true }
 
     erm!("Found {} dependant packages:", len);
-    display_list(dependants);
+    display_list(&dependants);
 
     let message = format!("Remove '{}' ({} dependants)?", pkg, len);
     yn!(&message, false)
