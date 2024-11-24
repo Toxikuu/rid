@@ -55,6 +55,10 @@ fn main() {
         pm.dependencies()
     }
 
+    if args.dependants {
+        pm.dependants()
+    }
+
     if args.get {
         pm.get()
     }
