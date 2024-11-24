@@ -44,59 +44,30 @@ fn main() {
 
     let mut pm = PM::new(pkgs, pkglist);
 
-    if args.list {
-        pm.list()
+    macro_rules! invoke{
+        ($args:expr, $pm:expr, [ $( $method:ident ),* $(,)? ]) => {
+            $(
+                if $args.$method {
+                    $pm.$method();
+                }
+            )*
+        };
     }
 
-    if args.cache {
-        pm.cache()
-    }
-
-    if args.dependencies {
-        pm.dependencies()
-    }
-
-    if args.dependants {
-        pm.dependants()
-    }
-
-    if args.get {
-        pm.get()
-    }
-
-    if args.remove {
-        pm.remove()
-    }
-
-    if args.remove_with_dependencies {
-        pm.remove_with_dependencies()
-    }
-
-    if args.install {
-        pm.install()
-    }
-
-    if args.install_with_dependencies {
-        pm.install_with_dependencies()
-    }
-
-    if args.update {
-        pm.update()
-    }
-
-    if args.update_with_dependencies {
-        pm.update_with_dependencies()
-    }
-
-    if args.news {
-        pm.news()
-    }
-
-    if args.prune {
-        pm.prune()
-    }
-
-    if args.check_upstream {
-        pm.check_upstream()
-    }
+    invoke!(args, pm, [
+        list,
+        cache,
+        dependencies,
+        dependants,
+        get,
+        remove,
+        remove_with_dependencies,
+        install,
+        install_with_dependencies,
+        update,
+        update_with_dependencies,
+        news,
+        prune,
+        check_upstream,
+    ]);
 }
