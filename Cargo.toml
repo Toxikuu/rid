@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.20.0" # full rewrite, merged stabs
+version = "0.20.1" # parallelization and check_upstream improvements
 edition = "2021"
 
 [dependencies]
