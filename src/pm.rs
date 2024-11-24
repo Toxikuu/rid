@@ -4,7 +4,7 @@
 
 use crate::package::Package;
 use crate::resolve::{resolve_deps, find_dependants, deep_dependants};
-use crate::{die, vpr, pr, msg, erm};
+use crate::{die, vpr, pr, yn, msg, erm};
 use crate::tracking::{self, cache_changes};
 use crate::utils::{dedup, display_list, do_install};
 use crate::core::{confirm_removal, mint, download, fetch, prune_sources};
@@ -43,7 +43,7 @@ impl PM {
         }
 
         msg!("PACKAGES");
-        display_list(displayed);
+        display_list(&displayed);
     }
 
     pub fn cache(&mut self) {
@@ -56,9 +56,9 @@ impl PM {
 
     pub fn dependencies(&self) {
         for pkg in self.pkgs.iter() {
-            let d = resolve_deps(pkg, self.pkglist.clone());
+            let d = resolve_deps(pkg, &self.pkglist);
             msg!("Dependencies for {}", pkg);
-            display_list(d);
+            display_list(&d);
         }
     }
 
@@ -69,20 +69,20 @@ impl PM {
 
             if *FORCE.lock().unwrap() {
                 let mut all_dependants: Vec<Package> = Vec::new();
-                let deps = resolve_deps(pkg, self.pkglist.clone());
+                let deps = resolve_deps(pkg, &self.pkglist);
                 for dep in deps.iter() {
                     let d = find_dependants(dep, self.pkglist.clone());
                     all_dependants.extend(d);
                 }
                 let all_dependants = dedup(all_dependants);
                 msg!("Deep dependants for {}", pkg);
-                display_list(all_dependants);
+                display_list(&all_dependants);
                 return
             }
 
             let d = find_dependants(pkg, self.pkglist.clone());
             msg!("Direct dependants for {}", pkg);
-            display_list(d);
+            display_list(&d);
             vpr!("Tip: Use -fD for deep dependants")
         }
     }
@@ -107,9 +107,9 @@ impl PM {
 
     pub fn install_with_dependencies(&mut self) {
         for pkg in self.pkgs.iter() {
-            let deps = resolve_deps(pkg, self.pkglist.clone());
+            let deps = resolve_deps(pkg, &self.pkglist);
             msg!("Dependencies for '{}'", pkg);
-            display_list(deps.clone());
+            display_list(&deps);
             for dep in deps.iter() {
                 if do_install(dep) {
                     fetch(dep);
@@ -139,9 +139,9 @@ impl PM {
 
     pub fn update_with_dependencies(&mut self) {
         for pkg in self.pkgs.iter() {
-            let deps = resolve_deps(pkg, self.pkglist.clone());
+            let deps = resolve_deps(pkg, &self.pkglist);
             msg!("Dependencies for '{}'", pkg);
-            display_list(deps.clone());
+            display_list(&deps);
             for dep in deps.iter() {
                 if dep.installed_version == dep.version && !*FORCE.lock().unwrap() {
                     msg!("Package '{}' up to date", dep);
@@ -167,6 +167,45 @@ impl PM {
             mint('r', pkg);
             tracking::rem(&mut self.pkglist, pkg);
             msg!("Removed '{}'", pkg);
+        }
+    }
+
+    pub fn remove_with_dependencies(&mut self) {
+        // recursively removes a package and all its dependencies
+        // this can be very dangerous
+        let force = *FORCE.lock().unwrap();
+        for pkg in self.pkgs.iter() {
+            if force {
+                erm!("WARNING: Skipping all checks for deep dependants of '{}'", pkg)
+            } else {
+                vpr!("Checking for deep dependants of '{}'", pkg)
+            }
+
+            let deps = resolve_deps(pkg, &self.pkglist);
+            msg!("Depencies for '{}'", pkg);
+            display_list(&deps);
+
+            if !force {
+                let dependants = deep_dependants(&deps, &self.pkglist);
+                let len = dependants.len();
+                if len != 0 {
+                    erm!("Found {} dependant packages:", len);
+                    display_list(&dependants);
+                    let message = format!(
+                    "Remove '{}' and its dependencies ({} total dependants)?",
+                    pkg.name, len);
+                    if !yn!(&message, false) {
+                        vpr!("Aborting removal since 'n' was selected");
+                        return;
+                    }
+                }
+            }
+
+            for dep in deps.iter() {
+                mint('r', dep);
+                tracking::rem(&mut self.pkglist, dep);
+                msg!("Removed '{}'", dep);
+            }
         }
     }
 
