@@ -68,6 +68,10 @@ fn main() {
         pm.remove()
     }
 
+    if args.remove_with_dependencies {
+        pm.remove_with_dependencies()
+    }
+
     if args.install {
         pm.install()
     }
