@@ -5,6 +5,7 @@ use sets::handle_sets;
 use tracking::load_pkglist;
 use package::Package;
 
+mod upstream;
 mod init;
 mod utils;
 mod paths;
@@ -89,5 +90,9 @@ fn main() {
 
     if args.prune {
         pm.prune()
+    }
+
+    if args.check_upstream {
+        pm.check_upstream()
     }
 }

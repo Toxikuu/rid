@@ -9,6 +9,7 @@ use crate::tracking::{self, cache_changes};
 use crate::utils::{dedup, display_list, do_install};
 use crate::core::{confirm_removal, mint, download, fetch, prune_sources};
 use crate::flags::FORCE;
+use crate::upstream::check_upstream;
 use indicatif::{ProgressStyle, ProgressBar};
 
 pub struct PM {
@@ -202,5 +203,11 @@ impl PM {
 
         bar.finish_with_message("Pruned");
         msg!("Pruned {} tarballs for {} packages", tarballs_removed, length);
+    }
+
+    // TODO: Allow individual packages to be passed
+    pub fn check_upstream(&self) {
+        msg!("Checking upstream versions for all packages");
+        check_upstream(&self.pkglist)
     }
 }
