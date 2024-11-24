@@ -11,7 +11,7 @@ use std::collections::HashMap;
 use regex::Regex;
 use std::time::Duration;
 use std::thread::sleep;
-use crate::{die, pr, erm};
+use crate::{die, vpr, pr, erm};
 use crate::package::Package;
 
 fn extract_version(text: &str, pkg_str: &str) -> Result<String, String> {
@@ -120,6 +120,7 @@ pub fn check_upstream(pkglist: &Vec<Package>) {
     if pkglist.len() < 512 {
         num_threads = pkglist.len();
     }
+    vpr!("Determined number of threads for check_upstream(): {}", num_threads);
 
     let pool = ThreadPoolBuilder::new()
         .num_threads(num_threads)
