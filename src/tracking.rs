@@ -3,21 +3,19 @@
 // responsible for keeping track of packages
 
 use crate::checks::is_file_empty;
-use crate::utils::get_mod_time;
+use crate::utils::{get_mod_time, read_dir_recursive};
 use crate::package::{Package, PackageStatus};
 use crate::paths::{FAILED, META, PKGSJSON};
 use crate::{die, vpr};
 use indicatif::{ProgressBar, ProgressStyle};
 use serde_json::{from_str, to_string_pretty};
 use std::collections::HashSet;
-use std::fs::{self, read_to_string, File};
+use std::fs::{read_to_string, File};
 use std::io::{self, Write};
 use std::path::Path;
 
 pub fn create_json() -> io::Result<()> {
-    if !is_file_empty(&PKGSJSON) {
-        return Ok(());
-    }
+    if !is_file_empty(&PKGSJSON) { return Ok(()) }
 
     let mut file = File::create(&*PKGSJSON)?;
     file.write_all(b"[]")?;
@@ -28,8 +26,7 @@ pub fn create_json() -> io::Result<()> {
 
 pub fn load_pkglist() -> Vec<Package> {
     let contents = read_to_string(&*PKGSJSON).unwrap();
-    let pkglist: Vec<Package> = from_str(&contents).unwrap();
-    pkglist
+    from_str(&contents).unwrap()
 }
 
 pub fn save_pkglist(pkg_list: &Vec<Package>) {
@@ -43,11 +40,8 @@ fn build_failed() -> bool {
     Path::new(&*FAILED).exists()
 }
 
-// below is all out of date
 pub fn add(pkglist: &mut Vec<Package>, p: &Package) {
-    if build_failed() {
-        die!("Build failed");
-    }
+    if build_failed() { die!("Build failed") }
 
     if let Some(package) = pkglist.iter_mut().find(|pkg| pkg.name == p.name) {
         vpr!("Adding package: '{}'", package);
@@ -70,51 +64,27 @@ pub fn rem(pkglist: &mut Vec<Package>, p: &Package) {
 }
 
 const TEMPLATE: &str = "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {pos}/{len} ({eta})";
-
-// TODO: Add support for passing a custom cache_list
-pub fn cache_changes(pkglist: &mut Vec<Package>, cache_all: bool) -> io::Result<u16> {
+pub fn cache_changes(pkglist: &mut Vec<Package>, mut cache_list: Vec<String>) -> io::Result<u64> {
     // caches changes made in $RIDMETA to $RIDPKGSJSON
     let json_mod_time = get_mod_time(&PKGSJSON)?;
     let ignored: HashSet<String> = ["README.md", "LICENSE", ".git"]
         .iter()
         .map(|&s| s.to_string())
         .collect();
-    let mut cache_list: Vec<String> = Vec::new();
 
-    for entry in fs::read_dir(&*META)? {
-        let entry = entry?;
-        let path = entry.path();
-
-        if let Some(pkg_str) = path.file_name().and_then(|n| n.to_str()) {
-            if !cache_all {
-                let entry_mod_time = get_mod_time(&path)?;
-
-                if entry_mod_time >= json_mod_time {
-                    vpr!("Caching package '{}'...", pkg_str);
-                    cache_list.push(pkg_str.to_string());
-                }
-            } else {
-                vpr!("Caching package '{}'...", pkg_str);
-                cache_list.push(pkg_str.to_string());
-            }
-        }
-    }
-
-    cache_list.retain(|item| !ignored.contains(item));
-    if cache_list.is_empty() {
-        return Ok(0);
-    }
+    read_dir_recursive(&META, json_mod_time, &mut cache_list, &ignored)?;
+    if cache_list.is_empty() { return Ok(0) }
 
     let length = cache_list.len() as u64;
     let bar = ProgressBar::new(length);
 
     bar.set_message("Caching packages...");
+    bar.set_length(length);
     bar.set_style(
         ProgressStyle::with_template(TEMPLATE)
             .unwrap()
             .progress_chars("#|-"),
     );
-    bar.set_length(length);
 
     for pkg_str in cache_list {
         let pkg = Package::def(&pkg_str, pkglist.to_vec());
@@ -130,5 +100,5 @@ pub fn cache_changes(pkglist: &mut Vec<Package>, cache_all: bool) -> io::Result<
     }
 
     bar.finish_with_message("Cached!");
-    Ok(length as u16)
+    Ok(length)
 }
