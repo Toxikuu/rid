@@ -1,47 +1,14 @@
 # Rid Documentation
 
-## NOTE
-This is currently out of date, and I'm too lazy to update it. I'll do the thing eventually.
-
-## Binaries
-Rid comes in two executable binaries - an offline version, and an online version. The offline version exists for minimal systems that have yet to set up networking capabilities. The online one is more geared towards regular use.
-
-## Flags
-Rid has the following flags:
-- -l, --list <package1> <package2> ...
-- -d, --dependencies <package1> <package2> ...
-- -i, --install <package1> <package2> ...
-- -n, --install-no-deps <package1> <package2> ...
-- -r, --remove <package1> <package2> ...
-- -u, --update <package1> <package2> ...
-- -p, --prune <package1> <package2> ...
- 
-- -b, --bootstrap
-- -s, --sync
-- -S, --sync-overwrite
-- -D, --download
-- -c, --cache
- 
-- -v, --verbose
-- -q, --quiet
-- -f, --force
-- -h, --help
-- -V, --version
-
-## Flag Types
-The above flags are separated into groups. Core flags are at the top; these are commonly used and represent basic package management functionality. All core flags take at least one argument except --list, which optionally takes arguments.
-
-Below the core flags are function flags, which perform a specific action but do not take any arguments.
-
-And below that are generic flags which slightly alter behavior.
-
 ## Sets
-Sets are stored in $RIDSETS; rid expands them into a list of packages. Recursive sets *are* supported. Every flag that takes <package> as an argument can also accept a set. Sets are invoked with @set, where 'set' is the name of a file in $RIDSETS. A set is a new-line delimited list of packages stored in a file.
-
+Sets are stored in $RIDHOME/sets; rid expands them into a list of packages.
+Recursive sets *are* supported. Every flag that takes <package> as an argument can also accept a set.
+Sets are invoked with @set, where 'set' is the name of a file in $RIDSETS.
+A set is a new-line delimited list of packages stored in a file.
 
 The glfs-net set looks like this:
 ```bash
-$ cd $RIDSETS
+$ cd $RIDHOME/sets
 $ cat glfs-net
 libtasn1
 nspr
@@ -56,20 +23,52 @@ wget
 git
 ```
 
-## Usage
-### General Advice
-- Pass core flags last as they may require positional arguments to immediately follow them. Reference the other sections under Usage for examples.
-- Changes to all variables in meta files except $*DIR must be cached for rid to register them.
+## Environment Variables
+The main environment variable is $RIDHOME.
+It defaults to /rid, but another sane default is /opt/rid.
 
+Other important variables include:
+- $RIDMETA      - where metafiles (buildscripts) are stored
+- $RIDPKGSJSON  - a json caching info for all packages
+- $RIDSOURCES   - where source tarballs are stored
+
+## General Advice
+I highly recommend reviewing the build scripts located in $RIDMETA.
+
+## Flags
+Rid has the following flags:
+```bash
+  -i, --install
+  -I, --install-with-dependencies
+  -r, --remove
+  -R, --remove-with-dependencies
+  -u, --update
+  -U, --update-with-dependencies
+  -d, --dependencies
+  -D, --dependants
+  -p, --prune
+  -g, --get
+  -l, --list
+  -n, --news
+  -c, --cache
+  -k, --check-upstream
+  -L, --validate-links
+  -v, --verbose
+  -q, --quiet
+  -f, --force
+  -h, --help                       Print help
+  -V, --version                    Print version
+```
 
 ### List
 #### Explanation
-Lists available packages, their versions, and their status. Optionally takes an argument.
+Lists available packages, their versions, and their status.
+If no arguments are passed, lists all packages.
 
 #### Examples
-List the contents of the glfs-net set:
+List the contents of the glfs-net and lfs sets:
 ```bash
-rid -l @glfs-net
+rid -l @glfs-net &lfs
 ```
 
 List all available packages:
@@ -77,14 +76,15 @@ List all available packages:
 rid -l
 ```
 
-List all packages contained in the lfs and glfs sets:
+List info for tree:
 ```bash
-rid -l @lfs @glfs
+rid -l tree # useful for seeing versions and status
 ```
 
 ### Dependencies
 #### Explanation
-Resolves and displays dependencies for packages.
+Displays dependencies for packages.
+Requires an argument.
 
 #### Examples
 See the dependencies for efibootmgr:
@@ -99,7 +99,8 @@ rid -d @glfs-sec
 
 ### Install
 #### Explanation
-Installs packages (with dependency resolution). Evaluates $IDIR. Tracks package as installed. If you pass --force, all dependencies will also be forcibly installed.
+Installs packages (without dependency resolution).
+May bee combined with --force.
 
 #### Examples
 Install tree, which, and the glfs-audio set:
@@ -109,27 +110,28 @@ rid -i tree which @glfs-audio
 
 Forcibly download and install kernel:
 ```bash
-rid -Dfi kernel
+rid -gfi kernel # or -fig
 ```
 
-### Install (No Dependencies)
+### Install-with-dependencies
 #### Explanation
-Installs packages without resolving their dependencies. Evaluates $IDIR. Tracks package as installed.
+Installs packages, with their dependencies.
+If combined with --force, all the dependencies are forcefully installed.
 
 #### Examples
 Install ffmpeg without resolving its dependencies:
 ```bash
-rid -n ffmpeg
+rid -I ffmpeg
 ```
 
-Forcibly install @lfs without resolving dependencies:
+Forcibly install @lfs and all its dependencies:
 ```bash
-rid -fn @lfs
+rid -fI @lfs
 ```
 
 ### Remove
 #### Explanation
-Removes packages. Evaluates $RDIR. Tracks package as available.
+Removes packages (without removing the dependencies).
 
 #### Examples
 Remove efibootmgr:
@@ -144,7 +146,8 @@ rid -r @steam tree
 
 ### Update
 #### Explanation
-Updates packages. Does not download new tarballs unless necessary. Implies force. Evaluates $UDIR. Tracks package as installed.
+Updates a package to its latest version, if it's not
+already at its latest version.
 
 #### Examples
 Update i3 and gnutls:
@@ -164,7 +167,8 @@ rid -u rid
 
 ### Prune
 #### Explanation
-Removes tarballs for all package versions except the latest from $RIDSOURCES.
+Removes tarballs for all package versions except the
+latest from $RIDSOURCES.
 
 #### Examples
 Prune vulkan and llvm:
@@ -172,79 +176,71 @@ Prune vulkan and llvm:
 rid -p vulkan-headers vulkan-loader llvm
 ```
 
-### Bootstrap
-#### Explanation
-Bootstraps rid, pulling $RIDMETA, $RIDSETS, $RIDBIN, and other necessary files from rid's github. You should need to use this very rarely. The preferred way to update rid is rid -u rid.
-
-#### Examples
-Bootstrap rid:
-```bash
-rid -b
-```
-
-### Sync
-#### Explanation
-Syncs $RIDMETA with the main repository on github. Does not overwrite existing meta files. Useful for getting new meta files.
-
-#### Examples
-Sync $RIDMETA:
-```bash
-rid -s
-```
-
-### Sync (Overwrite)
-#### Explanation
-Syncs $RIDMETA with the main repository on github. Overwrites existing meta files. Useful if you haven't made changes to the meta files or would like to overwrite your changes.
-
-#### Examples
-Sync and overwrite $RIDMETA:
-```bash
-rid -S
-```
-
 ### Download
 #### Explanation
-Skips checking whether a tarball exists in $RIDSOURCES. Useful for overwriting corrupt tarballs. Usually used in conjunction with -u, -n, -i.
+Skips checking whether a tarball exists in $RIDSOURCES.
+Useful for overwriting corrupt tarballs.
+May be used standalone or with other flags.
 
 #### Examples
 Forcibly download and install ffmpeg without its dependencies.
 ```bash
-rid -Dfn ffmpeg
+rid -gfi ffmpeg
+```
+
+Download all packages in @lfs:
+```bash
+rid -g @lfs
 ```
 
 ### Cache
 #### Explanation
-Caches changes made in $RIDMETA to $RIDPKGSJSON. In the future, I plan to make rid auto-detect when to cache and cache more efficiently.
+Rid auto-detects when it needs to cache,
+but the system isn't foolproof.
+Hence, this flag exists to manually cache.
 
 #### Examples
-Cache changes:
+Cache all packages:
 ```bash
 rid -c
 ```
 
-Cache changes and install less:
+Cache and install less:
 ```bash
 rid -ci less
 ```
 
-### Verbose
-#### Explanation
-Increases output verbosity. Used in conjunction with other flags. (Though --verbose can be used alone, the results are rarely meaningful.) This is mostly useful for debugging.
-
-#### Examples
-Verbosely download and forcibly install @glfs-net without resolving dependencies:
+Cache all packages in @glfs-net:
 ```bash
-rid -vDfn @glfs-net
+rid -c @glfs-net
 ```
 
-Verbosely resolve dependencies for mpv:
+### Verbose
+#### Explanation
+Increases output verbosity.
+Used in conjunction with other flags.
+(Though --verbose can be used alone,
+the results are rarely meaningful.) 
+This is mostly useful for debugging.
+
+#### Examples
+Verbosely download and forcibly install @glfs-net
+without resolving dependencies:
+```bash
+rid -vgfi @glfs-net
+```
+
+Verbosely display dependencies for mpv:
 ```bash
 rid -vd mpv
 ```
 
 ### Quiet
 #### Explanation
-Decreases output verbosity. Used in conjunction with other flags. Useful if you don't want to see a wall of compiling-related text when installing packages.
+Decreases output verbosity.
+Useful in conjunction with other flags.
+Useful if you don't want to see a wall of compiling-related
+text when installing packages.
 
 #### Examples
 Quietly install kernel and @glfs:
@@ -254,17 +250,29 @@ rid -qi kernel @glfs
 
 ### Force
 #### Explanation
-Forcibly performs an action. Used in conjunction with other flags.
+Forcibly performs an action.
+Used in conjunction with other flags.
 
 #### Examples
-Forcibly download and install yajl and pyyaml without resolving dependencies:
+Forcibly download and install yajl and pyyaml
+without resolving dependencies:
 ```bash
-rid -Dfn yajl pyyaml
+rid -gfi yajl pyyaml
+```
+
+### News
+#### Explanation
+View news entries for packages.
+
+#### Examples
+View the news for kernel and nvidia:
+```bash
+rid -n kernel nvidia
 ```
 
 ### Help
 #### Explanation
-Displays basic usage information. Unaffected by other flags.
+Displays basic usage information.
 
 #### Examples
 ```bash
@@ -273,7 +281,7 @@ rid -h
 
 ### Version
 #### Explanation
-Displays rid's version. Unaffected by other flags.
+Displays rid's version.
 
 #### Examples
 ```bash
@@ -282,7 +290,12 @@ rid -V
 
 ## Writing meta files
 ### How it works
-Rid executes $RIDBIN/mint which interacts with meta files. Mint sources the meta files and evaluates directions their directions based on flags passed. Meta files contain variables including $NAME, $VERS, $LINK, $UPST, $SELE, and $*DIR.
+Rid executes $RIDHOME/bin/mint which interacts with meta files.
+Mint sources the meta files and evaluates directions their
+directions based on flags passed.
+Meta files contain variables including 
+$NAME, $VERS, $LINK, $UPST, $SELE, $NEWS, and functions for
+installation, updates, and removal.
 
 #### Variable Explanations
 $NAME - package name
@@ -290,6 +303,7 @@ $VERS - package version, defined globally in $RIDPKGSVERS
 $LINK - package download link
 $UPST - package upstream link (used for parsing upstream versions)
 $SELE - css selector used in conjunction with $UPST (defaults exist for some $UPST urls)
+$NEWS - news/tips for a package
 $IDIR - install directions
 $RDIR - removal directions
 $UDIR - update directions
