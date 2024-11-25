@@ -105,7 +105,7 @@ pub fn extract(p: &Package) -> Result<(), Box<dyn Error>> {
     }
 
     let command = format!("{}/xt {}", BIN.display(), p);
-    if static_exec(&command).is_err() {
+    if exec(&command).is_err() {
         vpr!("Corrupt tarball detected!");
         return Err("corrupt tarball".into())
     }
