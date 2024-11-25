@@ -10,6 +10,7 @@ use crate::utils::{dedup, display_list, do_install};
 use crate::core::{confirm_removal, mint, download, fetch, prune_sources};
 use crate::flags::FORCE;
 use crate::upstream::check_upstream;
+use crate::linkval::validate;
 use indicatif::{ProgressStyle, ProgressBar};
 
 pub struct PM {
@@ -245,5 +246,16 @@ impl PM {
 
         msg!("Checking upstream versions");
         check_upstream(&pkgs)
+    }
+
+    pub fn validate_links(&self) {
+        let pkgs = if !self.pkgs.is_empty() {
+            self.pkgs.clone()
+        } else {
+            self.pkglist.clone()
+        };
+
+        msg!("Validating links");
+        validate(&pkgs)
     }
 }

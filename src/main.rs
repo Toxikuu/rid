@@ -5,6 +5,7 @@ use sets::handle_sets;
 use tracking::load_pkglist;
 use package::Package;
 
+mod linkval;
 mod upstream;
 mod init;
 mod utils;
@@ -71,5 +72,6 @@ fn main() {
         news,
         prune,
         check_upstream,
+        validate_links,
     ]);
 }
