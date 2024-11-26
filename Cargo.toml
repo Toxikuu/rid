@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.20.4" # ux improvements to update and install.sh
+version = "0.20.5" # --sync and sorting
 edition = "2021"
 
 [dependencies]
