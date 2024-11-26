@@ -63,15 +63,15 @@ Options:
 Install rid with the following command:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Toxikuu/rid/refs/heads/master/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/Toxikuu/rid/refs/heads/master/install.sh | sudo -E bash
 ```
 
 Feel free to download the script first and inspect it, editing it if you like.
 It is capable of detecting an existing install, in which case it updates.
-The script should be run with sudo, ie `sudo bash install.sh`.
+The script should be run with sudo, preserving the environment, ie `sudo -E bash install.sh`.
 
 If you do not have sudo, or you're trying to install rid from a script,
-set $TU equal to the user who you want to own $RIDHOME and $RIDMETA.
+set $TU equal to the user whom you want to own $RIDHOME and $RIDMETA.
 
 Additional environment variables accepted by the script include:
 - $RIDHOME
