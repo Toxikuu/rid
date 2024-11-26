@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.20.3" # invoke!
+version = "0.20.4" # ux improvements to update and install.sh
 edition = "2021"
 
 [dependencies]
