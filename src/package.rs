@@ -8,6 +8,7 @@ use crate::sets::handle_sets;
 use crate::{die, vpr};
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use std::cmp::Ordering;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum PackageStatus {
@@ -30,11 +31,25 @@ pub struct Package {
     pub status: PackageStatus,
 }
 
+impl Ord for Package {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.name.cmp(&other.name)
+    }
+}
+
+impl PartialOrd for Package {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
 impl PartialEq for Package {
     fn eq(&self, other: &Self) -> bool {
         self.name == other.name
     }
 }
+
+impl Eq for Package {}
 
 impl fmt::Display for Package {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

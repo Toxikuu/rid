@@ -27,7 +27,7 @@ impl PM {
 
     pub fn list(&self) {
 
-        let displayed = if self.pkgs.is_empty() {
+        let mut displayed = if self.pkgs.is_empty() {
             self.pkglist.clone()
         } else {
             self.pkgs
@@ -45,6 +45,7 @@ impl PM {
             }
         }
 
+        displayed.sort();
         msg!("PACKAGES");
         display_list(&displayed);
     }

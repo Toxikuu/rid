@@ -55,8 +55,6 @@ pub fn format_line(line: &str, max_length: usize) -> String {
 }
 
 pub fn display_list(list: &[Package] ) {
-    list.to_owned().sort_by(|a, b| a.name.cmp(&b.name)); // i love you rust analyzer
-
     for p in list.iter() {
         let line = format!(
             "{}={} ~ {:?} {}",
