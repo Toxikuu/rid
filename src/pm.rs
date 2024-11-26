@@ -2,12 +2,14 @@
 //
 // package manager struct
 
+use crate::cmd::exec;
 use crate::package::Package;
 use crate::resolve::{resolve_deps, find_dependants, deep_dependants};
 use crate::{die, vpr, pr, yn, msg, erm};
 use crate::tracking;
 use crate::utils::{dedup, display_list, do_install};
 use crate::core::{confirm_removal, mint, download, fetch, prune_sources};
+use crate::paths::BIN;
 use crate::flags::FORCE;
 use crate::upstream::check_upstream;
 use crate::linkval::validate;
@@ -258,4 +260,12 @@ impl PM {
         msg!("Validating links");
         validate(&pkgs)
     }
+
+    // I'd like to enable support for syncing individual repos at some point in the future
+    pub fn sync(&self) {
+        let command = format!("{}/sy", BIN.display());
+        if let Err(e) = exec(&command) {
+            die!("Failed to sync repos: {}", e)
+        }
+    }   
 }

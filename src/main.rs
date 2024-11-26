@@ -73,5 +73,6 @@ fn main() {
         prune,
         check_upstream,
         validate_links,
+        sync,
     ]);
 }

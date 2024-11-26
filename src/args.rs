@@ -63,6 +63,9 @@ pub struct Args {
     #[arg(short = 'L', long, action = ArgAction::SetTrue)]
     pub validate_links: bool,
 
+    #[arg(short = 's', long, action = ArgAction::SetTrue)]
+    pub sync: bool,
+
     // Generic flags
     #[arg(short = 'v', long, action = ArgAction::SetTrue)]
     pub verbose: bool,
