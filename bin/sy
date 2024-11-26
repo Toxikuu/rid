@@ -1,0 +1,25 @@
+#!/bin/bash
+# sy = sync
+
+[ -z "$RIDMETA" ] && { echo '$RIDMETA not set' ; exit 1 ;}
+[ -z "$TU" ] && { echo '$TU not set' ; exit 1 ;}
+
+export RIDMETA
+su "$TU" -c '
+env -i \
+  RIDMETA='"$RIDMETA"'
+
+for dir in "$RIDMETA"/*/; do
+  if [ -d "$dir/.git" ]; then
+    echo "Syncing repo '\''$dir'\''"
+    (
+      cd "$dir" || exit
+      git pull
+    )
+  else
+    echo "Skipping '\''$dir'\'' (not a git repo)"
+  fi
+done
+'
+
+unset "$RIDMETA"
