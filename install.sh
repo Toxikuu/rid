@@ -4,7 +4,7 @@
 [ "$EUID" -ne 0   ]  &&  { echo -e "\x1b[31;1m  Run this script as root\x1b[0m" ; exit 1 ;}
 
 [ -z "$SUDO_USER" ]  &&  SUDO_USER="$TU"
-[ -z "$SUDO_USER" ]  &&  { echo -e "\x1b[31;1m  Run this script with sudo or else set \$TU=\"<user>\"\x1b[0m" >&2 ; exit 1 ;}
+[ -z "$SUDO_USER" ]  &&  { echo -e "\x1b[31;1m  Run this script with \`sudo -E\` or else set \$TU=\"<user>\"\x1b[0m" >&2 ; exit 1 ;}
 
 TU="$SUDO_USER"
 [ -z "$TU" ] && { echo -e "\x1b[31;1m  Could not determine target user!\x1b[0m" >&2; exit 1; }
@@ -16,8 +16,9 @@ pushd . >/dev/null
 [ -z "$RIDHOME"      ]  &&  { RIDHOME="/rid"            ;}
 [ -z "$RIDMETA"      ]  &&  { RIDMETA="/var/rid/meta"   ;}
 [ -z "$RIDSOURCES"   ]  &&  { RIDSOURCES="/sources"     ;}
+[ -e "/opt/rustup"   ]  &&  { RUSTUP_HOME="/opt/rustup" ;}
 
-mkdir -pv "$RIDHOME" "$RIDMETA"
+mkdir -pv "$RIDHOME" "$RIDMETA"/main
 chown -R  "$TU:$TU"  "$RIDHOME" "$RIDMETA"
 
 export RIDHOME RIDMETA RIDSOURCES
@@ -31,29 +32,30 @@ PATH="/usr/bin:/usr/sbin:/opt/cargo/bin"
 echo "VARS: $RIDHOME $RIDMETA $RIDSOURCES $PATH"
 
 echo -e "\x1b[36;1m  Pulling latest changes...\x1b[0m"
-if [ ! -e "$RIDHOME"/.git ]; then
+if [ ! -e "$RIDHOME"/main/.git ]; then
     git clone "https://github.com/Toxikuu/rid.git" "$RIDHOME"
 else
     cd "$RIDHOME" && git pull
 fi
 echo "Pulled for RIDHOME ($RIDHOME)"
 
-if [ ! -e "$RIDMETA"/.git ]; then
-    git clone "https://github.com/Toxikuu/rid-meta.git" "$RIDMETA"
+if [ ! -e "$RIDMETA"/main/.git ]; then
+    git clone "https://github.com/Toxikuu/rid-meta.git" "$RIDMETA"/main
 else
-    cd "$RIDMETA" && git pull
+    cd "$RIDMETA"/main && git pull
 fi
-echo "Pulled for RIDMETA ($RIDMETA)"
+echo "Pulled for RIDMETA ($RIDMETA/main)"
 
 echo -e "\x1b[36;1m  Building rid...\x1b[0m"
 cd "$RIDHOME"
-cargo +nightly build --release
+# rustup show
+cargo +nightly build --release || { echo "Failed to compile rid" >&2 ; exit 1 ;}
 cargo strip >/dev/null 2>&1 || : # in case the user doesnt have cargo strip
+'
 
 echo -e "\x1b[36;1m  Fixing permissions...\x1b[0m"
 cd "$RIDHOME"
 chown -vR 0:0 bin
-'
 
 ln -sfv "$RIDHOME"/rid.sh /usr/bin/rid
 
