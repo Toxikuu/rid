@@ -121,12 +121,12 @@ impl PM {
                 return;
             }
 
-            msg!("Updating '{}'...", pkg);
+            msg!("Updating to '{}'...", pkg);
             fetch(pkg);
             mint('u', pkg);
 
             tracking::add(&mut self.pkglist, pkg);
-            msg!("Updated '{}'", pkg);
+            msg!("Updated to '{}'", pkg);
         }
     }
 
@@ -141,12 +141,12 @@ impl PM {
                     return;
                 }
 
-                msg!("Updating '{}'...", dep);
+                msg!("Updating to '{}'...", dep);
                 fetch(dep);
                 mint('u', dep);
 
                 tracking::add(&mut self.pkglist, dep);
-                msg!("Updated '{}'", dep);
+                msg!("Updated to '{}'", dep);
             }
         }
     }
