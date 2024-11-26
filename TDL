@@ -7,8 +7,6 @@ TODO
 
     Move $RIDSETS to rid-meta
 
-    Merge stabs and linkval into rid
-
     Repo syncing
         I'm thinking I write a script in $RIDBIN to sync all repositories in $RIDMETA
         I'm avoiding git submodules for simplicity and extensibility
@@ -28,16 +26,17 @@ TODO
 
 WIP
 
+    Custom repo support
+        Done through subdirectories in $RIDMETA
+
+    Merge stabs and linkval into rid
+        Improve UX for both
+
     Add a PM (PackageManager) struct
         implement missing flags
         implement autocaching
 
     Improve documentation
-
-    Work on meta files
-
-    UX Improvements
-        Install.sh and the new wrapper script are huge UX improvements
 
 DONEISH
 
