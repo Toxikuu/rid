@@ -2,18 +2,19 @@
 # gv = get version
 # $1 = target package
 
+REPO="${RIDREPO:-main}"
+
 find_metafile() {
   local metafile="$1"
   local result
-  result=$(find "$RIDMETA" -type f -name "$metafile" ! -name "README.md" ! -name "LICENSE" 2>/dev/null)
+  result=$(find "$RIDMETA/$REPO" -type f -name "$metafile" ! -name "README.md" ! -name "LICENSE" 2>/dev/null)
   
   if [ -z "$result" ]; then
-    echo "Metafile '$metafile' not found in $RIDMETA"
+    echo "Metafile '$metafile' not found in $RIDMETA/$REPO"
     exit 1
   fi
   echo "$result"
 }
 
 METAFILE="$(find_metafile "$1")"
-
 echo $(grep "VERS=" "$METAFILE" | sed -E 's/^.*="(.*)"$/\1/')
