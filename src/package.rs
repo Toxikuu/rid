@@ -3,7 +3,7 @@
 // defines core package-related functionality
 
 use crate::cmd::static_exec;
-use crate::paths::BIN;
+use crate::paths::{BIN, REPO};
 use crate::sets::handle_sets;
 use crate::{die, vpr};
 use serde::{Deserialize, Serialize};
@@ -82,7 +82,7 @@ impl Package {
         let mut deps = Vec::new();
         let mut downloads = Vec::new();
 
-        let command = format!("{}/mint v {}", BIN.display(), pkg_name);
+        let command = format!(r#"RIDREPO="{}" {}/mint v {}"#, REPO.display(), BIN.display(), pkg_name);
 
         let output = match static_exec(&command) {
             Ok(output) => output,
