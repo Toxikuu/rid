@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.20.5" # --sync and sorting
+version = "0.21.0" # (highly unstable) repo support, pruning bugfix, mo is now in bash (unstable), bin/sy added
 edition = "2021"
 
 [dependencies]
