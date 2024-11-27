@@ -8,7 +8,8 @@ use indicatif::{ProgressBar, ProgressStyle};
 use std::error::Error;
 use std::path::Path;
 use ureq::{Response, get};
-use crate::paths::{BUILDING, BIN, SOURCES};
+use crate::paths::{BUILDING, BIN, SOURCES, REPO};
+// use crate::paths::{BUILDING, BIN, SOURCES};
 use crate::package::Package;
 use crate::resolve::find_dependants;
 use crate::{erm, yn, vpr, die};
@@ -16,7 +17,8 @@ use crate::cmd::{static_exec, exec};
 use crate::utils::{display_list, mkdir};
 
 pub fn mint(a: char, p: &Package) {
-    let command = format!("{}/mint {} {}", BIN.display(), a, p.name);
+    let command = format!(r#"RIDREPO="{}" {}/mint {} {}"#, REPO.display(), BIN.display(), a, p.name);
+    // let command = format!(r#"{}/mint {} {}"#, BIN.display(), a, p.name);
     if let Err(e) = exec(&command) {
         die!("Failed to evaluate action '{}': {}", a, e)
     }
@@ -140,10 +142,11 @@ pub fn confirm_removal(pkg: &Package, pkglist: &[Package]) -> bool {
 
 fn is_removable(entry: &DirEntry, p: &Package) -> bool {
     let kept = format!("{}.tar", p);
+    vpr!("Kept files: {:?}", kept);
     let file_name = entry.file_name();
     let file_name_str = file_name.to_string_lossy();
     entry.file_type().is_ok_and(|t| t.is_file())
-        && file_name_str.starts_with(&p.to_string())
+        && file_name_str.starts_with(&p.name.to_string())
         && file_name_str.ends_with(".tar")
         && file_name_str != kept
 }
