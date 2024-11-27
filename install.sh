@@ -62,7 +62,7 @@ if ! grep -q "# rid end" /etc/env ; then
 
     # rid
     export RIDHOME="$RIDHOME"
-    alias rid="sudo -i rid"
+    alias rid="sudo -E rid"
     # rid end
 EOF
 fi
