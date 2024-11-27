@@ -2,37 +2,43 @@
 
 set -e
 
-METAFILE="$2"
 ACT="$1"
+METAFILE="$2"
 
+rm -f $RIDTMP/failed*
 [ -z $RIDHOME ]       && { echo '$RIDHOME is unset'; exit 1; }
-[ -z $RIDMETA ]       && { echo '$RIDMETA is unset'; exit 1; }
-[ -z $RIDTMP ]        && { echo '$RIDTMP is unset'; exit 1; }
-[ -z $RIDBUILDING ]   && { echo '$RIDBUILDING is unset'; exit 1; }
-[ -z $RIDEXTRACTION ] && { echo '$RIDEXTRACTINO is unset'; exit 1; }
+. "$RIDHOME/env"      || { echo "Failed to source $RIDHOME/env"; touch "$RIDTMP/failed-env" ; exit 1; }
+
+[ -z $RIDMETA ]       && die '$RIDMETA is unset'
+[ -z $RIDTMP ]        && die '$RIDTMP is unset'
+[ -z $RIDBUILDING ]   && die '$RIDBUILDING is unset'
+[ -z $RIDEXTRACTION ] && die '$RIDEXTRACTION is unset'
+[ -z $RIDREPO ]       && die '$RIDREPO is unset'
+
+bv=$(compgen -v)
 
 find_metafile() {
   local metafile="$1"
   local result
-  result=$(find "$RIDMETA" -type f -name "$metafile" ! -name "README.md" ! -name "LICENSE" 2>/dev/null)
+  result=$(find "$RIDMETA/$RIDREPO" -type f -name "$metafile" ! -name "README.md" ! -name "LICENSE" 2>/dev/null)
+
+  if [ ! -e "$RIDMETA/$RIDREPO" ]; then
+    touch "$RIDTMP/failed-repo"
+    die "No repo '$RIDREPO'"
+  fi
   
   if [ -z "$result" ]; then
-    echo "Metafile '$metafile' not found in $RIDMETA"
-    exit 1
+    touch "$RIDTMP/failed-metafile"
+    die "No metafile '$metafile' in '$RIDMETA/$RIDREPO'"
   fi
+
   echo "$result"
 }
 
-pre() {
-  bv=$(compgen -v)
-  . "$RIDHOME/env" || { echo "Failed to source $RIDHOME/env"; exit 1; }
+METAFILE_PATH=$(find_metafile "$METAFILE")
+. "$METAFILE_PATH" || die "Failed to source $METAFILE_PATH"
 
-  METAFILE_PATH=$(find_metafile "$METAFILE")
-  . "$METAFILE_PATH" || die "Failed to source $METAFILE_PATH"
-
-  av=$(compgen -v)
-  rm -f $RIDTMP/failed
-}
+av=$(compgen -v)
 
 cleanup() {
   while [ ${#DIRSTACK[@]} -gt 1 ]; do
@@ -67,7 +73,6 @@ upd() {
   fi
 }
 
-pre
 case "$ACT" in
   i)
     ins || die "Install failure"
