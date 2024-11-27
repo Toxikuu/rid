@@ -11,6 +11,7 @@ export LDFLAGS="-Wl,--as-needed"
 export CARGO_HOME="/opt/cargo"
 export RUSTUP_HOME="/opt/rustup"
 
+export RIDREPO="${REPO:-main}" # export REPO="$REPO" does not work because bash (i havent the slightest clue)
 export RIDTMP=/tmp/rid
 export RIDTRASH="$RIDTMP/trash"
 export RIDBUILDING="$RIDTMP/building"
@@ -20,7 +21,7 @@ export RIDFAILED="$RIDTMP/failed"
 
 export RIDHOME="/rid"
 export RIDMETA="/var/rid/meta"
-export RIDPKGSJSON="$RIDHOME/pkgs.json"
+export RIDPKGSJSON="$RIDHOME/pkgs/$REPO.json"
 export RIDSOURCES="/sources"
 
 export VDPAU_DRIVER="va_gl"
