@@ -1,5 +1,8 @@
 # rid
 
+## Warning
+The current version is very unstable; use a release if you want (less) breakage.
+
 ## Information
 Rid is a package manager for LFS systems written in rust.
 The binary 'rid' handles dependency resolution, package tracking, and executing build scripts, among other functions.
