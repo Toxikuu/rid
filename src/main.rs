@@ -4,6 +4,7 @@ use pm::PM;
 use sets::handle_sets;
 use tracking::load_pkglist;
 use package::Package;
+use paths::REPO;
 
 mod linkval;
 mod upstream;
@@ -26,6 +27,8 @@ fn main() {
     let args = args::init_args();
     init::init();
     flags::set_flags(args.verbose, args.quiet, args.force);
+
+    vpr!("Set repo to {}", REPO.display());
 
     let pkgs = args.packages;
     let mut pkglist = load_pkglist();
