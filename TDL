@@ -2,32 +2,27 @@
 
 TODO
 
+    progress bars for checking upstream
+
     Implement proper removal for packages no longer in $RIDMETA from json
         Would be done with -fc
 
     Move $RIDSETS to rid-meta
 
-    Repo syncing
-        I'm thinking I write a script in $RIDBIN to sync all repositories in $RIDMETA
-        I'm avoiding git submodules for simplicity and extensibility
-
     Add a config file
         Ideas:
         - Toggle tarball removal on package removal
-        - Custom repositories
-            - Could be done by switching the RIDMETA variable in the env file, but ideally, multiple repositories could be supported at once. maybe symlinks are the answer?
-
-    Add support for parallel downloads
-        I'm thinking 16 threads?
-
-    Maybe add -m and -M for maintenance (along with $MDIR)
 
     Rewrite mo in bash
 
 WIP
 
+    Repo syncing
+        Doneish with sy but not yet tested
+
     Custom repo support
         Done through subdirectories in $RIDMETA
+        Still very wip
 
     Merge stabs and linkval into rid
         Improve UX for both
@@ -90,6 +85,15 @@ DONEISH
     add @all set
 
 DROPPED
+
+    Add REPO argument to mint
+        Done via an environment variable now
+
+    Maybe add -m and -M for maintenance (along with $MDIR)
+        I cba to do this
+
+    Add support for parallel downloads
+        I cba to do this
 
     Add -a flag for ask
         I don't feel like doing it lol
