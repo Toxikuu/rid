@@ -108,3 +108,8 @@ pub fn read_dir_recursive(path: &Path, json_mod_time: SystemTime, cache_list: &m
     }
     Ok(())
 }
+
+pub fn remove_before_first_number(s: &str) -> &str {
+    s.find(|c: char| c.is_ascii_digit())
+        .map_or("", |index| &s[index..])
+}

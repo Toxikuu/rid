@@ -2,10 +2,14 @@
 
 TODO
 
+    Add a search flag
+
     progress bars for checking upstream
 
     Implement proper removal for packages no longer in $RIDMETA from json
         Would be done with -fc
+        (also make -fc not check json_mod_time, and just cache everything if pkglist is empty)
+            [in response to the touch * incident]
 
     Move $RIDSETS to rid-meta
 

@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.21.0" # (highly unstable) repo support, pruning bugfix, mo is now in bash (unstable), bin/sy added
+version = "0.22.0" # overhauled upstream
 edition = "2021"
 
 [dependencies]
@@ -10,6 +10,8 @@ lazy_static = "1.5.0"
 rayon = "1.10.0"
 regex = "1.11.1"
 scraper = "0.21.0"
+semver = "1.0.23"
+semver_sort = "1.0.0"
 serde = { version = "1.0.210", features = ["derive"] }
 serde_json = "1.0.132"
 ureq = "2.10.1"
