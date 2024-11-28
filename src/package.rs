@@ -24,7 +24,7 @@ pub struct Package {
     pub installed_version: String,
     pub link: String,
     pub upstream: String,
-    pub selector: String,
+    pub version_command: String,
     pub news: String,
     pub deps: Vec<String>,
     pub downloads: Vec<String>,
@@ -77,7 +77,7 @@ impl Package {
         let mut version = String::new();
         let mut link = String::new();
         let mut upstream = String::new();
-        let mut selector = String::new();
+        let mut version_command = String::new();
         let mut news = String::new();
         let mut deps = Vec::new();
         let mut downloads = Vec::new();
@@ -95,7 +95,7 @@ impl Package {
                 _ if line.starts_with("VERS: ") => version = line[6..].trim().to_string(),
                 _ if line.starts_with("LINK: ") => link = line[6..].trim().to_string(),
                 _ if line.starts_with("UPST: ") => upstream = line[6..].trim().to_string(),
-                _ if line.starts_with("SELE: ") => selector = line[6..].trim().to_string(),
+                _ if line.starts_with("VCMD: ") => version_command = line[6..].trim().to_string(),
                 _ if line.starts_with("NEWS: ") => news = line[6..].trim().to_string(),
                 _ if line.starts_with("DEPS: ") => {
                     deps = line[6..]
@@ -114,7 +114,10 @@ impl Package {
         }
 
         if name.is_empty() { die!("Missing name for package: {}", pkg_name) }
-        let deps = handle_sets(deps, &pkglist);
+
+        if !pkglist.is_empty() {
+            deps = handle_sets(deps, &pkglist);
+        }
 
         let (status, installed_version) = pkglist
             .iter()
@@ -129,7 +132,7 @@ impl Package {
             installed_version,
             link,
             upstream,
-            selector,
+            version_command,
             news,
             deps,
             downloads,

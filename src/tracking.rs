@@ -73,7 +73,7 @@ pub fn cache_changes(pkglist: &mut Vec<Package>, mut cache_list: Vec<String>) ->
         .collect();
 
     read_dir_recursive(&META, json_mod_time, &mut cache_list, &ignored)?;
-    if cache_list.is_empty() { return Ok(0) }
+    if cache_list.is_empty() { vpr!("Empty cache list"); return Ok(0) }
 
     let length = cache_list.len() as u64;
     let bar = ProgressBar::new(length);
