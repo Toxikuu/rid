@@ -93,7 +93,7 @@ case "$ACT" in
     echo "DOWN: $DOWN"
     echo "DEPS: $DEPS"
     echo "UPST: $UPST"
-    echo "SELE: $SELE"
+    echo "VCMD: $VCMD"
     echo "NEWS: $NEWS"
     ;;
   *)
