@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.22.0" # overhauled upstream
+version = "0.22.1" # purged udeps
 edition = "2021"
 
 [dependencies]
@@ -8,10 +8,6 @@ clap = { version = "4.5.19", features = ["derive"] }
 indicatif = "0.17.8"
 lazy_static = "1.5.0"
 rayon = "1.10.0"
-regex = "1.11.1"
-scraper = "0.21.0"
-semver = "1.0.23"
-semver_sort = "1.0.0"
 serde = { version = "1.0.210", features = ["derive"] }
 serde_json = "1.0.132"
 ureq = "2.10.1"
