@@ -132,8 +132,8 @@ fn latest(pkg: &Package) -> Result<String, Box<dyn Error>> {
 pub fn check_upstream(pkglist: &Vec<Package>) {
     // checks upstream versions (with aggressive parallelization)
 
-    let mut num_threads: usize = 16;
-    if pkglist.len() < 16 {
+    let mut num_threads: usize = 64; // TODO: Allow it to be configured in config.toml
+    if pkglist.len() < 64 {
         num_threads = pkglist.len();
     }
     vpr!("Determined number of threads for check_upstream(): {}", num_threads);
