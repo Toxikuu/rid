@@ -2,10 +2,6 @@
 
 TODO
 
-    Add a search flag
-
-    progress bars for checking upstream
-
     Implement proper removal for packages no longer in $RIDMETA from json
         Would be done with -fc
         (also make -fc not check json_mod_time, and just cache everything if pkglist is empty)
@@ -16,10 +12,14 @@ TODO
     Add a config file
         Ideas:
         - Toggle tarball removal on package removal
+        - Allow custom thread limits
 
     Reconsider linkval's inclusion
 
 WIP
+
+    Add a search flag
+        Needs better actual search functionality, maybe matching 5 closest or whatever
 
     Rewrite mo in bash
 
@@ -33,13 +33,13 @@ WIP
     Merge stabs and linkval into rid
         Improve UX for both
 
-    Add a PM (PackageManager) struct
-        implement missing flags
-        implement autocaching
-
     Improve documentation
 
 DONEISH
+
+    Add a PM (PackageManager) struct
+        implement missing flags
+        implement autocaching
 
     Support -c <PACKAGE>
 
@@ -91,6 +91,9 @@ DONEISH
     add @all set
 
 DROPPED
+
+    progress bars for checking upstream
+        I don't feel like doing it
 
     Add REPO argument to mint
         Done via an environment variable now
