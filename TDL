@@ -17,12 +17,14 @@ TODO
         Ideas:
         - Toggle tarball removal on package removal
 
-    Rewrite mo in bash
+    Reconsider linkval's inclusion
 
 WIP
 
+    Rewrite mo in bash
+
     Repo syncing
-        Doneish with sy but not yet tested
+        Doneish with sy but not properly tested
 
     Custom repo support
         Done through subdirectories in $RIDMETA
