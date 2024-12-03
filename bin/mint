@@ -95,6 +95,7 @@ case "$ACT" in
     echo "UPST: $UPST"
     echo "VCMD: $VCMD"
     echo "NEWS: $NEWS"
+    echo "DESC: $DESC"
     ;;
   *)
     echo "Invalid action: $ACT"
