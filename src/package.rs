@@ -26,6 +26,7 @@ pub struct Package {
     pub upstream: String,
     pub version_command: String,
     pub news: String,
+    pub description: String,
     pub deps: Vec<String>,
     pub downloads: Vec<String>,
     pub status: PackageStatus,
@@ -79,6 +80,7 @@ impl Package {
         let mut upstream = String::new();
         let mut version_command = String::new();
         let mut news = String::new();
+        let mut description = String::new();
         let mut deps = Vec::new();
         let mut downloads = Vec::new();
 
@@ -97,6 +99,7 @@ impl Package {
                 _ if line.starts_with("UPST: ") => upstream = line[6..].trim().to_string(),
                 _ if line.starts_with("VCMD: ") => version_command = line[6..].trim().to_string(),
                 _ if line.starts_with("NEWS: ") => news = line[6..].trim().to_string(),
+                _ if line.starts_with("DESC: ") => description = line[6..].trim().to_string(),
                 _ if line.starts_with("DEPS: ") => {
                     deps = line[6..]
                         .split_whitespace()
@@ -134,6 +137,7 @@ impl Package {
             upstream,
             version_command,
             news,
+            description,
             deps,
             downloads,
             status,

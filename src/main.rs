@@ -63,6 +63,7 @@ fn main() {
 
     invoke!(args, pm, [
         list,
+        search,
         dependencies,
         dependants,
         get,

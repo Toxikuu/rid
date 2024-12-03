@@ -44,6 +44,9 @@ pub struct Args {
     #[arg(short = 'g', long, action = ArgAction::SetTrue)]
     pub get: bool,
 
+    #[arg(short = 's', long, action = ArgAction::SetTrue)]
+    pub search: bool,
+
     // #[arg(short = 'G', long, action = ArgAction::SetTrue)]
     // pub force_get_files: bool,
 
@@ -63,7 +66,7 @@ pub struct Args {
     #[arg(short = 'L', long, action = ArgAction::SetTrue)]
     pub validate_links: bool,
 
-    #[arg(short = 's', long, action = ArgAction::SetTrue)]
+    #[arg(short = 'S', long, action = ArgAction::SetTrue)]
     pub sync: bool,
 
     // Generic flags

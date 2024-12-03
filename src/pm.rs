@@ -262,6 +262,20 @@ impl PM {
         validate(&pkgs)
     }
 
+    // TODO: Allow for fuzzyfinding packages or some other actual search functionality
+    pub fn search(&self) {
+        for pkg in self.pkgs.iter() {
+            msg!("{}", pkg);
+            pr!(" - {}", pkg.description);
+            if pkg.installed_version.is_empty() {
+                pr!(" - {:?}", pkg.status);
+                return
+            } else {
+                pr!(" - {:?} {}", pkg.status, pkg.installed_version);
+            }
+        }
+    }
+
     // I'd like to enable support for syncing individual repos at some point in the future
     pub fn sync(&self) {
         let command = format!("{}/sy", BIN.display());
