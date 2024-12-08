@@ -8,7 +8,7 @@ use rayon::ThreadPoolBuilder;
 use rayon::prelude::*;
 
 fn ping(url: &str, a: u8) -> Result<(), String> {
-    if a > 7 {
+    if a > 3 {
         return Err("Invalid url".to_string())
     }
 
@@ -35,8 +35,8 @@ pub fn validate(validate_list: &[Package]) {
     urls.extend(extra_urls);
     urls.retain(|s| !s.is_empty());
 
-    let mut num_threads: usize = 512;
-    if urls.len() < 512 {
+    let mut num_threads: usize = 32;
+    if urls.len() < 32 {
         num_threads = urls.len();
     }
     vpr!("Determined number of threads for linkval: {}", num_threads);
