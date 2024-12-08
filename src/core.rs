@@ -9,16 +9,15 @@ use std::error::Error;
 use std::path::Path;
 use ureq::{Response, get};
 use crate::paths::{BUILDING, BIN, SOURCES, REPO};
-// use crate::paths::{BUILDING, BIN, SOURCES};
 use crate::package::Package;
 use crate::resolve::find_dependants;
 use crate::{erm, yn, vpr, die};
-use crate::cmd::{static_exec, exec};
+// use crate::cmd::{static_exec, exec};
+use crate::cmd::exec;
 use crate::utils::{display_list, mkdir};
 
 pub fn mint(a: char, p: &Package) {
-    let command = format!(r#"RIDREPO="{}" {}/mint {} {}"#, REPO.display(), BIN.display(), a, p.name);
-    // let command = format!(r#"{}/mint {} {}"#, BIN.display(), a, p.name);
+    let command = format!(r#"RIDREPO="{}" {}/mint {} {}"#, &*REPO, BIN.display(), a, p.name);
     if let Err(e) = exec(&command) {
         die!("Failed to evaluate action '{}': {}", a, e)
     }
@@ -180,9 +179,9 @@ pub fn prune_sources(p: &Package) -> u8 {
     num_removed
 }
 
-pub fn remove_tarballs(pkg_str: &str) {
-    let command = format!("cd {} && rm -vf {}-[0-9]*.t*", SOURCES.display(), pkg_str);
-    if let Err(e) = static_exec(&command) {
-        erm!("Failed to remove tarballs for '{}': {}", pkg_str, e)
-    }
-}
+// pub fn remove_tarballs(pkg_str: &str) {
+//     let command = format!("cd {} && rm -vf {}-[0-9]*.t*", SOURCES.display(), pkg_str);
+//     if let Err(e) = static_exec(&command) {
+//         erm!("Failed to remove tarballs for '{}': {}", pkg_str, e)
+//     }
+// }
