@@ -18,7 +18,7 @@ pub fn is_comment(pkg: &str) -> bool {
 
 pub fn expand_set(set: &str, pkglist: &Vec<Package>) -> Vec<String> {
     if set == "@all" {
-        return pkglist.into_iter().map(|p| p.name.clone()).collect()
+        return pkglist.iter().map(|p| p.name.clone()).collect()
     }
 
     let file_path = format!("{}/{}", SETS.display(), set.replacen('@', "", 1));
@@ -61,7 +61,7 @@ pub fn handle_sets(pkgs: Vec<String>, pkglist: &Vec<Package>) -> Vec<String> {
     let mut all = Vec::new();
     for pkg in pkgs {
         if is_set(&pkg) {
-            let set = expand_set(&pkg, &pkglist);
+            let set = expand_set(&pkg, pkglist);
             all.extend(set);
         } else {
             all.push(pkg)
