@@ -2,6 +2,10 @@
 
 TODO
 
+    Add a tracking folder in /var/rid/tracking
+        touch files to denote a pkglist-agnostic installation
+            and make it repo-compatible
+
     Implement proper removal for packages no longer in $RIDMETA from json
         Would be done with -fc
         (also make -fc not check json_mod_time, and just cache everything if pkglist is empty)
