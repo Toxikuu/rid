@@ -2,16 +2,12 @@
 
 TODO
 
-    Add a tracking folder in /var/rid/tracking
-        touch files to denote a pkglist-agnostic installation
-            and make it repo-compatible
+    Allow targetting of a package version
 
     Implement proper removal for packages no longer in $RIDMETA from json
         Would be done with -fc
         (also make -fc not check json_mod_time, and just cache everything if pkglist is empty)
             [in response to the touch * incident]
-
-    Move $RIDSETS to rid-meta
 
     Add a config file
         Ideas:
@@ -26,6 +22,7 @@ WIP
         Needs better actual search functionality, maybe matching 5 closest or whatever
 
     Rewrite mo in bash
+        Needs more testing
 
     Repo syncing
         Doneish with sy but not properly tested
@@ -42,8 +39,6 @@ WIP
 DONEISH
 
     Add a PM (PackageManager) struct
-        implement missing flags
-        implement autocaching
 
     Support -c <PACKAGE>
 
@@ -96,6 +91,11 @@ DONEISH
 
 DROPPED
 
+    Move $RIDSETS to rid-meta
+
+    use lock files instead of a pkgs.json
+        while i love this idea and think it offers certain benefits, it's gonna take a lot of effort to switch now
+
     progress bars for checking upstream
         I don't feel like doing it
 
@@ -125,3 +125,15 @@ DROPPED
 
     Add -w flag for writing a metafile
         Not feasible
+
+ROADMAP
+
+    Features for rid-1.x.x:
+        basic config support
+    
+    Features for rid-2.x.x:
+        lock files instead of repo-specific jsons
+        more cohesive set and metafile system (where they're stored in the same repo)
+        utilities for creating sets
+        package uuids (if possible)
+        proper build options support
