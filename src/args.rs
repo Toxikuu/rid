@@ -53,6 +53,9 @@ pub struct Args {
     #[arg(short = 'l', long, action = ArgAction::SetTrue)]
     pub list: bool,
 
+    #[arg(short = 'L', long, action = ArgAction::SetTrue)]
+    pub list_outdated: bool,
+
     #[arg(short = 'n', long, action = ArgAction::SetTrue)]
     pub news: bool,
 
@@ -63,7 +66,7 @@ pub struct Args {
     #[arg(short = 'k', long, action = ArgAction::SetTrue)]
     pub check_upstream: bool,
 
-    #[arg(short = 'L', long, action = ArgAction::SetTrue)]
+    #[arg(long, action = ArgAction::SetTrue)]
     pub validate_links: bool,
 
     #[arg(short = 'S', long, action = ArgAction::SetTrue)]

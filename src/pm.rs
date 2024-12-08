@@ -50,6 +50,33 @@ impl PM {
         display_list(&displayed);
     }
 
+    pub fn list_outdated(&self) {
+        let pkgs = if self.pkgs.is_empty() {
+            self.pkglist.clone()
+        } else {
+            self.pkgs
+                .iter()
+                .filter_map(|pkg| self.pkglist.iter().find(|p| p.name == *pkg.name).cloned())
+                .collect()
+        };
+
+        let pkgs: Vec<_> = pkgs.into_iter()
+            .filter(|pkg| !pkg.installed_version.is_empty())
+            .filter(|pkg| pkg.installed_version != pkg.version)
+            .collect();
+
+        if pkgs.is_empty() {
+            msg!("No outdated packages");
+            return
+        }
+
+        let mut pkgs = pkgs;
+        pkgs.sort();
+
+        msg!("Outdated packages");
+        display_list(&pkgs)
+    }
+
     pub fn dependencies(&self) {
         for pkg in self.pkgs.iter() {
             let d = resolve_deps(pkg, &self.pkglist);

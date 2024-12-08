@@ -63,6 +63,7 @@ fn main() {
 
     invoke!(args, pm, [
         list,
+        list_outdated,
         search,
         dependencies,
         dependants,
