@@ -28,7 +28,7 @@ fn main() {
     init::init();
     flags::set_flags(args.verbose, args.quiet, args.force);
 
-    vpr!("Set repo to {}", REPO.display());
+    vpr!("Set repo to {}", &*REPO);
 
     let pkgs = args.packages;
     let mut pkglist = load_pkglist();

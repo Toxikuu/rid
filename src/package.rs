@@ -84,7 +84,7 @@ impl Package {
         let mut deps = Vec::new();
         let mut downloads = Vec::new();
 
-        let command = format!(r#"RIDREPO="{}" {}/mint v {}"#, REPO.display(), BIN.display(), pkg_name);
+        let command = format!(r#"RIDREPO="{}" {}/mint v {}"#, &*REPO, BIN.display(), pkg_name);
 
         let output = match static_exec(&command) {
             Ok(output) => output,
