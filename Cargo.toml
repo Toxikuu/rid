@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.22.1" # purged udeps
+version = "0.22.2" # tweaks to REPO handling, updates to crate dependencies
 edition = "2021"
 
 [dependencies]
