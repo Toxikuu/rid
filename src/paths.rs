@@ -12,15 +12,14 @@ fn wrap(var: &str) -> PathBuf {
 }
 
 lazy_static! {
-    pub static ref REPO: PathBuf = PathBuf::from(env::var("RIDREPO").unwrap());
+    pub static ref REPO: String = env::var("RIDREPO").unwrap();
 
     pub static ref RIDHOME: PathBuf = wrap("RIDHOME");
     pub static ref META: PathBuf = wrap("RIDMETA");
     pub static ref SOURCES: PathBuf = wrap("RIDSOURCES");
-    pub static ref PKGSJSON: PathBuf = wrap("RIDPKGSJSON"); // !!
+    pub static ref PKGSJSON: PathBuf = wrap("RIDPKGSJSON"); // unstable
     pub static ref SETS: PathBuf = RIDHOME.join("sets");
     pub static ref BIN: PathBuf = RIDHOME.join("bin");
-    // pub static ref PKGSJSON: PathBuf = RIDHOME.join(format!("pkgs/{}.json", REPO.display()));
     pub static ref TMPRID: PathBuf = wrap("RIDTMP");
     pub static ref BUILDING: PathBuf = wrap("RIDBUILDING");
     pub static ref EXTRACTION: PathBuf = wrap("RIDEXTRACTION");
