@@ -12,31 +12,31 @@ TODO
     Add a config file
         Ideas:
         - Toggle tarball removal on package removal
-        - Allow custom thread limits
-
-    Reconsider linkval's inclusion
+        - Set custom thread limits
+        - Toggle search functionality
 
 WIP
 
+    Improve documentation
+
+DONEISH
+
+    Merge stabs and linkval into rid
+        Improve UX for both
+
     Add a search flag
-        Needs better actual search functionality, maybe matching 5 closest or whatever
 
     Rewrite mo in bash
         Needs more testing
 
     Repo syncing
-        Doneish with sy but not properly tested
+        Needs more testing
 
     Custom repo support
-        Done through subdirectories in $RIDMETA
-        Still very wip
+        Needs more testing
 
-    Merge stabs and linkval into rid
-        Improve UX for both
-
-    Improve documentation
-
-DONEISH
+    Add a flag '-L' for listing out-of-date packages
+        and rename current -L to --validate-links
 
     Add a PM (PackageManager) struct
 
@@ -137,3 +137,11 @@ ROADMAP
         utilities for creating sets
         package uuids (if possible)
         proper build options support
+        add an option to toggle rc filtering for upstream checks in the config
+
+    Features for rid-3.x.x:
+        allow for pre-install actions, such as avoiding extracting tarballs
+        maybe subdivide instructions for m32, m64, patching, testing, etc.
+        allow hooks to better handle circular dependencies
+            for example: calling `rid -fu nvidia` after the kernel is updated
+        
