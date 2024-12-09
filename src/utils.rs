@@ -10,6 +10,7 @@ use std::collections::HashSet;
 use std::fs;
 use std::time::SystemTime;
 use std::path::Path;
+use strsim::levenshtein;
 
 pub fn mkdir(path: &Path) {
     if path.exists() {
@@ -56,9 +57,15 @@ pub fn format_line(line: &str, max_length: usize) -> String {
 
 pub fn display_list(list: &[Package] ) {
     for p in list.iter() {
+        let mut iv = p.installed_version.clone();
+
+        if iv != p.version && !iv.is_empty() {
+            iv = format!("{}\x1b[31;1m (outdated)", p.installed_version)
+        }
+
         let line = format!(
             "{}={} ~ {:?} {}",
-            p.name, p.version, p.status, p.installed_version
+            p.name, p.version, p.status, iv
         );
         let formatted_line = format_line(&line, 32);
         println!("  {}", formatted_line);
@@ -112,4 +119,13 @@ pub fn read_dir_recursive(path: &Path, json_mod_time: SystemTime, cache_list: &m
 pub fn remove_before_first_number(s: &str) -> &str {
     s.find(|c: char| c.is_ascii_digit())
         .map_or("", |index| &s[index..])
+}
+
+pub fn pkg_search(query: &str, pkgs: Vec<Package>) -> Option<String> {
+    if pkgs.is_empty() { return None }
+
+    let closest = pkgs.into_iter()
+        .min_by_key(|candidate| levenshtein(query, &candidate.name));
+
+    closest.map(|pkg| pkg.name)
 }
