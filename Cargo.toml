@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.22.2" # tweaks to REPO handling, updates to crate dependencies
+version = "0.22.4" # improvements to upstream and searching
 edition = "2021"
 
 [dependencies]
@@ -10,5 +10,6 @@ lazy_static = "1.5.0"
 rayon = "1.10.0"
 serde = { version = "1.0.210", features = ["derive"] }
 serde_json = "1.0.132"
+strsim = "0.11.1"
 ureq = "2.10.1"
 whoami = { version = "1.5.2", default-features = false }

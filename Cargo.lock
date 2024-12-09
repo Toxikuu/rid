@@ -528,7 +528,7 @@ dependencies = [
 
 [[package]]
 name = "rid"
-version = "0.22.2"
+version = "0.22.4"
 dependencies = [
  "clap",
  "indicatif",
@@ -536,6 +536,7 @@ dependencies = [
  "rayon",
  "serde",
  "serde_json",
+ "strsim",
  "ureq",
  "whoami",
 ]
