@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.22.5" # renamed -L, --list-outdated to -o, --outdated
+version = "0.22.6" # miscellaneous tweaks
 edition = "2021"
 
 [dependencies]
