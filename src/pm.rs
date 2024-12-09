@@ -289,7 +289,6 @@ impl PM {
         validate(&pkgs)
     }
 
-    // TODO: Allow for fuzzyfinding packages or some other actual search functionality
     pub fn search(&self) {
         for pkg in self.pkgs.iter() {
             msg!("{}", pkg);
