@@ -4,6 +4,7 @@ use pm::PM;
 use sets::handle_sets;
 use tracking::load_pkglist;
 use package::Package;
+use utils::pkg_search;
 use paths::REPO;
 
 mod linkval;
@@ -29,9 +30,26 @@ fn main() {
     flags::set_flags(args.verbose, args.quiet, args.force);
 
     vpr!("Set repo to {}", &*REPO);
-
-    let pkgs = args.packages;
     let mut pkglist = load_pkglist();
+    let pkgs: Vec<Option<String>> = args.packages
+        .iter()
+        .map(|pkg| {
+            if pkg.starts_with('@') { return Some(pkg.to_string()) }
+            if pkg.starts_with('^') { return Some(pkg.to_string().strip_prefix('^').unwrap().to_string()) }
+
+            if pkglist.iter().any(|p| p.name == *pkg) {
+                Some(pkg.clone())
+            } else {
+                vpr!("Searching for the closest match for '{}'...", pkg);
+                pkg_search(pkg, pkglist.clone())
+            }
+        })
+        .collect();
+
+    let pkgs: Vec<String> = pkgs.into_iter()
+        .flatten()
+        .collect();
+
     let pkgs = handle_sets(pkgs, &pkglist);
 
     let mut cache_list: Vec<String> = Vec::new();
