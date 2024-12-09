@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.22.4" # improvements to upstream and searching
+version = "0.22.5" # renamed -L, --list-outdated to -o, --outdated
 edition = "2021"
 
 [dependencies]

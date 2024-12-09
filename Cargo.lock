@@ -528,7 +528,7 @@ dependencies = [
 
 [[package]]
 name = "rid"
-version = "0.22.4"
+version = "0.22.5"
 dependencies = [
  "clap",
  "indicatif",
