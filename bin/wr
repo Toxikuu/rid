@@ -6,11 +6,12 @@ set +x
 set -e
 
 . "$RIDHOME"/env || { echo '$RIDHOME not set' >&2 ; exit 1 ;}
+REPO="${RIDREPO:-main}"
 
 [ -z "$1" ] && die 'Missing $1'
 [ -z "$RIDMETA" ] && die '$RIDMETA not set'
 
-METAFILE="$RIDMETA/$1"
+METAFILE="$RIDMETA/$RIDREPO/$1"
 
 if [ -e "$METAFILE" ]; then
   nvim "$METAFILE"
