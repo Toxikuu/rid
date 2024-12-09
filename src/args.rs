@@ -53,8 +53,8 @@ pub struct Args {
     #[arg(short = 'l', long, action = ArgAction::SetTrue)]
     pub list: bool,
 
-    #[arg(short = 'L', long, action = ArgAction::SetTrue)]
-    pub list_outdated: bool,
+    #[arg(short = 'o', long, action = ArgAction::SetTrue)]
+    pub outdated: bool,
 
     #[arg(short = 'n', long, action = ArgAction::SetTrue)]
     pub news: bool,

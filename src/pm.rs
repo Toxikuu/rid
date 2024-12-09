@@ -50,7 +50,7 @@ impl PM {
         display_list(&displayed);
     }
 
-    pub fn list_outdated(&self) {
+    pub fn outdated(&self) {
         let pkgs = if self.pkgs.is_empty() {
             self.pkglist.clone()
         } else {
