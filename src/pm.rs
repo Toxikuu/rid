@@ -293,7 +293,9 @@ impl PM {
     pub fn search(&self) {
         for pkg in self.pkgs.iter() {
             msg!("{}", pkg);
-            pr!(" - {}", pkg.description);
+
+            let description = if pkg.description.is_empty() { "No description provided".to_string() } else { pkg.description.clone() };
+            pr!(" - {}", description);
             if pkg.installed_version.is_empty() {
                 pr!(" - {:?}", pkg.status);
                 return
