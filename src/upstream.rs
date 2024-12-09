@@ -12,10 +12,21 @@ use crate::package::Package;
 
 fn vsort(versions: Vec<String>) -> Vec<String> {
 
-    let mut sorted_versions = versions.clone();
+    let mut sorted_versions: Vec<String> = versions
+        .into_iter()
+        .filter(|line| !line.contains("^{}")
+                    && !line.contains("rc")
+                    && !line.contains("alpha")
+                    && !line.contains("beta"))
+        .map(|line| {
+            line.strip_prefix('v').unwrap_or(&line).to_string();
+            line.trim().to_string()
+        })
+        .collect();
 
     sorted_versions.sort_by(|a, b| {
         let parse_version = |v: &str| {
+
             // handle rc
             let v = if v.contains("rc") && !v.contains(".rc") {
                 v.replace("rc", ".rc") // Replace `rc` with `.rc` to unify parsing
@@ -65,62 +76,56 @@ fn latest(pkg: &Package) -> Result<String, Box<dyn Error>> {
     }
 
     if !pkg.version_command.is_empty() {
-        vpr!("Using custom version command");
-        let output = match static_exec(&pkg.version_command) {
-            Ok(mut output) => {
-                output = output.trim().to_string();
-                output = output.strip_suffix("^{}").unwrap_or(&output).to_string();
-                output.strip_prefix('v').unwrap_or(&output).to_string()
-            },
-            Err(e) => {
-                erm!("Custom version command failed: {}", e);
-                return Err("Custom version command failed".into());
+        for _ in 1..=3 {
+            vpr!("Using custom version command");
+            match static_exec(&pkg.version_command) {
+                Ok(result) if !result.is_empty() => {
+                    let v = result.trim();
+                    let v = v.strip_suffix("^{}").unwrap_or(v);
+                    let v = v.strip_prefix("v").unwrap_or(v);
+
+                    return Ok(v.to_string());
+                },
+                Err(_) | Ok(_) => continue,
             }
-        };
-
-        vpr!("Output from custom command: {}", output);
-
-        if output.is_empty() {
-            return Err("Failed to fetch version with custom command".into());
         }
-
-        return Ok(output);
     }
 
-
+    let mut output = String::new();
     let command = format!("git ls-remote --tags {}", pkg.upstream);
-    let output = match static_exec(&command) {
-        Ok(output) => output,
-        Err(e) => { 
-            erm!("Git command failed: {}", e);
-            return Err("Git command failed".into());
+    for _ in 1..=3 {
+        match static_exec(&command) {
+            Ok(result) if !result.is_empty() => {
+                output = result;
+                break
+            },
+            Err(_) | Ok(_) => continue,
         }
-    };
+    }
 
-    // dbg!(&output);
+    if output.is_empty() {
+        return Err("Failed to fetch version with default command".into())
+    }
+
     let tags: Vec<&str> = output.lines().collect();
-    // dbg!(&tags);
 
     let versions: Vec<String> = tags
         .iter()
         .filter_map(|tag| {
             if let Some(version) = tag.rsplit('/').next() {
-                let version = version.to_lowercase();
-                let version = version.replace("_", "-");
-                let version = version.replace(&pkg.name, "");
+                let version = version.to_lowercase()
+                    .replace("_", "-")
+                    .replace(&pkg.name, "")
+                    .replace("-", ".");
                 let version = rbfn(&version);
-                let version = version.replace("-", ".");
-                let version = version.strip_suffix("^{}").unwrap_or(&version);
-
+                let version = version.strip_suffix("^{}").unwrap_or(version);
 
                 Some(version.to_string())
             } else { None }
         })
         .collect();
 
-    // dbg!(&versions);
     let versions = vsort(versions);
-    // dbg!(&versions);
 
     if let Some(latest_version) = versions.last() {
         Ok(latest_version.to_string())
