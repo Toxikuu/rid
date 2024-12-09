@@ -4,6 +4,9 @@
 
 REPO="${RIDREPO:-main}"
 
+[ -z "$RIDMETA" ] && { echo "RIDMETA unset" >&2; exit 1 ;}
+[ -z "$1" ] && { echo '$1 is empty' >&2; exit 1 ;}
+
 find_metafile() {
   local metafile="$1"
   local result
