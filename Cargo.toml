@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.23.1" # tarball removal config option works now, typo fix, todos
+version = "0.23.2" # improvements to searching
 edition = "2021"
 
 [dependencies]
