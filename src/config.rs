@@ -36,6 +36,7 @@ pub struct ColorsConfig {
     pub default: String,
     pub message: String,
     pub prompt: String,
+    pub stderr: String,
     pub verbose: String,
 }
 
