@@ -11,11 +11,12 @@ stack_size = 512 # in kb
 thread_count = 64
 
 [colors] # ascii escape codes
-danger = "\\x1b[31;1m"
-default = "\\x1b[30;3m"
-message = "\\x1b[36;1m"
-prompt = "\\x1b[35;1m"
-verbose = "\\x1b[34;1m"
+danger = "31;1m"
+default = "30;3m"
+message = "36;1m"
+prompt = "35;1m"
+stderr = "31;3m;1m"
+verbose = "34;1m"
 
 [behavior]
 remove_tarballs = false # whether to remove tarballs when removing a package
