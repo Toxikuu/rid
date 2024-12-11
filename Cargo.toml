@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.23.2" # improvements to searching
+version = "0.23.3" # color config support
 edition = "2021"
 
 [dependencies]
