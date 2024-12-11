@@ -11,11 +11,11 @@ stack_size = 512 # in kb
 thread_count = 64
 
 [colors] # ascii escape codes
-danger = "31;1m"
+danger = "31;1m  "
 default = "30;3m"
-message = "36;1m"
+message = "36;1m  "
 prompt = "35;1m"
-stderr = "31;3m;1m"
+stderr = "31;3;1m"
 verbose = "34;1m"
 
 [behavior]
