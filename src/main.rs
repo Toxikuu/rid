@@ -7,6 +7,7 @@ use package::Package;
 use utils::pkg_search;
 use paths::REPO;
 
+mod config;
 mod linkval;
 mod upstream;
 mod init;
