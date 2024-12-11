@@ -13,7 +13,7 @@ use clap::{Parser, ArgAction};
     after_help = "If you have any questions, you can DM me on Discord @toxikuu"
 )]
 pub struct Args {
-    // Core flags (independent of package arguments)
+    // Core flags
     #[arg(short = 'i', long, action = ArgAction::SetTrue)]
     pub install: bool,
 
@@ -47,9 +47,6 @@ pub struct Args {
     #[arg(short = 's', long, action = ArgAction::SetTrue)]
     pub search: bool,
 
-    // #[arg(short = 'G', long, action = ArgAction::SetTrue)]
-    // pub force_get_files: bool,
-
     #[arg(short = 'l', long, action = ArgAction::SetTrue)]
     pub list: bool,
 
@@ -59,7 +56,6 @@ pub struct Args {
     #[arg(short = 'n', long, action = ArgAction::SetTrue)]
     pub news: bool,
 
-    // Function flags
     #[arg(short = 'c', long, action = ArgAction::SetTrue)]
     pub cache: bool,
 
@@ -82,7 +78,7 @@ pub struct Args {
     #[arg(short = 'f', long, action = ArgAction::SetTrue)]
     pub force: bool,
 
-    // Positional arguments for packages
+    // Positional arguments (packages)
     #[arg(value_name = "PACKAGE", num_args = 0.., value_delimiter = ' ')]
     pub packages: Vec<String>,
 }
