@@ -13,13 +13,13 @@ use crate::package::Package;
 
 fn vsort(versions: Vec<String>) -> Vec<String> {
 
-    // TODO: Add config opotions for string exclusions
+    // TODO: Add config options for string exclusions
     let mut sorted_versions: Vec<String> = versions
         .into_iter()
-        .filter(|line| !line.contains("^{}")
-                    && !line.contains("rc")
-                    && !line.contains("alpha")
-                    && !line.contains("beta"))
+        .filter(|line| !line.contains("^{}")    // exclude tag references
+                    && !line.contains("rc")     // exclude release candidates
+                    && !line.contains("alpha")  // exclude alphas
+                    && !line.contains("beta"))  // exclude betas
         .map(|line| {
             line.strip_prefix('v').unwrap_or(&line).to_string();
             line.trim().to_string()
@@ -31,7 +31,7 @@ fn vsort(versions: Vec<String>) -> Vec<String> {
 
             // handle rc
             let v = if v.contains("rc") && !v.contains(".rc") {
-                v.replace("rc", ".rc") // Replace `rc` with `.rc` to unify parsing
+                v.replace("rc", ".rc")
             } else {
                 v.to_string()
             };
