@@ -11,17 +11,17 @@ TODO
 
     Add a simscore threshold for searching
 
-    Add a config file
-        Ideas:
-        - Toggle tarball removal on package removal
-        - Set custom thread limits
-        - Set search functionality threshold
-
 WIP
 
     Improve documentation
 
 DONEISH
+
+    Add a config file
+        Ideas:
+        - Toggle tarball removal on package removal
+        - Set custom thread limits
+        - Set search functionality threshold
 
     Merge stabs and linkval into rid
         Improve UX for both
@@ -144,6 +144,8 @@ ROADMAP
     Features for rid-3.x.x:
         allow for pre-install actions, such as avoiding extracting tarballs
         maybe subdivide instructions for m32, m64, patching, testing, etc.
+        add a field for expected build time
+            would require adding a way to calibrate SBUs
         allow hooks to better handle circular dependencies
             for example: calling `rid -fu nvidia` after the kernel is updated
         
