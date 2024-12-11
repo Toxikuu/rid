@@ -9,13 +9,13 @@ TODO
         (also make -fc not check json_mod_time, and just cache everything if pkglist is empty)
             [in response to the touch * incident]
 
-    Add a simscore threshold for searching
-
 WIP
 
     Improve documentation
 
 DONEISH
+
+    Add a simscore threshold for searching
 
     Add a config file
         Ideas:
