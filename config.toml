@@ -1,7 +1,7 @@
 # rid config
 
 [linkval]
-retry_count = 3
+retry_count = 3 # limited to 128, though you shouldn't go that high anyway
 stack_size = 128 # in kb
 thread_count = 128
 
@@ -19,4 +19,4 @@ verbose = "\\x1b[34;1m"
 
 [behavior]
 remove_tarballs = false # whether to remove tarballs when removing a package
-search_threshold = 74
+search_threshold = 3 # levenshtein (edit) distance
