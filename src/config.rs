@@ -12,7 +12,7 @@ pub struct Config {
     pub behavior: BehaviorConfig,
     pub colors: ColorsConfig,
     pub linkval: LinkvalConfig,
-    pub upstream: LinkvalConfig,
+    pub upstream: UpstreamConfig,
 }
 
 #[derive(Deserialize, Debug)]
@@ -29,6 +29,7 @@ pub struct UpstreamConfig {
     pub thread_count: usize,
 }
 
+// TODO: Add support within rid for color configuration
 #[derive(Deserialize, Debug)]
 pub struct ColorsConfig {
     pub danger: String,
@@ -38,6 +39,7 @@ pub struct ColorsConfig {
     pub verbose: String,
 }
 
+// TODO: add support for search threshold
 #[derive(Deserialize, Debug)]
 pub struct BehaviorConfig {
     pub remove_tarballs: bool,
