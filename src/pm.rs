@@ -8,7 +8,7 @@ use crate::resolve::{resolve_deps, find_dependants, deep_dependants};
 use crate::{die, vpr, pr, yn, msg, erm};
 use crate::tracking;
 use crate::utils::{dedup, display_list, do_install};
-use crate::core::{confirm_removal, mint, download, fetch, prune_sources};
+use crate::core::{confirm_removal, download, fetch, mint, prune_sources, remove_tarballs};
 use crate::paths::BIN;
 use crate::flags::FORCE;
 use crate::upstream::check_upstream;
@@ -189,6 +189,7 @@ impl PM {
 
             mint('r', pkg);
             tracking::rem(&mut self.pkglist, pkg);
+            remove_tarballs(&pkg.name);
             msg!("Removed '{}'", pkg);
         }
     }
@@ -227,6 +228,7 @@ impl PM {
             for dep in deps.iter() {
                 mint('r', dep);
                 tracking::rem(&mut self.pkglist, dep);
+                remove_tarballs(&dep.name);
                 msg!("Removed '{}'", dep);
             }
         }

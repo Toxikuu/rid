@@ -3,12 +3,13 @@
 // responsible for link validation
 
 use crate::package::Package;
+use crate::config::CONFIG;
 use crate::{erm, vpr, pr};
 use rayon::ThreadPoolBuilder;
 use rayon::prelude::*;
 
 fn ping(url: &str, a: u8) -> Result<(), String> {
-    if a > 3 {
+    if a > CONFIG.linkval.retry_count {
         return Err("Invalid url".to_string())
     }
 
@@ -35,15 +36,15 @@ pub fn validate(validate_list: &[Package]) {
     urls.extend(extra_urls);
     urls.retain(|s| !s.is_empty());
 
-    let mut num_threads: usize = 32;
-    if urls.len() < 32 {
+    let mut num_threads: usize = CONFIG.linkval.thread_count;
+    if urls.len() < num_threads {
         num_threads = urls.len();
     }
     vpr!("Determined number of threads for linkval: {}", num_threads);
 
     let pool = ThreadPoolBuilder::new()
         .num_threads(num_threads)
-        .stack_size(256 * 1024)
+        .stack_size(CONFIG.linkval.stack_size * 1024) // * 1024 for kb
         .build()
         .unwrap();
 

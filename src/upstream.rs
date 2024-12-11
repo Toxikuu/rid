@@ -6,12 +6,14 @@ use rayon::ThreadPoolBuilder;
 use rayon::prelude::*;
 use std::error::Error;
 use crate::cmd::static_exec;
+use crate::config::CONFIG;
 use crate::utils::remove_before_first_number as rbfn;
 use crate::{vpr, pr, erm};
 use crate::package::Package;
 
 fn vsort(versions: Vec<String>) -> Vec<String> {
 
+    // TODO: Add config opotions for string exclusions
     let mut sorted_versions: Vec<String> = versions
         .into_iter()
         .filter(|line| !line.contains("^{}")
@@ -76,7 +78,7 @@ fn latest(pkg: &Package) -> Result<String, Box<dyn Error>> {
     }
 
     if !pkg.version_command.is_empty() {
-        for _ in 1..=3 {
+        for _ in 1..=CONFIG.upstream.retry_count {
             vpr!("Using custom version command");
             match static_exec(&pkg.version_command) {
                 Ok(result) if !result.is_empty() => {
@@ -93,7 +95,7 @@ fn latest(pkg: &Package) -> Result<String, Box<dyn Error>> {
 
     let mut output = String::new();
     let command = format!("git ls-remote --tags {}", pkg.upstream);
-    for _ in 1..=3 {
+    for _ in 1..=CONFIG.upstream.retry_count {
         match static_exec(&command) {
             Ok(result) if !result.is_empty() => {
                 output = result;
@@ -137,15 +139,15 @@ fn latest(pkg: &Package) -> Result<String, Box<dyn Error>> {
 pub fn check_upstream(pkglist: &Vec<Package>) {
     // checks upstream versions (with aggressive parallelization)
 
-    let mut num_threads: usize = 64; // TODO: Allow it to be configured in config.toml
-    if pkglist.len() < 64 {
+    let mut num_threads: usize = CONFIG.upstream.thread_count; // TODO: Allow it to be configured in config.toml
+    if pkglist.len() < num_threads {
         num_threads = pkglist.len();
     }
     vpr!("Determined number of threads for check_upstream(): {}", num_threads);
 
     let pool = ThreadPoolBuilder::new()
         .num_threads(num_threads)
-        .stack_size(512 * 1024)
+        .stack_size(CONFIG.upstream.stack_size * 1024)
         .build()
         .unwrap();
 
