@@ -10,7 +10,7 @@ retry_count = 3
 stack_size = 512 # in kb
 thread_count = 64
 
-[colors] # ascii escape codes
+[colors] # ascii escape codes (\x1b[ is accounted for)
 danger = "31;1m  "
 default = "30;3m"
 message = "36;1m  "
