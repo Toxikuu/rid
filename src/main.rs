@@ -12,6 +12,7 @@ mod checks;
 mod cmd;
 mod config;
 mod core;
+mod examples;
 mod flags;
 mod init;
 mod linkval;
