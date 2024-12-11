@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.23.4" # formatting && organization
+version = "0.23.5" # updated rust to 1.85.0-nightly (20a443231 2024-12-06) and ran cargo update
 edition = "2021"
 
 [dependencies]
