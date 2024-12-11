@@ -67,7 +67,7 @@ pub fn exec(command: &str) -> io::Result<()> {
         for line in reader.lines() {
             match line {
                 Ok(line) => {
-                    pr!("\x1b[31;1;3m{}", line);
+                    pr!("\x1b[{}{}", CONFIG.colors.stderr, line);
                     let log_line = format!("[ERR] {}\n", line);
                     let mut log_file = log_file_stderr.lock().unwrap();
                     let _ = write!(log_file, "{}", log_line);
