@@ -43,7 +43,7 @@ pub struct ColorsConfig {
 #[derive(Deserialize, Debug)]
 pub struct BehaviorConfig {
     pub remove_tarballs: bool,
-    pub search_threshold: u8,
+    pub search_threshold: usize,
 }
 
 impl Config {
