@@ -3,7 +3,7 @@
 // responsible for defining utility functions
 
 use crate::package::{Package, PackageStatus};
-use crate::{die, vpr, msg};
+use crate::{die, vpr, msg, erm};
 use crate::flags::FORCE;
 use crate::config::CONFIG;
 use std::io;
@@ -123,7 +123,7 @@ pub fn remove_before_first_number(s: &str) -> &str {
 }
 
 pub fn pkg_search(query: &str, pkgs: Vec<Package>) -> Option<String> {
-    if pkgs.is_empty() { return None }
+    if pkgs.is_empty() { return Some(query.to_string()) }
 
     let closest = pkgs.into_iter()
         .map(|pkg| {
@@ -132,7 +132,18 @@ pub fn pkg_search(query: &str, pkgs: Vec<Package>) -> Option<String> {
         })
         .min_by_key(|(_, dist)| *dist);
 
-    closest
-        .filter(|(_, dist)| *dist <= CONFIG.behavior.search_threshold)
-        .map(|(name, _)| name)
+    match closest {
+        Some((name, dist)) if dist <= CONFIG.behavior.search_threshold => Some(name),
+        Some((_, dist)) if dist > CONFIG.behavior.search_threshold => {
+            erm!("No close match found for '{}'.", query);
+            None
+        },
+        Some((name, _)) => Some(name),
+
+         // should be unreachable as this function is currently used
+        None => {
+            erm!("No packages found.");
+            None
+        }
+    }
 }
