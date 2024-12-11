@@ -2,10 +2,10 @@
 // responsible for parsing the config.toml
 
 use lazy_static::lazy_static;
-use std::sync::Arc;
 use serde::Deserialize;
-use std::path::Path;
 use std::fs;
+use std::path::Path;
+use std::sync::Arc;
 
 #[derive(Deserialize, Debug)]
 pub struct Config {

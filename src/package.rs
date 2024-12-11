@@ -7,8 +7,8 @@ use crate::paths::{BIN, REPO};
 use crate::sets::handle_sets;
 use crate::{die, vpr};
 use serde::{Deserialize, Serialize};
-use std::fmt;
 use std::cmp::Ordering;
+use std::fmt;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum PackageStatus {
@@ -19,17 +19,17 @@ pub enum PackageStatus {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Package {
-    pub name: String,
-    pub version: String,
+    pub deps: Vec<String>,
+    pub description: String,
+    pub downloads: Vec<String>,
     pub installed_version: String,
     pub link: String,
-    pub upstream: String,
-    pub version_command: String,
+    pub name: String,
     pub news: String,
-    pub description: String,
-    pub deps: Vec<String>,
-    pub downloads: Vec<String>,
     pub status: PackageStatus,
+    pub upstream: String,
+    pub version: String,
+    pub version_command: String,
 }
 
 impl Ord for Package {
@@ -74,15 +74,15 @@ impl Package {
     pub fn def(pkg_name: &str, pkglist: Vec<Package>) -> Package {
         vpr!("Forming {}", pkg_name);
 
-        let mut name = String::new();
-        let mut version = String::new();
-        let mut link = String::new();
-        let mut upstream = String::new();
-        let mut version_command = String::new();
-        let mut news = String::new();
-        let mut description = String::new();
         let mut deps = Vec::new();
+        let mut description = String::new();
         let mut downloads = Vec::new();
+        let mut link = String::new();
+        let mut name = String::new();
+        let mut news = String::new();
+        let mut upstream = String::new();
+        let mut version = String::new();
+        let mut version_command = String::new();
 
         let command = format!(r#"RIDREPO="{}" {}/mint v {}"#, &*REPO, BIN.display(), pkg_name);
 
@@ -93,13 +93,13 @@ impl Package {
 
         for line in output.lines() {
             match line {
-                _ if line.starts_with("NAME: ") => name = line[6..].trim().to_string(),
-                _ if line.starts_with("VERS: ") => version = line[6..].trim().to_string(),
+                _ if line.starts_with("DESC: ") => description = line[6..].trim().to_string(),
                 _ if line.starts_with("LINK: ") => link = line[6..].trim().to_string(),
+                _ if line.starts_with("NAME: ") => name = line[6..].trim().to_string(),
+                _ if line.starts_with("NEWS: ") => news = line[6..].trim().to_string(),
                 _ if line.starts_with("UPST: ") => upstream = line[6..].trim().to_string(),
                 _ if line.starts_with("VCMD: ") => version_command = line[6..].trim().to_string(),
-                _ if line.starts_with("NEWS: ") => news = line[6..].trim().to_string(),
-                _ if line.starts_with("DESC: ") => description = line[6..].trim().to_string(),
+                _ if line.starts_with("VERS: ") => version = line[6..].trim().to_string(),
                 _ if line.starts_with("DEPS: ") => {
                     deps = line[6..]
                         .split_whitespace()
@@ -130,17 +130,17 @@ impl Package {
             });
 
         Package {
-            name,
-            version,
+            deps,
+            description,
+            downloads,
             installed_version,
             link,
-            upstream,
-            version_command,
+            name,
             news,
-            description,
-            deps,
-            downloads,
             status,
+            upstream,
+            version,
+            version_command,
         }
     }
 }

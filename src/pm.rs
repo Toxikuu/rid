@@ -3,16 +3,16 @@
 // package manager struct
 
 use crate::cmd::exec;
-use crate::package::Package;
-use crate::resolve::{resolve_deps, find_dependants, deep_dependants};
-use crate::{die, vpr, pr, yn, msg, erm};
-use crate::tracking;
-use crate::utils::{dedup, display_list, do_install};
 use crate::core::{confirm_removal, download, fetch, mint, prune_sources, remove_tarballs};
-use crate::paths::BIN;
 use crate::flags::FORCE;
-use crate::upstream::check_upstream;
 use crate::linkval::validate;
+use crate::package::Package;
+use crate::paths::BIN;
+use crate::resolve::{resolve_deps, find_dependants, deep_dependants};
+use crate::tracking;
+use crate::upstream::check_upstream;
+use crate::utils::{dedup, display_list, do_install};
+use crate::{die, vpr, pr, yn, msg, erm};
 use indicatif::{ProgressStyle, ProgressBar};
 
 pub struct PM {

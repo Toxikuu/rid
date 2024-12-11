@@ -3,8 +3,8 @@
 // responsible for dependency/dependant resolution
 
 use crate::package::Package;
-use crate::vpr;
 use crate::utils::dedup;
+use crate::vpr;
 use std::collections::HashSet;
 
 fn deep_deps(pkg: &Package, pkglist: &Vec<Package>, resolved: &mut HashSet<String>, order: &mut Vec<String>) {

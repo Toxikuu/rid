@@ -1,34 +1,34 @@
 // main.rs
 
+use package::Package;
+use paths::REPO;
 use pm::PM;
 use sets::handle_sets;
 use tracking::load_pkglist;
-use package::Package;
 use utils::pkg_search;
-use paths::REPO;
 
-mod config;
-mod linkval;
-mod upstream;
-mod init;
-mod utils;
-mod paths;
-mod core;
-mod cmd;
-mod resolve;
-mod flags;
-mod checks;
-mod package;
-mod macros;
-mod tracking;
-mod sets;
-mod pm;
 mod args;
+mod checks;
+mod cmd;
+mod config;
+mod core;
+mod flags;
+mod init;
+mod linkval;
+mod macros;
+mod package;
+mod paths;
+mod pm;
+mod resolve;
+mod sets;
+mod tracking;
+mod upstream;
+mod utils;
 
 fn main() {
     let args = args::init_args();
     init::init();
-    flags::set_flags(args.verbose, args.quiet, args.force);
+    flags::set_flags(args.force, args.quiet, args.verbose);
 
     vpr!("Set repo to {}", &*REPO);
     let mut pkglist = load_pkglist();

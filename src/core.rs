@@ -2,19 +2,19 @@
 //
 // defines core functionality
 
-use std::io::{self, Write};
-use std::fs::{self, File, read_dir, DirEntry};
-use indicatif::{ProgressBar, ProgressStyle};
-use std::error::Error;
-use std::path::Path;
-use ureq::{Response, get};
-use crate::paths::{BUILDING, BIN, SOURCES, REPO};
+use crate::cmd::{static_exec, exec};
 use crate::config::CONFIG;
 use crate::package::Package;
+use crate::paths::{BUILDING, BIN, SOURCES, REPO};
 use crate::resolve::find_dependants;
-use crate::{erm, yn, vpr, die};
-use crate::cmd::{static_exec, exec};
 use crate::utils::{display_list, mkdir};
+use crate::{erm, yn, vpr, die};
+use indicatif::{ProgressBar, ProgressStyle};
+use std::error::Error;
+use std::fs::{self, File, read_dir, DirEntry};
+use std::io::{self, Write};
+use std::path::Path;
+use ureq::{Response, get};
 
 pub fn mint(a: char, p: &Package) {
     let command = format!(r#"RIDREPO="{}" {}/mint {} {}"#, &*REPO, BIN.display(), a, p.name);

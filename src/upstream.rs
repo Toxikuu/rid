@@ -2,14 +2,14 @@
 //
 // responsible for checking upstream versions of packages
 
+use crate::cmd::static_exec;
+use crate::config::CONFIG;
+use crate::package::Package;
+use crate::utils::remove_before_first_number as rbfn;
+use crate::{vpr, pr, erm};
 use rayon::ThreadPoolBuilder;
 use rayon::prelude::*;
 use std::error::Error;
-use crate::cmd::static_exec;
-use crate::config::CONFIG;
-use crate::utils::remove_before_first_number as rbfn;
-use crate::{vpr, pr, erm};
-use crate::package::Package;
 
 fn vsort(versions: Vec<String>) -> Vec<String> {
 

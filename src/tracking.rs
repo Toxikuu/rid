@@ -3,9 +3,9 @@
 // responsible for keeping track of packages
 
 use crate::checks::is_file_empty;
-use crate::utils::{get_mod_time, read_dir_recursive};
 use crate::package::{Package, PackageStatus};
 use crate::paths::{FAILED, META, PKGSJSON};
+use crate::utils::{get_mod_time, read_dir_recursive};
 use crate::{die, vpr};
 use indicatif::{ProgressBar, ProgressStyle};
 use serde_json::{from_str, to_string_pretty};

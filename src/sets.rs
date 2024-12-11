@@ -2,9 +2,9 @@
 //
 // responsible for sets functionality
 
+use crate::package::Package;
 use crate::paths::SETS;
 use crate::{die, erm, vpr};
-use crate::package::Package;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 

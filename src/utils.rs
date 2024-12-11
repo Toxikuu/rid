@@ -2,15 +2,15 @@
 //
 // responsible for defining utility functions
 
+use crate::config::CONFIG;
+use crate::flags::FORCE;
 use crate::package::{Package, PackageStatus};
 use crate::{die, vpr, msg, erm};
-use crate::flags::FORCE;
-use crate::config::CONFIG;
-use std::io;
 use std::collections::HashSet;
 use std::fs;
-use std::time::SystemTime;
+use std::io;
 use std::path::Path;
+use std::time::SystemTime;
 use strsim::levenshtein;
 
 pub fn mkdir(path: &Path) {

@@ -2,8 +2,8 @@
 //
 // responsible for link validation
 
-use crate::package::Package;
 use crate::config::CONFIG;
+use crate::package::Package;
 use crate::{erm, vpr, pr};
 use rayon::ThreadPoolBuilder;
 use rayon::prelude::*;
