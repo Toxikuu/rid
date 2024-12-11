@@ -5,6 +5,7 @@
 use crate::package::{Package, PackageStatus};
 use crate::{die, vpr, msg};
 use crate::flags::FORCE;
+use crate::config::CONFIG;
 use std::io;
 use std::collections::HashSet;
 use std::fs;
@@ -125,7 +126,13 @@ pub fn pkg_search(query: &str, pkgs: Vec<Package>) -> Option<String> {
     if pkgs.is_empty() { return None }
 
     let closest = pkgs.into_iter()
-        .min_by_key(|candidate| levenshtein(query, &candidate.name));
+        .map(|pkg| {
+            let dist = levenshtein(query, &pkg.name);
+            (pkg.name, dist)
+        })
+        .min_by_key(|(_, dist)| *dist);
 
-    closest.map(|pkg| pkg.name)
+    closest
+        .filter(|(_, dist)| *dist <= CONFIG.behavior.search_threshold)
+        .map(|(name, _)| name)
 }
