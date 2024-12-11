@@ -2,6 +2,10 @@
 
 TODO
 
+    update install.sh
+
+    make -qn still show news
+
     Allow targetting of a package version
 
     Implement proper removal for packages no longer in $RIDMETA from json
@@ -12,6 +16,7 @@ TODO
 WIP
 
     Improve documentation
+        examples written, now i just need to touch up DOCS.md
 
 DONEISH
 
@@ -134,8 +139,12 @@ ROADMAP
 
     Features for rid-1.x.x:
         basic config support
+        take a snapshot of the project root, and ridmeta
+        support per-packages version overrides
+        fix some qol issues
     
     Features for rid-2.x.x:
+        support for per-repo syncing
         lock files instead of repo-specific jsons
         more cohesive set and metafile system (where they're stored in the same repo)
         utilities for creating sets
