@@ -8,12 +8,6 @@ use std::thread::sleep;
 use std::time::Duration;
 use whoami::username;
 
-fn check_perms() {
-    if username() != "root" {
-        panic!("Examples must be run as root");
-    }
-}
-
 pub fn e2c() {
     println!("Press enter to continue...");
     io::stdout().flush().unwrap();
@@ -22,7 +16,9 @@ pub fn e2c() {
 
 // used for examples
 pub fn rid_cmd(args: &[&str]) {
-    check_perms();
+    if username() != "root" {
+        panic!("Examples must be run as root");
+    }
 
     println!(" $ rid {}\n", args.join(" "));
     sleep(Duration::from_millis(1337));
