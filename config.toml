@@ -1,0 +1,22 @@
+# rid config
+
+[linkval]
+retry_count = 3
+stack_size = 128 # in kb
+thread_count = 128
+
+[upstream]
+retry_count = 3
+stack_size = 512 # in kb
+thread_count = 64
+
+[colors] # ascii escape codes
+danger = "\\x1b[31;1m"
+default = "\\x1b[30;3m"
+message = "\\x1b[36;1m"
+prompt = "\\x1b[35;1m"
+verbose = "\\x1b[34;1m"
+
+[behavior]
+remove_tarballs = false # whether to remove tarballs when removing a package
+search_threshold = 74
