@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.23.0" # added config
+version = "0.23.1" # tarball removal config option works now
 edition = "2021"
 
 [dependencies]
