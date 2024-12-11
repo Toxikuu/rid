@@ -6,6 +6,6 @@ REPO="${REPO:-main}" . "$RIDHOME"/env || die "Failed to source dev rid's env"
 # TODO: move this functionality to rid
 [ -z "$RIDBUILDING" ] && die '$RIDBUILING not set'
 [ -z "$RIDHOME" ]     && die '$RIDHOME not set'
-rm -rf "$RIDBUILDING"/*
+# rm -rf "$RIDBUILDING"/*
 
 "$RIDHOME"/target/release/rid "$@"
