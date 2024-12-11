@@ -1,6 +1,11 @@
 [package]
 name = "rid"
-version = "0.23.5" # updated rust to 1.85.0-nightly (20a443231 2024-12-06) and ran cargo update
+version = "0.24.0" # new fields in Cargo.toml, updated documentation, added examples
+description = "My source-based package manager for LFS"
+license = "GPL"
+repository = "https://github.com/Toxikuu/rid"
+readme = "README.md"
+documentation = "https://github.com/Toxikuu/rid/blob/master/DOCS.md"
 edition = "2021"
 
 [dependencies]
