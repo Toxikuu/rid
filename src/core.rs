@@ -9,6 +9,7 @@ use std::error::Error;
 use std::path::Path;
 use ureq::{Response, get};
 use crate::paths::{BUILDING, BIN, SOURCES, REPO};
+use crate::config::CONFIG;
 use crate::package::Package;
 use crate::resolve::find_dependants;
 use crate::{erm, yn, vpr, die};
@@ -179,6 +180,8 @@ pub fn prune_sources(p: &Package) -> u8 {
 }
 
 pub fn remove_tarballs(pkg_str: &str) {
+    if !CONFIG.behavior.remove_tarballs { return }
+
     let command = format!("cd {} && rm -vf {}-[0-9]*.t*", SOURCES.display(), pkg_str);
     if let Err(e) = static_exec(&command) {
         erm!("Failed to remove tarballs for '{}': {}", pkg_str, e)
