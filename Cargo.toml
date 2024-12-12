@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.24.1" # improvements to --news, allowed dead code for examples.rs
+version = "0.24.2" # implied @all for --prune
 description = "My source-based package manager for LFS"
 license = "GPL"
 repository = "https://github.com/Toxikuu/rid"
