@@ -4,8 +4,6 @@ TODO
 
     Imply forced update for packages with version 9999
 
-    Update install.sh
-
     Allow targetting of a package version
 
     Implement proper removal for packages no longer in $RIDMETA from json
@@ -15,11 +13,12 @@ TODO
 
 WIP
 
-    Improve documentation
-        examples written, now i just need to touch up DOCS.md
-        -> v0.24.1
+    Update install.sh
 
 DONEISH
+
+    Improve documentation
+        examples written, now i just need to touch up DOCS.md
 
     make -qn still show news
 
