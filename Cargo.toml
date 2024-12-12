@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.24.2" # implied @all for --prune, updated dependencies, updated nightly toolchain
+version = "0.24.3" # updates to install.sh and DOCS.md
 description = "My source-based package manager for LFS"
 license = "GPL"
 repository = "https://github.com/Toxikuu/rid"
