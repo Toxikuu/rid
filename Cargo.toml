@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.24.3" # updates to install.sh and DOCS.md
+version = "0.24.4" # improvements to manually-invoked caching
 description = "My source-based package manager for LFS"
 license = "GPL"
 repository = "https://github.com/Toxikuu/rid"
