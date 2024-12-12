@@ -4,8 +4,8 @@
 
 use crate::checks::is_file_empty;
 use crate::package::{Package, PackageStatus};
-use crate::paths::{FAILED, META, PKGSJSON};
-use crate::utils::{get_mod_time, read_dir_recursive};
+use crate::paths::{FAILED, META, PKGSJSON, REPO};
+use crate::utils::{get_mod_time, form_cache_list};
 use crate::{die, vpr};
 use indicatif::{ProgressBar, ProgressStyle};
 use serde_json::{from_str, to_string_pretty};
@@ -13,6 +13,7 @@ use std::collections::HashSet;
 use std::fs::{read_to_string, File};
 use std::io::{self, Write};
 use std::path::Path;
+use std::time::UNIX_EPOCH;
 
 pub fn create_json() -> io::Result<()> {
     if !is_file_empty(&PKGSJSON) { return Ok(()) }
@@ -64,15 +65,20 @@ pub fn rem(pkglist: &mut Vec<Package>, p: &Package) {
 }
 
 const TEMPLATE: &str = "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {pos}/{len} ({eta})";
-pub fn cache_changes(pkglist: &mut Vec<Package>, mut cache_list: Vec<String>) -> io::Result<u64> {
+pub fn cache_changes(forcibly:bool, pkglist: &mut Vec<Package>, mut cache_list: Vec<String>) -> io::Result<u64> {
     // caches changes made in $RIDMETA to $RIDPKGSJSON
-    let json_mod_time = get_mod_time(&PKGSJSON)?;
+    let json_mod_time = if forcibly {
+        UNIX_EPOCH
+    } else {
+        get_mod_time(&PKGSJSON)?
+    };
+
     let ignored: HashSet<String> = ["README.md", "LICENSE", ".git"]
         .iter()
         .map(|&s| s.to_string())
         .collect();
 
-    read_dir_recursive(&META, json_mod_time, &mut cache_list, &ignored)?;
+    form_cache_list(forcibly, &META.join(&*REPO), json_mod_time, &mut cache_list, &ignored)?;
     if cache_list.is_empty() { vpr!("Empty cache list"); return Ok(0) }
 
     let length = cache_list.len() as u64;
