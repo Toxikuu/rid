@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.24.0" # new fields in Cargo.toml, updated documentation, added examples
+version = "0.24.1" # improvements to --news, allowed dead code for examples.rs
 description = "My source-based package manager for LFS"
 license = "GPL"
 repository = "https://github.com/Toxikuu/rid"
