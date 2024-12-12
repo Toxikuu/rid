@@ -94,7 +94,7 @@ pub fn do_install(p: &Package) -> bool {
     }
 }
 
-pub fn read_dir_recursive(path: &Path, json_mod_time: SystemTime, cache_list: &mut Vec<String>, ignored: &HashSet<String>) -> io::Result<()> {
+pub fn form_cache_list(forcibly: bool, path: &Path, json_mod_time: SystemTime, cache_list: &mut Vec<String>, ignored: &HashSet<String>) -> io::Result<()> {
     for entry in fs::read_dir(path)? {
         let entry = entry?;
         let path = entry.path();
@@ -103,14 +103,16 @@ pub fn read_dir_recursive(path: &Path, json_mod_time: SystemTime, cache_list: &m
             continue;
         }
 
-        if path.is_dir() {
-            read_dir_recursive(&path, json_mod_time, cache_list, ignored)?;
-        } else if let Some(pkg_str) = path.file_name().and_then(|n| n.to_str()) {
+        if let Some(pkg_str) = path.file_name().and_then(|n| n.to_str()) {
             let entry_mod_time = get_mod_time(&path)?;
 
-            if entry_mod_time >= json_mod_time {
+            if entry_mod_time >= json_mod_time || forcibly {
                 vpr!("Caching package '{}'...", pkg_str);
-                cache_list.push(pkg_str.to_string());
+
+                let pkg_str = pkg_str.to_string(); // lazy expected type fix
+                if !cache_list.contains(&pkg_str) {
+                    cache_list.push(pkg_str);
+                }
             }
         }
     }
