@@ -30,7 +30,7 @@ PATH="/usr/bin:/usr/sbin:/opt/cargo/bin"
 echo "VARS: $RIDHOME $RIDMETA $RIDSOURCES $PATH"
 
 echo -e "\x1b[36;1m  Pulling latest changes...\x1b[0m"
-if [ ! -e "$RIDHOME"/main/.git ]; then
+if [ ! -e "$RIDHOME"/.git ]; then
     git clone "https://github.com/Toxikuu/rid.git" "$RIDHOME"
 else
     cd "$RIDHOME" && git pull
@@ -48,7 +48,7 @@ echo -e "\x1b[36;1m  Building rid...\x1b[0m"
 cd "$RIDHOME"
 # rustup show
 cargo +nightly build --release || { echo "Failed to compile rid" >&2 ; exit 1 ;}
-cargo strip >/dev/null 2>&1 || : # in case the user doesnt have cargo strip
+cargo strip >/dev/null 2>&1 || true # in case the user doesnt have cargo strip
 '
 
 echo -e "\x1b[36;1m  Fixing permissions...\x1b[0m"
