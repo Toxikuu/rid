@@ -146,7 +146,10 @@ impl PM {
 
     pub fn update(&mut self) {
         for pkg in self.pkgs.iter() {
-            if pkg.installed_version == pkg.version && !*FORCE.lock().unwrap() {
+            if pkg.installed_version == pkg.version 
+            && !*FORCE.lock().unwrap() 
+            && pkg.version != "9999" 
+            {
                 msg!("Package '{}' up to date", pkg);
                 return;
             }
@@ -166,7 +169,10 @@ impl PM {
             msg!("Dependencies for '{}'", pkg);
             display_list(&deps);
             for dep in deps.iter() {
-                if dep.installed_version == dep.version && !*FORCE.lock().unwrap() {
+                if dep.installed_version == dep.version
+                && !*FORCE.lock().unwrap() 
+                && pkg.version != "9999" 
+                {
                     msg!("Package '{}' up to date", dep);
                     return;
                 }
