@@ -235,10 +235,16 @@ impl PM {
     }
 
     pub fn news(&mut self) {
-        for pkg in self.pkgs.iter() {
+        let pkgs = if !self.pkgs.is_empty() {
+            self.pkgs.clone()
+        } else {
+            self.pkglist.clone()
+        };
+
+        for pkg in pkgs {
             if !pkg.news.is_empty() {
                 msg!("News for '{}':", pkg);
-                pr!("\x1b[31;3m{}\x1b[0m\n", pkg.news);
+                msg!("\x1b[{}\x1b[1G{}\x1b[0m\n", CONFIG.colors.default, pkg.news);
             }
         }
     }
