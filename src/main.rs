@@ -55,15 +55,17 @@ fn main() {
     let pkgs = handle_sets(pkgs, &pkglist);
 
     let mut cache_list: Vec<String> = Vec::new();
+    let mut force_cache = false;
     if args.cache {
         cache_list = pkgs.clone();
         if cache_list.is_empty() { cache_list = pkglist.iter().map(|p| p.name.clone()).collect() }
         msg!("Caching {} packages", cache_list.len());
+        force_cache = true;
     } else {
         vpr!("Autocaching...");
     }
 
-    match tracking::cache_changes(&mut pkglist, cache_list) {
+    match tracking::cache_changes(force_cache, &mut pkglist, cache_list) {
         Ok(n) => vpr!("Cached {} packages", n),
         Err(e) => die!("Error caching: {}", e),
     }
