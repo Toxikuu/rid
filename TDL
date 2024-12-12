@@ -6,16 +6,14 @@ TODO
 
     Allow targetting of a package version
 
-    Implement proper removal for packages no longer in $RIDMETA from json
-        Would be done with -fc
-        (also make -fc not check json_mod_time, and just cache everything if pkglist is empty)
-            [in response to the touch * incident]
-
 WIP
 
-    Update install.sh
 
 DONEISH
+
+    Improvements to manually-invoked caching
+
+    Update install.sh
 
     Improve documentation
         examples written, now i just need to touch up DOCS.md
