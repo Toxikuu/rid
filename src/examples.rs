@@ -1,6 +1,7 @@
 // examples.rs
 //
 // defines helper functions for examples
+#![allow(dead_code)] // these functions are used in the examples, but not in rid
 
 use std::io::{self, Write};
 use std::process::Command;
