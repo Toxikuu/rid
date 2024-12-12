@@ -20,4 +20,4 @@ find_metafile() {
 }
 
 METAFILE="$(find_metafile "$1")"
-echo $(grep "VERS=" "$METAFILE" | sed -E 's/^.*="(.*)"$/\1/')
+echo $(grep "VERS=" "$METAFILE" | cut -d'"' -f2)
