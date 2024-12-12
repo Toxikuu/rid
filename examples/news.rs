@@ -2,7 +2,6 @@
 // 
 // view news entries for packages
 // news entries often contain important information about a package or advice on usage
-// TODO: allow @all implication for -n
 
 #[path = "../src/examples.rs"]
 mod examples;

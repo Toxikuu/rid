@@ -1,7 +1,6 @@
 // prune
 // 
 // removes tarballs for all package versions except the latest from $RIDSOURCES
-// TODO: allow @all implication for -p
 
 #[path = "../src/examples.rs"]
 mod examples;
