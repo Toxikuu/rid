@@ -16,6 +16,13 @@ $RIDPKGSJSON  # a json caching info for all packages
 $RIDSOURCES   # where source tarballs are stored
 ```
 
+## Env
+Rid assumes the existence of /etc/env for certain packages. On my system,
+/etc/env contains global aliases, functions, and environment variables.
+/etc/profile and /etc/bashrc both source it.
+
+Rid also has its own env file, which it sources before building packages.
+
 ## Sets
 Sets are stored in $RIDHOME/sets; rid expands them into a list of packages.
 Recursive sets *are* supported. Sets are invoked with @set, where 'set' is the
@@ -85,6 +92,13 @@ Rid executes $RIDHOME/bin/mint which interacts with meta files. Mint sources
 the meta files and evaluates directions their directions based on flags passed.
 Meta files contain variables and functions for installation, updates, and
 removal.
+
+#### Repositories
+The default repository is 'main'. It may be overridden with the REPO
+environment variable.
+
+#### Utilities
+/rid/bin/wr is a utility for templating and writing meta files.
 
 #### Variable Explanations
 ```bash
