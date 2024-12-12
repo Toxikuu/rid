@@ -2,9 +2,9 @@
 
 TODO
 
-    update install.sh
+    Imply forced update for packages with version 9999
 
-    make -qn still show news
+    Update install.sh
 
     Allow targetting of a package version
 
@@ -20,6 +20,8 @@ WIP
         -> v0.24.1
 
 DONEISH
+
+    make -qn still show news
 
     Add color config support
 
