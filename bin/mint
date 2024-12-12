@@ -59,17 +59,21 @@ ins() {
 }
 
 rem() {
-  rdir
+  if ! declare -f rdir > /dev/null; then
+    echo "not implemented"
+  else
+    rdir
+  fi
 }
 
 upd() {
   pushd "$RIDBUILDING/$NAME-$VERS" > /dev/null || die "Failed to enter build directory"
   if ! declare -f udir > /dev/null; then
-      echo "Using install instructions..."
-      idir
+    echo "Using install instructions..."
+    idir
   else
-      echo "Using update instructions..."
-      udir
+    echo "Using update instructions..."
+    udir
   fi
 }
 
