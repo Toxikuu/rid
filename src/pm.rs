@@ -250,9 +250,15 @@ impl PM {
     }
 
     pub fn prune(&self) {
+        let pkgs = if !self.pkgs.is_empty() {
+            self.pkgs.clone()
+        } else {
+            self.pkglist.clone()
+        };
+
         const BAR: &str = "{msg:.red} [{elapsed_precise}] [{wide_bar:.red/black}] {pos}/{len} ({eta})";
         let mut tarballs_removed = 0;
-        let length = self.pkgs.len() as u64;
+        let length = pkgs.len() as u64;
         let bar = ProgressBar::new(length);
 
         bar.set_message("Pruning packages");
@@ -263,7 +269,7 @@ impl PM {
         );
         bar.set_length(length);
 
-        for pkg in self.pkgs.iter() {
+        for pkg in pkgs.iter() {
             vpr!("Pruning {}", pkg);
             let num_removed = prune_sources(pkg);
             vpr!("Pruned {} tarballs for '{}'", num_removed, pkg);
