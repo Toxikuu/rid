@@ -1,8 +1,6 @@
 // download
 // 
 // downloads tarballs and any extra links for packages
-// TODO: make -g check if the files exist before downloading, overridable with
-// -f, or a config option
 
 #[path = "../src/examples.rs"]
 mod examples;
@@ -13,7 +11,7 @@ fn main() {
     let args = ["-fg", "yajl"];
     rid_cmd(&args);
 
-    // download all the source files for @lfs
+    // download all the source files for @lfs, skipping over existing ones
     let args = ["-g", "@lfs"];
     rid_cmd(&args);
 }
