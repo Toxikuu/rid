@@ -73,15 +73,6 @@ pub fn download(p: Package, force: bool) {
     let tarball_path = &SOURCES.join(&tarball);
     let extra_links = p.downloads;
 
-    if !tarball_link.is_empty() && (!tarball_path.exists() || force) {
-        vpr!("Downloading '{}' from '{}'...", tarball, tarball_link);
-        let r = get(tarball_link).call().expect("Failed to get tarball");
-
-        if let Err(e) = dl_bar(r, &tarball, tarball_path) {
-            die!("Failed to download url '{}': {}", tarball_link, e)
-        }
-    }
-
     for url in extra_links {
         let file_name = url.split('/').last().expect("Invalid url");
         let file_path = &SOURCES.join(file_name);
@@ -93,6 +84,15 @@ pub fn download(p: Package, force: bool) {
             if let Err(e) = dl_bar(r, file_name, file_path) {
                 die!("Failed to download url '{}': {}", url, e)
             }
+        }
+    }
+
+    if !tarball_link.is_empty() && (!tarball_path.exists() || force) {
+        vpr!("Downloading '{}' from '{}'...", tarball, tarball_link);
+        let r = get(tarball_link).call().expect("Failed to get tarball");
+
+        if let Err(e) = dl_bar(r, &tarball, tarball_path) {
+            die!("Failed to download url '{}': {}", tarball_link, e)
         }
     }
 }
