@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.24.5" # exception 9999 for update version checks
+version = "0.24.6" # allowed -fg, and tweaked download behavior, updated crate dependencies
 description = "My source-based package manager for LFS"
 license = "GPL"
 repository = "https://github.com/Toxikuu/rid"
