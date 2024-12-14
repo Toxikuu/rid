@@ -113,7 +113,7 @@ impl PM {
     pub fn get(&self) {
         for pkg in self.pkgs.clone() {
             msg!("Getting files for {}", pkg);
-            download(pkg, true);
+            download(pkg, *FORCE.lock().unwrap());
         }
     }
 
