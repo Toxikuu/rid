@@ -36,7 +36,6 @@ libtool
 gdbm
 expat
 inetutils
-less
 perl
 xml-parser
 intltool
@@ -58,6 +57,7 @@ diffutils
 gawk
 findutils
 groff
+less
 gzip
 iproute2
 kbd
@@ -68,6 +68,7 @@ tar
 texinfo
 markupsafe
 jinja2
+gperf
 udev
 procps-ng
 util-linux
