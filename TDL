@@ -147,6 +147,7 @@ ROADMAP
         fix some qol issues
     
     Features for rid-2.x.x:
+        add color to clap
         bash completions
         drop support for package definition within rid; have it be handled by a separate utility
         support for per-repo syncing
