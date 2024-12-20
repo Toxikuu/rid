@@ -48,7 +48,7 @@ macro_rules! msg {
 macro_rules! die {
     ($($arg:tt)*) => {{
         use $crate::config::CONFIG;
-        panic!("\x1b{}{}\x1b[0m", CONFIG.colors.danger, format!($($arg)*))
+        panic!("\x1b[{}{}\x1b[0m", CONFIG.colors.danger, format!($($arg)*))
     }};
 }
 
