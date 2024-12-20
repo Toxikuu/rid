@@ -1,21 +1,33 @@
 [package]
 name = "rid"
-version = "0.24.6" # allowed -fg, and tweaked download behavior, updated crate dependencies
+version = "0.24.7" # tweaks to cargo.toml, bugfix
 description = "My source-based package manager for LFS"
 license = "GPL"
 repository = "https://github.com/Toxikuu/rid"
 readme = "README.md"
 documentation = "https://github.com/Toxikuu/rid/blob/master/DOCS.md"
-edition = "2021"
+edition = "2024"
+
+[profile.size]
+inherits = "release"
+opt-level = "z"
+strip = "symbols"
+lto = true
+panic = "abort"
+
+[profile.release]
+lto = true
+strip = "symbols"
+panic = "unwind"
 
 [dependencies]
-clap = { version = "4.5.19", features = ["derive"] }
+clap = { version = "4.5.19", default-features = false, features = ["std", "suggestions", "usage", "help", "derive"] }
 indicatif = "0.17.8"
 lazy_static = "1.5.0"
 rayon = "1.10.0"
-serde = { version = "1.0.210", features = ["derive"] }
+serde = { version = "1.0.210", default-features=false, features = ["derive"] }
 serde_json = "1.0.132"
 strsim = "0.11.1"
 toml = "0.8.19"
-ureq = "2.10.1"
+ureq = { version = "2.10.1", default-features = false, features = ["tls"] }
 whoami = { version = "1.5.2", default-features = false }
