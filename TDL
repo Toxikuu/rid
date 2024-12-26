@@ -141,10 +141,7 @@ DROPPED
 ROADMAP
 
     Features for rid-1.x.x:
-        basic config support
-        take a snapshot of the project root, and ridmeta
-        support per-packages version overrides
-        fix some qol issues
+        DONE
     
     Features for rid-2.x.x:
         add color to clap
