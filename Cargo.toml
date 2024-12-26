@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.24.7" # tweaks to cargo.toml, bugfix
+version = "0.24.8" # minor refactoring, adjusted progress characters to use ligatures
 description = "My source-based package manager for LFS"
 license = "GPL"
 repository = "https://github.com/Toxikuu/rid"
