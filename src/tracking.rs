@@ -89,7 +89,7 @@ pub fn cache_changes(forcibly:bool, pkglist: &mut Vec<Package>, mut cache_list: 
     bar.set_style(
         ProgressStyle::with_template(TEMPLATE)
             .unwrap()
-            .progress_chars("#|-"),
+            .progress_chars("=>-"),
     );
 
     for pkg_str in cache_list {

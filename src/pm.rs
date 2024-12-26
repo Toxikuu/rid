@@ -271,7 +271,7 @@ impl PM {
         bar.set_style(
             ProgressStyle::with_template(BAR)
                 .unwrap()
-                .progress_chars("#|-"),
+                .progress_chars("=>-"),
         );
         bar.set_length(length);
 

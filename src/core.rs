@@ -31,14 +31,11 @@ fn dl_bar(
     file_path: &Path,
 ) -> Result<ProgressBar, Box<dyn Error>> {
     if r.status() != 200 {
-        return Err(format!("Non-200 HTTP status: {}", r.status()).into());
+        return Err(format!("HTTP status: {}", r.status()).into());
     }
 
-    let length = r.header("Content-Length").and_then(|len| len.parse().ok());
-    let bar = match length {
-        Some(len) => ProgressBar::new(len),
-        _ => ProgressBar::new_spinner(),
-    };
+    let length = r.header("Content-Length").and_then(|len| len.parse().ok()).unwrap_or(8192);
+    let bar = ProgressBar::new(length);
 
     let message = format!("Downloading {}", file_name);
     bar.set_message(message);
@@ -46,24 +43,45 @@ fn dl_bar(
     bar.set_style(
         ProgressStyle::with_template(BAR)
             .unwrap()
-            .progress_chars("#|-"),
+            .progress_chars("=>-"),
     );
 
-    if let Some(len) = length {
-        bar.set_length(len);
-    }
+    bar.set_length(length);
 
     let mut f = File::create(file_path)?;
     match r.header("Content-Type") {
         Some(ct) if ct.starts_with("text/") => {
             let text = r.into_string()?;
             f.write_all(text.as_bytes())?;
+            bar.finish_with_message("[Text] Download complete");
+            bar.finish_using_style();
         }
         _ => {
-            io::copy(&mut bar.wrap_read(r.into_reader()), &mut f).map(|_| ())?;
+            let mut reader = r.into_reader();
+            let mut buffer = [0; 8192]; 
+            let mut downloaded = 0;
+
+            loop {
+                let bytes_read = reader.read(&mut buffer)?;
+                if bytes_read == 0 { break }
+
+                f.write_all(&buffer[..bytes_read])?;
+                downloaded += bytes_read as u64;
+
+                bar.set_position(downloaded);
+                // dbg!(&downloaded);
+
+                if length < downloaded {
+                    bar.set_length(downloaded);
+                }
+            }
+
+            bar.set_position(length);
+
+            bar.finish_with_message("[Binary] Download complete");
+            // bar.finish_using_style();
         }
     }
-    bar.finish_with_message("Download complete");
     Ok(bar)
 }
 
@@ -79,7 +97,7 @@ pub fn download(p: Package, force: bool) {
 
         if !file_path.exists() || force {
             vpr!("Downloading '{}' from '{}'...", file_name, url);
-            let r = get(&url).call().expect("Failed to get url");
+            let r = get(&url).set("Accept-Encoding", "none").call().expect("Failed to get url");
 
             if let Err(e) = dl_bar(r, file_name, file_path) {
                 die!("Failed to download url '{}': {}", url, e)
@@ -89,7 +107,7 @@ pub fn download(p: Package, force: bool) {
 
     if !tarball_link.is_empty() && (!tarball_path.exists() || force) {
         vpr!("Downloading '{}' from '{}'...", tarball, tarball_link);
-        let r = get(tarball_link).call().expect("Failed to get tarball");
+        let r = get(tarball_link).set("Accept-Encoding", "none").call().expect("Failed to get tarball");
 
         if let Err(e) = dl_bar(r, &tarball, tarball_path) {
             die!("Failed to download url '{}': {}", tarball_link, e)
@@ -150,7 +168,7 @@ fn is_removable(entry: &DirEntry, p: &Package) -> bool {
         && file_name_str != kept
 }
 
-fn remove_file(entry: &fs::DirEntry) -> Result<(), std::io::Error> {
+fn remove_file(entry: &fs::DirEntry) -> Result<(), io::Error> {
     let file_name = entry.file_name();
     if let Err(e) = fs::remove_file(entry.path()) {
         erm!("Failed to remove file '{:?}': {}", file_name, e);
