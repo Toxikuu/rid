@@ -2,12 +2,15 @@
 
 TODO
 
+    Pruning tarballs is horribly inefficient because of duplicate entries
+        Maybe fix
+
 WIP
+
+DONEISH
 
     Test rid on a fresh install
         Then, release 1.0.0
-
-DONEISH
 
     Imply forced update for packages with version 9999
 
