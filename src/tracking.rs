@@ -78,10 +78,8 @@ pub fn cache_changes(forcibly:bool, pkglist: &mut Vec<Package>, mut cache_list: 
         .map(|&s| s.to_string())
         .collect();
 
-    if cache_list.is_empty() {
-        form_cache_list(forcibly, &META.join(&*REPO), json_mod_time, &mut cache_list, &ignored)?;
-    }
-    if cache_list.is_empty() { die!("Package list is still empty and shouldn't be when caching chahnges") }
+    if cache_list.is_empty() { form_cache_list(forcibly, &META.join(&*REPO), json_mod_time, &mut cache_list, &ignored)? }
+    if cache_list.is_empty() { vpr!("Empty cache list"); return Ok(0) }
 
     let length = cache_list.len() as u64;
     let bar = ProgressBar::new(length);
