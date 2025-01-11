@@ -460,7 +460,7 @@ dependencies = [
 
 [[package]]
 name = "rid"
-version = "0.24.9"
+version = "1.0.0"
 dependencies = [
  "clap",
  "indicatif",
