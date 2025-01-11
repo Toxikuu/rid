@@ -10,9 +10,9 @@ cargo build --release
 # upx --best --lzma target/size/rid
 
 # package
-pushd target/release
+pushd target/release > /dev/null
 XZ_OPT=-9e tar cJvf rid.tar.xz rid
-popd
+popd > /dev/null
 
 # don't bother packaging the size binary, since doing so saves only about 40 bytes
 # pushd target/size
