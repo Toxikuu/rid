@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "0.24.8" # minor refactoring, adjusted progress characters to use ligatures
+version = "0.24.9" # cache list bugfix
 description = "My source-based package manager for LFS"
 license = "GPL"
 repository = "https://github.com/Toxikuu/rid"
