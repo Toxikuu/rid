@@ -92,7 +92,7 @@ pub fn download(p: Package, force: bool) {
     let extra_links = p.downloads;
 
     for url in extra_links {
-        let file_name = url.split('/').last().expect("Invalid url");
+        let file_name = url.split('/').next_back().expect("Invalid url");
         let file_path = &SOURCES.join(file_name);
 
         if !file_path.exists() || force {
