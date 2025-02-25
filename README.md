@@ -1,5 +1,9 @@
 # rid
 
+## WARNING
+This isn't actively maintained. I'm currently working on
+[2](https://github.com/Toxikuu/2).
+
 ## Information
 Rid is a source-based package manager for LFS systems written in rust. The
 binary 'rid' handles dependency resolution, package tracking, and executing
