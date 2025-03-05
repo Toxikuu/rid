@@ -139,10 +139,7 @@ fn latest(pkg: &Package) -> Result<String, Box<dyn Error>> {
 pub fn check_upstream(pkglist: &Vec<Package>) {
     // checks upstream versions (with aggressive parallelization)
 
-    let mut num_threads: usize = CONFIG.upstream.thread_count;
-    if pkglist.len() < num_threads {
-        num_threads = pkglist.len();
-    }
+    let num_threads: usize = CONFIG.upstream.thread_count.min(pkglist.len());
     vpr!("Determined number of threads for check_upstream(): {}", num_threads);
 
     let pool = ThreadPoolBuilder::new()
