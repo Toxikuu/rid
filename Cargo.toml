@@ -1,6 +1,6 @@
 [package]
 name = "rid"
-version = "1.0.2" # updated dependencies, minor perf tweak, updated readme
+version = "1.0.3" # updated dependencies, minor refactor
 description = "My source-based package manager for LFS"
 license = "GPL"
 repository = "https://github.com/Toxikuu/rid"
